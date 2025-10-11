@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 py-12 px-4">
+  <div class="h-screen overflow-y-auto flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 py-12 px-4">
     <section class="w-full max-w-4xl flex flex-wrap items-center justify-between gap-3">
       <div class="space-y-2">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Receipt Designer</h1>

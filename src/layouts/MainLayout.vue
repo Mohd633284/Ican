@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <header class="bg-blue-600 text-white p-4">
+    <header class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4">
      
       <nav>
         <router-link to="/" class="mr-4">Home</router-link>

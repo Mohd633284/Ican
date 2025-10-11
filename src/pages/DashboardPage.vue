@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 py-12 px-4">
+  <div class="h-screen overflow-y-auto flex items-center justify-center bg-slate-50 dark:bg-slate-900 py-12 px-4">
     <div class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700 p-10 space-y-6">
       <header class="space-y-2 text-center">
         <p class="text-sm uppercase tracking-wider text-emerald-500 font-semibold">

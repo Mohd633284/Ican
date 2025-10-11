@@ -8,6 +8,8 @@ import {
   getCounters,
   listBranches,
   verifyBranchCredentials,
+  createUser,
+  authenticateUser,
   initDatabase,
 } from './database.js';
 import { addBranch } from './database.js';
@@ -58,6 +60,62 @@ app.post('/auth/branch', (req, res) => {
     res.json({ data: { branch } });
   } catch (error) {
     console.error('Branch authentication failed', error);
+    res.status(500).json({ error: 'Authentication error' });
+  }
+});
+
+app.post('/auth/signup', (req, res) => {
+  const { name, email, phone, membershipNumber, password, branch } = req.body || {};
+
+  if (!name || !email || !phone || !password || !branch) {
+    return res.status(400).json({ error: 'Name, email, phone, password, and branch are required' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+  }
+
+  try {
+    const user = createUser({ name, email, phone, membershipNumber, password, branch });
+    res.status(201).json({
+      message: 'User created successfully',
+      user: { id: user.id, name: user.name, email: user.email, branch: user.branch }
+    });
+  } catch (error) {
+    console.error('User signup failed', error);
+    res.status(400).json({ error: error.message || 'Failed to create user' });
+  }
+});
+
+app.post('/auth/user', (req, res) => {
+  const { email, password, branch } = req.body || {};
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  try {
+    const user = authenticateUser(email, password);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Optional: Verify branch if provided
+    if (branch && user.branch !== branch) {
+      return res.status(403).json({ 
+        error: `This account is registered to ${user.branch} branch, not ${branch}` 
+      });
+    }
+
+    res.json({
+      message: 'Login successful',
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      branch: user.branch
+    });
+  } catch (error) {
+    console.error('User authentication failed', error);
     res.status(500).json({ error: 'Authentication error' });
   }
 });

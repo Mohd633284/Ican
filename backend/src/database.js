@@ -39,6 +39,7 @@ export async function initDatabase() {
     db.run('CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT UNIQUE NOT NULL, date TEXT NOT NULL, total REAL NOT NULL, payload TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
     db.run('CREATE TABLE IF NOT EXISTS receipts (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT UNIQUE NOT NULL, date TEXT NOT NULL, amount REAL NOT NULL, payload TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
     db.run('CREATE TABLE IF NOT EXISTS branches (name TEXT PRIMARY KEY, password_hash TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+    db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, phone TEXT NOT NULL, membership_number TEXT, password_hash TEXT NOT NULL, branch TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (branch) REFERENCES branches(name))');
     
     const branches = ['Minna', 'Kaduna', 'Oyo', 'Kano', 'Sokoto'];
     const defaultPassword = 'ican2024';
@@ -218,4 +219,59 @@ export function verifyBranchCredentials(branchName, password) {
   
   const hash = result[0].values[0][0];
   return bcrypt.compareSync(password, hash);
+}
+
+export function createUser(userData) {
+  const { name, email, phone, membershipNumber, password, branch } = userData;
+  
+  // Check if email already exists
+  const existingUser = db.exec('SELECT id FROM users WHERE email = ?', [email]);
+  if (existingUser && existingUser.length > 0 && existingUser[0].values.length > 0) {
+    throw new Error('Email already registered');
+  }
+  
+  // Check if branch exists
+  const existingBranch = db.exec('SELECT name FROM branches WHERE name = ?', [branch]);
+  if (!existingBranch || existingBranch.length === 0 || existingBranch[0].values.length === 0) {
+    throw new Error('Invalid branch');
+  }
+  
+  const salt = bcrypt.genSaltSync(10);
+  const hash = bcrypt.hashSync(password, salt);
+  
+  const result = db.run(
+    'INSERT INTO users (name, email, phone, membership_number, password_hash, branch) VALUES (?, ?, ?, ?, ?, ?)',
+    [name, email, phone, membershipNumber || null, hash, branch]
+  );
+  
+  saveDb();
+  return { id: result.insertId, name, email, branch };
+}
+
+export function authenticateUser(email, password) {
+  // Find user by email
+  const result = db.exec(
+    'SELECT id, name, email, phone, membership_number, password_hash, branch FROM users WHERE email = ?',
+    [email]
+  );
+  
+  if (!result || result.length === 0 || result[0].values.length === 0) {
+    return null;
+  }
+  
+  const user = result[0].values[0];
+  const hash = user[5]; // password_hash
+  
+  if (!bcrypt.compareSync(password, hash)) {
+    return null;
+  }
+  
+  return {
+    id: user[0],
+    name: user[1],
+    email: user[2],
+    phone: user[3],
+    membershipNumber: user[4],
+    branch: user[6]
+  };
 }

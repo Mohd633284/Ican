@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-md mx-auto">
+  <div class="h-screen overflow-y-auto p-6 max-w-md mx-auto">
     <h1 class="text-2xl font-bold mb-4">Create Branch Account</h1>
     <p class="text-sm text-slate-600 mb-6">Create a new branch account by providing branch name and password.</p>
 

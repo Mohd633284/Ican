@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4">
+  <div class="h-screen overflow-y-auto bg-slate-50 dark:bg-slate-900 py-12 px-4">
     <div class="mx-auto flex w-full max-w-5xl flex-col gap-8">
       <header class="flex flex-col gap-2">
         <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Branch Analytics</p>
