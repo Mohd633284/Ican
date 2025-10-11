@@ -32,13 +32,23 @@ export async function initDatabase() {
   if (fs.existsSync(DB_PATH)) {
     buffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(buffer);
+    
+    // Migration: Add new columns to branches table if they don't exist
+    try {
+      db.exec('ALTER TABLE branches ADD COLUMN max_users INTEGER DEFAULT 1');
+      db.exec('ALTER TABLE branches ADD COLUMN registration_enabled INTEGER DEFAULT 1');
+      saveDb();
+      console.log('Database schema updated with new columns');
+    } catch (error) {
+      // Columns probably already exist, ignore error
+    }
   } else {
     db = new SQL.Database();
     
     db.run('CREATE TABLE IF NOT EXISTS counters (key TEXT PRIMARY KEY, value INTEGER NOT NULL)');
     db.run('CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT UNIQUE NOT NULL, date TEXT NOT NULL, total REAL NOT NULL, payload TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
     db.run('CREATE TABLE IF NOT EXISTS receipts (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT UNIQUE NOT NULL, date TEXT NOT NULL, amount REAL NOT NULL, payload TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
-    db.run('CREATE TABLE IF NOT EXISTS branches (name TEXT PRIMARY KEY, password_hash TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+    db.run('CREATE TABLE IF NOT EXISTS branches (name TEXT PRIMARY KEY, password_hash TEXT NOT NULL, max_users INTEGER DEFAULT 1, registration_enabled INTEGER DEFAULT 1, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
     db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, phone TEXT NOT NULL, membership_number TEXT, password_hash TEXT NOT NULL, branch TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (branch) REFERENCES branches(name))');
     
     const branches = ['Minna', 'Kaduna', 'Oyo', 'Kano', 'Sokoto'];
@@ -47,7 +57,7 @@ export async function initDatabase() {
     const hash = bcrypt.hashSync(defaultPassword, salt);
     
     for (const branch of branches) {
-      db.run('INSERT INTO branches (name, password_hash) VALUES (?, ?)', [branch, hash]);
+      db.run('INSERT INTO branches (name, password_hash, max_users, registration_enabled) VALUES (?, ?, ?, ?)', [branch, hash, 1, 1]);
     }
     
     db.run('INSERT INTO counters (key, value) VALUES (?, ?)', ['invoice', 0]);
@@ -230,10 +240,28 @@ export function createUser(userData) {
     throw new Error('Email already registered');
   }
   
-  // Check if branch exists
-  const existingBranch = db.exec('SELECT name FROM branches WHERE name = ?', [branch]);
-  if (!existingBranch || existingBranch.length === 0 || existingBranch[0].values.length === 0) {
+  // Check if branch exists and get registration settings
+  const branchResult = db.exec('SELECT name, max_users, registration_enabled FROM branches WHERE name = ?', [branch]);
+  if (!branchResult || branchResult.length === 0 || branchResult[0].values.length === 0) {
     throw new Error('Invalid branch');
+  }
+  
+  const branchData = branchResult[0].values[0];
+  const maxUsers = branchData[1];
+  const registrationEnabled = branchData[2];
+  
+  // Check if registration is enabled for this branch
+  if (registrationEnabled === 0) {
+    throw new Error('Registration is currently disabled for this branch. Please contact the developer.');
+  }
+  
+  // Check current user count for this branch
+  const userCountResult = db.exec('SELECT COUNT(*) as count FROM users WHERE branch = ?', [branch]);
+  const currentUserCount = userCountResult[0].values[0][0];
+  
+  // Check if branch has reached max users limit
+  if (currentUserCount >= maxUsers) {
+    throw new Error(`Registration limit reached for ${branch} branch. Maximum ${maxUsers} user(s) allowed. Contact developer for assistance.`);
   }
   
   const salt = bcrypt.genSaltSync(10);
@@ -275,3 +303,193 @@ export function authenticateUser(email, password) {
     branch: user[6]
   };
 }
+
+// ============================================
+// DEVELOPER CONTROL FUNCTIONS
+// ============================================
+
+/**
+ * List all users in the system
+ * @returns {Array} Array of all users with their details
+ */
+export function listAllUsers() {
+  const result = db.exec('SELECT id, name, email, phone, membership_number, branch, created_at FROM users ORDER BY branch, created_at DESC');
+  
+  if (!result || result.length === 0 || result[0].values.length === 0) {
+    return [];
+  }
+  
+  return result[0].values.map(row => ({
+    id: row[0],
+    name: row[1],
+    email: row[2],
+    phone: row[3],
+    membershipNumber: row[4],
+    branch: row[5],
+    createdAt: row[6]
+  }));
+}
+
+/**
+ * List users for a specific branch
+ * @param {string} branch - Branch name
+ * @returns {Array} Array of users in that branch
+ */
+export function listUsersByBranch(branch) {
+  const result = db.exec('SELECT id, name, email, phone, membership_number, branch, created_at FROM users WHERE branch = ? ORDER BY created_at DESC', [branch]);
+  
+  if (!result || result.length === 0 || result[0].values.length === 0) {
+    return [];
+  }
+  
+  return result[0].values.map(row => ({
+    id: row[0],
+    name: row[1],
+    email: row[2],
+    phone: row[3],
+    membershipNumber: row[4],
+    branch: row[5],
+    createdAt: row[6]
+  }));
+}
+
+/**
+ * Get user count for each branch
+ * @returns {Object} Object with branch names as keys and user counts as values
+ */
+export function getBranchUserCounts() {
+  const result = db.exec('SELECT branch, COUNT(*) as count FROM users GROUP BY branch');
+  
+  if (!result || result.length === 0 || result[0].values.length === 0) {
+    return {};
+  }
+  
+  const counts = {};
+  result[0].values.forEach(row => {
+    counts[row[0]] = row[1];
+  });
+  
+  return counts;
+}
+
+/**
+ * Delete a user account (DEVELOPER ONLY)
+ * @param {string} email - User's email address
+ * @returns {Object} Deleted user info
+ */
+export function deleteUserByEmail(email) {
+  // First get user info before deleting
+  const userResult = db.exec('SELECT id, name, email, branch FROM users WHERE email = ?', [email]);
+  
+  if (!userResult || userResult.length === 0 || userResult[0].values.length === 0) {
+    throw new Error('User not found');
+  }
+  
+  const user = userResult[0].values[0];
+  const deletedUser = {
+    id: user[0],
+    name: user[1],
+    email: user[2],
+    branch: user[3]
+  };
+  
+  // Delete the user
+  db.run('DELETE FROM users WHERE email = ?', [email]);
+  saveDb();
+  
+  return deletedUser;
+}
+
+/**
+ * Delete a user account by ID (DEVELOPER ONLY)
+ * @param {number} userId - User's ID
+ * @returns {Object} Deleted user info
+ */
+export function deleteUserById(userId) {
+  // First get user info before deleting
+  const userResult = db.exec('SELECT id, name, email, branch FROM users WHERE id = ?', [userId]);
+  
+  if (!userResult || userResult.length === 0 || userResult[0].values.length === 0) {
+    throw new Error('User not found');
+  }
+  
+  const user = userResult[0].values[0];
+  const deletedUser = {
+    id: user[0],
+    name: user[1],
+    email: user[2],
+    branch: user[3]
+  };
+  
+  // Delete the user
+  db.run('DELETE FROM users WHERE id = ?', [userId]);
+  saveDb();
+  
+  return deletedUser;
+}
+
+/**
+ * Enable or disable registration for a specific branch (DEVELOPER ONLY)
+ * @param {string} branch - Branch name
+ * @param {boolean} enabled - true to enable, false to disable
+ */
+export function setRegistrationStatus(branch, enabled) {
+  const enabledValue = enabled ? 1 : 0;
+  db.run('UPDATE branches SET registration_enabled = ? WHERE name = ?', [enabledValue, branch]);
+  saveDb();
+  
+  return { branch, registrationEnabled: enabled };
+}
+
+/**
+ * Set maximum users allowed for a branch (DEVELOPER ONLY)
+ * @param {string} branch - Branch name
+ * @param {number} maxUsers - Maximum number of users (default: 1)
+ */
+export function setMaxUsers(branch, maxUsers) {
+  if (maxUsers < 1) {
+    throw new Error('Max users must be at least 1');
+  }
+  
+  db.run('UPDATE branches SET max_users = ? WHERE name = ?', [maxUsers, branch]);
+  saveDb();
+  
+  return { branch, maxUsers };
+}
+
+/**
+ * Get branch settings including registration status and user limits
+ * @param {string} branch - Branch name
+ * @returns {Object} Branch settings
+ */
+export function getBranchSettings(branch) {
+  const result = db.exec('SELECT name, max_users, registration_enabled FROM branches WHERE name = ?', [branch]);
+  
+  if (!result || result.length === 0 || result[0].values.length === 0) {
+    throw new Error('Branch not found');
+  }
+  
+  const branchData = result[0].values[0];
+  
+  // Get current user count
+  const userCountResult = db.exec('SELECT COUNT(*) as count FROM users WHERE branch = ?', [branch]);
+  const currentUserCount = userCountResult[0].values[0][0];
+  
+  return {
+    branch: branchData[0],
+    maxUsers: branchData[1],
+    registrationEnabled: branchData[2] === 1,
+    currentUserCount: currentUserCount,
+    spotsAvailable: branchData[1] - currentUserCount
+  };
+}
+
+/**
+ * Get all branch settings with user counts
+ * @returns {Array} Array of all branch settings
+ */
+export function getAllBranchSettings() {
+  const branches = listBranches();
+  return branches.map(branch => getBranchSettings(branch));
+}
+

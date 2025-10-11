@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen">
+  <div class="flex flex-col min-h-screen ">
     <header class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4">
      
       <nav>
@@ -8,7 +8,7 @@
       </nav>
     </header>
     
-    <main class="flex-grow p-4">
+    <main class="flex-grow p-4 pb-11">
       <slot />
     </main>
     

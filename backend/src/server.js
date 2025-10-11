@@ -13,6 +13,7 @@ import {
   initDatabase,
 } from './database.js';
 import { addBranch } from './database.js';
+import adminRoutes from './adminRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -20,6 +21,9 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(morgan('dev'));
+
+// Mount admin routes
+app.use('/admin', adminRoutes);
 
 function validatePayload(body, requiredFields = []) {
   if (!body || typeof body !== 'object') {
