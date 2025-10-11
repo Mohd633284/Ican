@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.ionicvuetailwindapp",
+  "appName": "ionic-vue-tailwind-app",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

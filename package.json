@@ -1,0 +1,30 @@
+{
+  "name": "ionic-vue-tailwind-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "serve": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext .js,.vue",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "vue": "^3.2.0",
+    "vue-router": "^4.0.0",
+    "pinia": "^2.1.7",
+    "@ionic/vue": "^6.0.0",
+    "@ionic/vue-router": "^6.0.0",
+  "tailwindcss": "^3.0.0",
+  "postcss": "^8.0.0",
+  "autoprefixer": "^10.0.0",
+  "html-to-image": "^1.11.11",
+  "html2pdf.js": "^0.10.1"
+  },
+  "devDependencies": {
+    "vite": "^2.0.0",
+    "@vitejs/plugin-vue": "^2.0.0",
+    "eslint": "^7.0.0",
+    "vitest": "^0.0.0"
+  }
+}
