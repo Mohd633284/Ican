@@ -170,6 +170,7 @@ import { useFinanceStore } from '@/stores/finance';
 import BaseButton from '@/components/BaseButton.vue';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
+import { API_BASE } from '../api.js';
 
 export default defineComponent({
   name: 'InvoicePage',
@@ -263,15 +264,15 @@ export default defineComponent({
         branch: branch, // Include branch info
       };
 
-      try {
-        await fetch('http://localhost:4000/invoice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(invoiceData),
-        });
-      } catch (error) {
-        console.error('Failed to save invoice:', error);
-      }
+        try {
+          await fetch(`${API_BASE}/invoice`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(invoiceData),
+          });
+        } catch (error) {
+          console.error('Failed to save invoice:', error);
+        }
 
       const filename = `invoice-${invoiceNumber.value}.pdf`;
       const options = {
@@ -301,15 +302,15 @@ export default defineComponent({
         branch: branch, // Include branch info
       };
 
-      try {
-        await fetch('http://localhost:4000/invoice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(invoiceData),
-        });
-      } catch (error) {
-        console.error('Failed to save invoice:', error);
-      }
+        try {
+          await fetch(`${API_BASE}/invoice`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(invoiceData),
+          });
+        } catch (error) {
+          console.error('Failed to save invoice:', error);
+        }
 
       const dataUrl = await htmlToImage.toJpeg(invoiceRef.value, {
         quality: 0.95,

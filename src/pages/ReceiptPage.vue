@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen overflow-y-auto flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 py-12 px-4">
+  <div class="h-screen overflow-y-auto flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 pt-[80px] pb-[150px] px-4">
     <section class="w-full max-w-4xl flex flex-wrap items-center justify-between gap-3">
       <div class="space-y-2">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Receipt Designer</h1>
@@ -8,6 +8,15 @@
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
+        <!-- Auto Receipt Number Toggle -->
+        <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600">
+          <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300" />
+          <span>Auto Receipt #</span>
+        </label>
+
+        <!-- Separator -->
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+
         <!-- Primary Actions -->
         <div class="flex items-center gap-2">
           <BaseButton variant="primary" @click="handleExportPDF">
@@ -19,7 +28,7 @@
         </div>
 
         <!-- Separator -->
-        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
 
         <!-- Navigation -->
         <BaseButton variant="ghost" @click="handleBack">
@@ -31,7 +40,7 @@
     <!-- Quick Fill Form Section -->
     <section class="w-full max-w-4xl">
       <div 
-      style="width: 8.268in; height: 5.824in; "
+      style="width: 7.268in; height: 5.324in "
       class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
           📝 Quick Fill Form
@@ -112,13 +121,14 @@
 
     <section class="w-full max-w-4xl">
       <div
+      ref="receiptOuterRef"
       class="bg-white shadow-lg border border-gray-300 p-5 flex justify-center items-center"
-      style="width: 8.268in; height: 5.824in"
+      style="width: 7.268in; height: 5.324in; background-color: white;"
       >
         <div
         id="receipt-canvas"
         ref="receiptRef"
-        style="width: 6in; height: 4.5in; overflow: hidden"
+        style="width: 6in; height: 4.5in; overflow: hidden; background-color: white;"
       >
         <!-- Header -->
         <div class="text-center border-b pb-2 mb-2">
@@ -168,21 +178,15 @@
                 class="bg-transparent border-none focus:outline-none text-sm"
               />
             </div>
-            <div class="flex items-center gap-2">
-              <label class="flex items-center gap-1 text-xs">
-                <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300" />
-                Auto
-              </label>
-              <div class="flex items-center gap-1">
-                <span>No.:</span>
-                <input
-                  v-model.number="receiptNumber"
-                  :disabled="autoReceiptNumber"
-                  type="number"
-                  min="1"
-                  class="w-16 bg-transparent border-none focus:outline-none text-right"
-                />
-              </div>
+            <div class="flex items-center gap-1">
+              <span>No.:</span>
+              <input
+                v-model.number="receiptNumber"
+                :disabled="autoReceiptNumber"
+                type="number"
+                min="1"
+                class="w-16 bg-transparent border-none focus:outline-none text-right"
+              />
             </div>
           </div>
 
@@ -214,13 +218,9 @@
               class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
             <span>Naira</span>
-            <input
-              v-model.number="kobo"
-              type="number"
-              min="0"
-              max="99"
-              class="w-16 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-right"
-            />
+            <div class="w-16 bg-transparent border-b border-dotted border-gray-400 flex items-center justify-center text-center">
+              <span>Only</span>
+            </div>
             <span>Kobo</span>
           </div>
 
@@ -309,6 +309,7 @@ import * as htmlToImage from 'html-to-image';
 import BaseButton from '@/components/BaseButton.vue';
 import { useReceiptStore } from '@/stores/receiptStore';
 import { useFinanceStore } from '@/stores/finance';
+import { API_BASE } from '../api.js';
 
 export default defineComponent({
   name: 'ReceiptPage',
@@ -356,6 +357,7 @@ export default defineComponent({
     const { incrementReceiptNumber, ensureRanges } = receiptStore;
 
     const receiptRef = ref(null);
+    const receiptOuterRef = ref(null);
     const sumOfInput1 = ref(null);
     const sumOfInput2 = ref(null);
     const paymentForInput1 = ref(null);
@@ -459,7 +461,7 @@ export default defineComponent({
     };
 
     const handleExportPDF = async () => {
-      if (!receiptRef.value) return;
+      if (!receiptOuterRef.value) return;
       ensureRanges();
       
       // Save receipt to backend with branch information
@@ -484,15 +486,15 @@ export default defineComponent({
         branch: branch, // Include branch info
       };
 
-      try {
-        await fetch('http://localhost:4000/receipt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(receiptData),
-        });
-      } catch (error) {
-        console.error('Failed to save receipt:', error);
-      }
+        try {
+          await fetch(`${API_BASE}/receipt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(receiptData),
+          });
+        } catch (error) {
+          console.error('Failed to save receipt:', error);
+        }
 
       const filename = `receipt-${receiptNumber.value}.pdf`;
       const options = {
@@ -500,14 +502,14 @@ export default defineComponent({
         filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: 'in', format: [6, 4], orientation: 'landscape' },
+        jsPDF: { unit: 'in', format: [8.268, 5.824], orientation: 'landscape' },
       };
-      await html2pdf().set(options).from(receiptRef.value).save();
+      await html2pdf().set(options).from(receiptOuterRef.value).save();
       incrementReceiptNumber();
     };
 
     const handleExportJPEG = async () => {
-      if (!receiptRef.value) return;
+      if (!receiptOuterRef.value) return;
       ensureRanges();
       
       // Save receipt to backend with branch information
@@ -532,17 +534,17 @@ export default defineComponent({
         branch: branch, // Include branch info
       };
 
-      try {
-        await fetch('http://localhost:4000/receipt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(receiptData),
-        });
-      } catch (error) {
-        console.error('Failed to save receipt:', error);
-      }
+        try {
+          await fetch(`${API_BASE}/receipt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(receiptData),
+          });
+        } catch (error) {
+          console.error('Failed to save receipt:', error);
+        }
 
-      const dataUrl = await htmlToImage.toJpeg(receiptRef.value, {
+      const dataUrl = await htmlToImage.toJpeg(receiptOuterRef.value, {
         quality: 0.95,
         pixelRatio: 3,
       });
@@ -555,6 +557,7 @@ export default defineComponent({
 
     return {
       receiptRef,
+      receiptOuterRef,
       sumOfInput1,
       sumOfInput2,
       paymentForInput1,
@@ -592,3 +595,48 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+/* Mobile responsive scaling */
+@media (max-width: 768px) {
+  /* Make the main container scale down on mobile */
+  section:has(#receipt-canvas) {
+    overflow-x: auto;
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  /* Scale down the receipt to fit mobile screens */
+  section:has(#receipt-canvas) > div {
+    transform: scale(0.35);
+    transform-origin: top left;
+    margin-bottom: -400px; /* Adjust negative margin to compensate for scaled height */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further scale down for very small screens */
+  section:has(#receipt-canvas) > div {
+    transform: scale(0.28);
+    transform-origin: top left;
+    margin-bottom: -450px;
+  }
+}
+
+@media (max-width: 390px) {
+  /* iPhone and small Android phones */
+  section:has(#receipt-canvas) > div {
+    transform: scale(0.24);
+    transform-origin: top left;
+    margin-bottom: -470px;
+  }
+}
+
+/* Also scale the form section on mobile */
+@media (max-width: 768px) {
+  section:nth-of-type(2) > div {
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+}
+</style>

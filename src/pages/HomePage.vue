@@ -117,7 +117,14 @@
                     :disabled="isLoadingBranches || branches.length === 0"
                   >
                     <option value="" disabled>Select your branch</option>
-                    <option v-for="branch in branches" :key="branch" :value="branch">{{ branch }}</option>
+                    <option 
+                      v-for="branch in branches" 
+                      :key="branch" 
+                      :value="branch"
+                      :class="{ 'text-slate-400': !isBranchAccessible(branch) }"
+                    >
+                      {{ branch }} {{ !isBranchAccessible(branch) ? '' : '' }}
+                    </option>
                   </select>
                   <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
                     <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
@@ -125,6 +132,12 @@
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Loading branches...
+                  </p>
+                  <p v-if="selectedBranch && !isBranchAccessible(selectedBranch)" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 border border-amber-200 dark:border-amber-800">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    Branch locked - Contact administrator for access
                   </p>
                 </div>
 
@@ -239,19 +252,51 @@ export default defineComponent({
     const isSubmitting = ref(false);
     const isLoadingBranches = ref(false);
 
-    watch(selectedBranch, () => {
+    // ====== DEVELOPER CONFIGURATION ======
+    // Configure which branches are accessible here
+    // Set to true to enable a branch, false to disable
+    const branchAccessConfig = {
+      'Minna': true,           // Always accessible
+      'Abuja': false,          // Disabled - shows popup
+      'Lagos': false,          // Disabled - shows popup
+      'Kano': false,           // Disabled - shows popup
+      'Port Harcourt': false,  // Disabled - shows popup
+      'Ibadan': false,         // Disabled - shows popup
+      'Enugu': false,          // Disabled - shows popup
+      'Kaduna': false,         // Disabled - shows popup
+      // Add more branches here as needed
+    };
+    // ====================================
+
+    const isBranchAccessible = (branchName) => {
+      // If branch is not in config, default to disabled
+      return branchAccessConfig[branchName] === true;
+    };
+
+    watch(selectedBranch, (newBranch) => {
       email.value = '';
       password.value = '';
       errorMessage.value = '';
       statusMessage.value = '';
+
+      // Check if branch is accessible
+      if (newBranch && !isBranchAccessible(newBranch)) {
+        errorMessage.value = `${newBranch} branch is temporarily unavailable. Please contact your administrator for access.`;
+        statusMessage.value = '';
+      }
     });
 
-    const isPasswordStepVisible = computed(() => selectedBranch.value !== '');
+    const isPasswordStepVisible = computed(() => {
+      // Only show password step if branch is selected AND accessible
+      return selectedBranch.value !== '' && isBranchAccessible(selectedBranch.value);
+    });
+    
     const isSubmitDisabled = computed(
       () =>
         isSubmitting.value ||
         isLoadingBranches.value ||
         !selectedBranch.value ||
+        !isBranchAccessible(selectedBranch.value) ||
         !email.value ||
         !password.value
     );
@@ -287,6 +332,12 @@ export default defineComponent({
     const handleSubmit = async () => {
       if (!selectedBranch.value) {
         errorMessage.value = 'Please select a branch to continue.';
+        return;
+      }
+
+      // Check if branch is accessible
+      if (!isBranchAccessible(selectedBranch.value)) {
+        errorMessage.value = `${selectedBranch.value} branch is currently unavailable. Please contact your administrator.`;
         return;
       }
 
@@ -372,6 +423,7 @@ export default defineComponent({
       isSubmitDisabled,
       isSubmitting,
       isLoadingBranches,
+      isBranchAccessible,
       handleSubmit,
       handleSignUp,
     };

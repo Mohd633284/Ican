@@ -264,6 +264,7 @@
 import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
+import { API_BASE } from '../api.js';
 
 export default defineComponent({
   name: 'DashboardPage',
@@ -301,7 +302,7 @@ export default defineComponent({
         loading.value = true;
         error.value = null;
 
-        const response = await fetch(`http://localhost:4000/dashboard/${branchName.value}`);
+    const response = await fetch(`${API_BASE}/dashboard/${branchName.value}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch branch statistics');

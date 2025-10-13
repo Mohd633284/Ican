@@ -120,9 +120,9 @@ export const useReceiptStore = defineStore('receipt', {
       const naira = Math.floor(this.amountValue);
       const kobo = Math.round((this.amountValue - naira) * 100);
 
-      let words = `${numberToWords(naira)} naira`;
+      let words = `${numberToWords(naira)}`;
       if (kobo > 0) {
-        words += ` and ${numberToWords(kobo)} kobo`;
+        words += ` and ${numberToWords(kobo)}`;
       }
 
       const formattedWords = words

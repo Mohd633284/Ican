@@ -51,4 +51,19 @@ const router = createRouter({
   routes,
 });
 
+const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Settings', 'Stats'];
+
+router.beforeEach((to, from, next) => {
+  if (protectedRoutes.includes(to.name)) {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      next({ name: 'Home' });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
 export default router;
