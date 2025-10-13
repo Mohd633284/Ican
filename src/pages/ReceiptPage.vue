@@ -30,7 +30,9 @@
 
     <!-- Quick Fill Form Section -->
     <section class="w-full max-w-4xl">
-      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <div 
+      style="width: 8.268in; height: 5.824in; "
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
           📝 Quick Fill Form
         </h2>
@@ -66,23 +68,8 @@
             />
           </div>
 
-          <!-- Amount (Kobo) -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Amount (Kobo)
-            </label>
-            <input
-              v-model.number="kobo"
-              type="number"
-              min="0"
-              max="99"
-              placeholder="00"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-            />
-          </div>
-
           <!-- The Sum of (Amount in Words) -->
-          <div>
+          <div class="md:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Amount in Words
             </label>
@@ -94,10 +81,10 @@
             />
           </div>
 
-          <!-- Being Payment For (Line 1) -->
+          <!-- Being Payment For -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Payment Description (Line 1)
+              Payment Description 
             </label>
             <input
               v-model="paymentFor"
@@ -106,22 +93,7 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
             />
           </div>
-
-          <!-- Being Payment For (Line 2) -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Payment Description (Line 2) - Optional
-            </label>
-            <input
-              v-model="paymentFor2"
-              type="text"
-              placeholder="Additional description (optional)"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-            />
-          </div>
         </div>
-
-        <!-- Amount Display -->
         <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-blue-900 dark:text-blue-300">
@@ -140,9 +112,12 @@
 
     <section class="w-full max-w-4xl">
       <div
+      class="bg-white shadow-lg border border-gray-300 p-5 flex justify-center items-center"
+      style="width: 8.268in; height: 5.824in"
+      >
+        <div
         id="receipt-canvas"
         ref="receiptRef"
-        class="bg-white shadow-lg border border-gray-300 p-5 pb-[50px]"
         style="width: 6in; height: 4.5in; overflow: hidden"
       >
         <!-- Header -->
@@ -154,13 +129,19 @@
             </div>
             
             <!-- Organization Name (Fixed - Developer Only) -->
-            <h2 class="ml-4 text-xl font-bold uppercase text-left">
-              Institute of Chartered Accountants <br> of Nigeria (ICAN)
+            <div class="text-blue-800">
+              <h2 class="ml-4 text-xl font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+              Institute of Chartered Accountants 
+              
             </h2>
+            <h2 class="ml-4 mt-[-5px] text-xl font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+              of Nigeria (ICAN)
+            </h2>
+            </div>
           </div>
 
           <!-- Address (Fixed - Developer Only) -->
-          <p class="text-xs text-left mt-[-25px] ml-[98px]">
+          <p class="text-xs text-left mt-[-35px] ml-[98px]">
             {{ organizationAddress }}
           </p>
           
@@ -217,19 +198,20 @@
           <div class="flex items-center gap-1">
             <span>The Sum of:</span>
             <input
+              ref="sumOfInput1"
               v-model="sumOf"
-              :placeholder="amountInWords.words || ''"
+              @input="handleSumOfOverflow"
               class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
           </div>
 
           <div class="flex items-center gap-2">
             <input
-              v-model.number="naira"
-              type="number"
-              min="0"
-              placeholder=""
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-right"
+              ref="sumOfInput2"
+              v-model="sumOf2"
+              type="text"
+              @input="handleSumOf2Input"
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
             <span>Naira</span>
             <input
@@ -237,7 +219,6 @@
               type="number"
               min="0"
               max="99"
-              placeholder="__________"
               class="w-16 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-right"
             />
             <span>Kobo</span>
@@ -246,17 +227,19 @@
           <div class="flex items-start gap-1">
             <span>Being Payment for:</span>
             <input
+              ref="paymentForInput1"
               v-model="paymentFor"
-              placeholder=""
+              @input="handlePaymentForOverflow"
               class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
           </div>
 
           <!-- Additional line for payment description -->
           <div class="flex">
-            <input 
+            <input
+              ref="paymentForInput2"
               v-model="paymentFor2"
-              placeholder=""
+              @input="handlePaymentFor2Input"
               class="w-full bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
           </div>
@@ -281,10 +264,10 @@
 
             <!-- Amount in figures -->
             <div class="flex flex-col items-center mt-3">
-              <div class="border-2 border-yellow-400 p-2 py-3 bg-yellow-50 min-w-[200px]">
+              <div class="border-2 border-yellow-400 p-2 py-2 bg-yellow-50 min-w-[200px]">
                 <div class="flex justify-between gap-2">
-                  <span class="font-bold text-xs">₦{{ naira || 0 }}</span>
-                  <span class="font-bold text-xs">.{{ String(kobo || 0).padStart(2, '0') }}</span>
+                  <span class="font-bold text-lg">₦{{ naira || 0 }}</span>
+                  <span class="font-bold text-lg">.{{ String(kobo || 0).padStart(2, '0') }}</span>
                 </div>
               </div>
             </div>
@@ -311,6 +294,7 @@
         <div class="hidden">
           <input type="checkbox" v-model="autoDate" @change="syncDate" />
         </div>
+      </div>
       </div>
     </section>
   </div>
@@ -351,6 +335,7 @@ export default defineComponent({
 
     // Additional fields for signatures and payment description
     const paymentFor2 = ref('');
+    const sumOf2 = ref('');
     const signature1 = ref('');
     const signature2 = ref('');
 
@@ -371,6 +356,10 @@ export default defineComponent({
     const { incrementReceiptNumber, ensureRanges } = receiptStore;
 
     const receiptRef = ref(null);
+    const sumOfInput1 = ref(null);
+    const sumOfInput2 = ref(null);
+    const paymentForInput1 = ref(null);
+    const paymentForInput2 = ref(null);
 
     const syncDate = () => {
       if (autoDate.value) {
@@ -381,6 +370,16 @@ export default defineComponent({
     watch([naira, kobo], () => {
       ensureRanges();
     });
+
+    // Auto-fill "The Sum of" field when amount in words changes
+    watch(
+      () => amountInWords.value.words,
+      (newWords) => {
+        if (newWords) {
+          sumOf.value = newWords;
+        }
+      }
+    );
 
     watch(
       () => autoDate.value,
@@ -411,6 +410,54 @@ export default defineComponent({
       router.push({ name: 'Dashboard' });
     };
 
+    // Auto-overflow handlers for Sum of fields
+    const handleSumOfOverflow = () => {
+      const maxLength = 65; // Extended character limit to fill the entire first line
+      if (sumOf.value.length > maxLength) {
+        const overflow = sumOf.value.substring(maxLength);
+        sumOf.value = sumOf.value.substring(0, maxLength);
+        sumOf2.value = overflow + sumOf2.value;
+        // Focus on second input
+        setTimeout(() => {
+          if (sumOfInput2.value) {
+            sumOfInput2.value.focus();
+            sumOfInput2.value.setSelectionRange(overflow.length, overflow.length);
+          }
+        }, 0);
+      }
+    };
+
+    const handleSumOf2Input = () => {
+      // If user deletes everything in second line and there's content in first, merge
+      if (sumOf2.value === '' && sumOf.value.length > 0) {
+        // Allow clearing without merging
+      }
+    };
+
+    // Auto-overflow handlers for Payment For fields
+    const handlePaymentForOverflow = () => {
+      const maxLength = 60; // Extended character limit to fill the entire first line (slightly less due to label)
+      if (paymentFor.value.length > maxLength) {
+        const overflow = paymentFor.value.substring(maxLength);
+        paymentFor.value = paymentFor.value.substring(0, maxLength);
+        paymentFor2.value = overflow + paymentFor2.value;
+        // Focus on second input
+        setTimeout(() => {
+          if (paymentForInput2.value) {
+            paymentForInput2.value.focus();
+            paymentForInput2.value.setSelectionRange(overflow.length, overflow.length);
+          }
+        }, 0);
+      }
+    };
+
+    const handlePaymentFor2Input = () => {
+      // If user deletes everything in second line, allow it
+      if (paymentFor2.value === '' && paymentFor.value.length > 0) {
+        // Allow clearing without merging
+      }
+    };
+
     const handleExportPDF = async () => {
       if (!receiptRef.value) return;
       ensureRanges();
@@ -424,6 +471,7 @@ export default defineComponent({
         date: date.value,
         receivedFrom: receivedFrom.value,
         sumOf: sumOf.value,
+        sumOf2: sumOf2.value,
         naira: naira.value,
         kobo: kobo.value,
         paymentFor: paymentFor.value,
@@ -471,6 +519,7 @@ export default defineComponent({
         date: date.value,
         receivedFrom: receivedFrom.value,
         sumOf: sumOf.value,
+        sumOf2: sumOf2.value,
         naira: naira.value,
         kobo: kobo.value,
         paymentFor: paymentFor.value,
@@ -506,6 +555,10 @@ export default defineComponent({
 
     return {
       receiptRef,
+      sumOfInput1,
+      sumOfInput2,
+      paymentForInput1,
+      paymentForInput2,
       logoDataUrl,
       signatureImage1,
       signatureImage2,
@@ -518,6 +571,7 @@ export default defineComponent({
       autoDate,
       receivedFrom,
       sumOf,
+      sumOf2,
       naira,
       kobo,
       paymentFor,
@@ -527,6 +581,10 @@ export default defineComponent({
       signatureName,
       amountInWords,
       handleBack,
+      handleSumOfOverflow,
+      handleSumOf2Input,
+      handlePaymentForOverflow,
+      handlePaymentFor2Input,
       handleExportPDF,
       handleExportJPEG,
       syncDate,
