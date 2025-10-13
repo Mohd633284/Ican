@@ -11,6 +11,7 @@ import {
   createUser,
   authenticateUser,
   initDatabase,
+  getBranchStatistics,
 } from './database.js';
 import { addBranch } from './database.js';
 import adminRoutes from './adminRoutes.js';
@@ -161,6 +162,22 @@ app.get('/transactions', (_req, res) => {
   } catch (err) {
     console.error('Failed to fetch transactions', err);
     return res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+app.get('/dashboard/:branch', (req, res) => {
+  const { branch } = req.params;
+  
+  if (!branch) {
+    return res.status(400).json({ error: 'Branch name is required' });
+  }
+
+  try {
+    const statistics = getBranchStatistics(branch);
+    return res.json({ data: statistics });
+  } catch (err) {
+    console.error('Failed to fetch branch statistics', err);
+    return res.status(500).json({ error: 'Failed to fetch branch statistics' });
   }
 });
 

@@ -26,7 +26,22 @@
 
       <!-- Stats Overview -->
       <div class="max-w-7xl mx-auto mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+          <p class="mt-4 text-slate-600 dark:text-slate-400">Loading {{ branchTitle }} branch data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
+          <svg class="h-12 w-12 text-red-600 dark:text-red-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="text-red-800 dark:text-red-200 font-semibold">{{ error }}</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Total Members -->
           <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl transition-all duration-300">
             <div class="flex items-center justify-between">
@@ -246,7 +261,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 
@@ -259,15 +274,58 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
 
-    // Mock data - in a real app, this would come from API
-    const totalMembers = ref(247);
-    const activeInvoices = ref(12);
-    const monthlyRevenue = ref('2,450,000');
-    const pendingTasks = ref(8);
+    // Branch-specific data
+    const totalMembers = ref(0);
+    const activeInvoices = ref(0);
+    const monthlyRevenue = ref('0');
+    const pendingTasks = ref(0);
+    const loading = ref(true);
+    const error = ref(null);
 
     const branchTitle = computed(() => {
       const branch = route.query.branch;
       return branch ? `${branch}` : 'ICAN Member';
+    });
+
+    const branchName = computed(() => route.query.branch || '');
+
+    // Fetch branch-specific statistics
+    const fetchBranchStats = async () => {
+      if (!branchName.value) {
+        error.value = 'No branch selected';
+        loading.value = false;
+        return;
+      }
+
+      try {
+        loading.value = true;
+        error.value = null;
+
+        const response = await fetch(`http://localhost:4000/dashboard/${branchName.value}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch branch statistics');
+        }
+
+        const result = await response.json();
+        const stats = result.data;
+
+        // Update dashboard stats
+        totalMembers.value = stats.totalMembers;
+        activeInvoices.value = stats.activeInvoices;
+        monthlyRevenue.value = stats.monthlyRevenue.toLocaleString('en-NG');
+        pendingTasks.value = stats.pendingTasks;
+
+      } catch (err) {
+        console.error('Error fetching branch statistics:', err);
+        error.value = err.message;
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    onMounted(() => {
+      fetchBranchStats();
     });
 
     const handleGoBack = () => {
@@ -275,15 +333,15 @@ export default defineComponent({
     };
 
     const handleCreateInvoice = () => {
-      router.push({ name: 'Invoice' });
+      router.push({ name: 'Invoice', query: { branch: branchName.value } });
     };
 
     const handleCreateReceipt = () => {
-      router.push({ name: 'Receipt' });
+      router.push({ name: 'Receipt', query: { branch: branchName.value } });
     };
 
     const handleViewStats = () => {
-      router.push({ name: 'Stats' });
+      router.push({ name: 'Stats', query: { branch: branchName.value } });
     };
 
     const handleMemberManagement = () => {
@@ -292,7 +350,7 @@ export default defineComponent({
     };
 
     const handleBranchSettings = () => {
-      router.push({ name: 'Settings' });
+      router.push({ name: 'Settings', query: { branch: branchName.value } });
     };
 
     const handleReports = () => {
@@ -302,10 +360,13 @@ export default defineComponent({
 
     return {
       branchTitle,
+      branchName,
       totalMembers,
       activeInvoices,
       monthlyRevenue,
       pendingTasks,
+      loading,
+      error,
       handleGoBack,
       handleCreateInvoice,
       handleCreateReceipt,

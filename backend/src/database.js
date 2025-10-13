@@ -493,3 +493,85 @@ export function getAllBranchSettings() {
   return branches.map(branch => getBranchSettings(branch));
 }
 
+/**
+ * Get branch-specific statistics for dashboard
+ * @param {string} branch - Branch name
+ * @returns {Object} Dashboard statistics for the branch
+ */
+export function getBranchStatistics(branch) {
+  // Get total members (users) in this branch
+  const membersResult = db.exec('SELECT COUNT(*) as count FROM users WHERE branch = ?', [branch]);
+  const totalMembers = membersResult[0].values[0][0];
+
+  // Get active invoices count (invoices from this month)
+  const currentMonth = new Date().toISOString().substring(0, 7); // YYYY-MM format
+  const invoicesResult = db.exec(
+    'SELECT COUNT(*) as count FROM invoices WHERE payload LIKE ? AND date LIKE ?',
+    [`%"branch":"${branch}"%`, `${currentMonth}%`]
+  );
+  const activeInvoices = invoicesResult[0]?.values[0]?.[0] || 0;
+
+  // Get monthly revenue from receipts (this month)
+  const receiptsResult = db.exec(
+    'SELECT SUM(amount) as total FROM receipts WHERE payload LIKE ? AND date LIKE ?',
+    [`%"branch":"${branch}"%`, `${currentMonth}%`]
+  );
+  const monthlyRevenue = receiptsResult[0]?.values[0]?.[0] || 0;
+
+  // Get all invoices count as pending tasks
+  const allInvoicesResult = db.exec(
+    'SELECT COUNT(*) as count FROM invoices WHERE payload LIKE ?',
+    [`%"branch":"${branch}"%`]
+  );
+  const pendingTasks = allInvoicesResult[0]?.values[0]?.[0] || 0;
+
+  // Get recent activities (last 5 transactions)
+  const recentInvoices = db.exec(
+    'SELECT number, total, date, created_at FROM invoices WHERE payload LIKE ? ORDER BY created_at DESC LIMIT 3',
+    [`%"branch":"${branch}"%`]
+  );
+  
+  const recentReceipts = db.exec(
+    'SELECT number, amount, date, created_at FROM receipts WHERE payload LIKE ? ORDER BY created_at DESC LIMIT 3',
+    [`%"branch":"${branch}"%`]
+  );
+
+  const activities = [];
+  
+  if (recentInvoices && recentInvoices[0]?.values) {
+    recentInvoices[0].values.forEach(inv => {
+      activities.push({
+        type: 'invoice',
+        number: inv[0],
+        amount: inv[1],
+        date: inv[2],
+        createdAt: inv[3]
+      });
+    });
+  }
+
+  if (recentReceipts && recentReceipts[0]?.values) {
+    recentReceipts[0].values.forEach(rec => {
+      activities.push({
+        type: 'receipt',
+        number: rec[0],
+        amount: rec[1],
+        date: rec[2],
+        createdAt: rec[3]
+      });
+    });
+  }
+
+  // Sort activities by creation date
+  activities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  return {
+    branch,
+    totalMembers,
+    activeInvoices,
+    monthlyRevenue: Math.round(monthlyRevenue * 100) / 100, // Round to 2 decimals
+    pendingTasks,
+    recentActivities: activities.slice(0, 5)
+  };
+}
+

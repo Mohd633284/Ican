@@ -7,66 +7,167 @@
           Configure your receipt details then export as PDF or JPEG.
         </p>
       </div>
-      <div class="flex flex-wrap items-center gap-3 justify-end">
-        <BaseButton variant="secondary" @click="triggerLogoUpload">Upload Logo</BaseButton>
-        <BaseButton
-          v-if="logoDataUrl"
-          variant="secondary"
-          @click="handleClearLogo"
-        >
-          Remove Logo
-        </BaseButton>
-        <BaseButton variant="secondary" @click="handleExportJPEG">
-          Export JPEG
-        </BaseButton>
-        <BaseButton @click="handleExportPDF">
-          Export PDF
-        </BaseButton>
-        <BaseButton variant="secondary" @click="handleBack">
-          Back to Dashboard
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Primary Actions -->
+        <div class="flex items-center gap-2">
+          <BaseButton variant="primary" @click="handleExportPDF">
+            📄 Export PDF
+          </BaseButton>
+          <BaseButton variant="secondary" @click="handleExportJPEG">
+            🖼️ Export JPEG
+          </BaseButton>
+        </div>
+
+        <!-- Separator -->
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+
+        <!-- Navigation -->
+        <BaseButton variant="ghost" @click="handleBack">
+          ← Back to Dashboard
         </BaseButton>
       </div>
-      <input
-        ref="logoInputRef"
-        type="file"
-        accept="image/*"
-        class="hidden"
-        @change="handleLogoChange"
-      />
+    </section>
+
+    <!-- Quick Fill Form Section -->
+    <section class="w-full max-w-4xl">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+          📝 Quick Fill Form
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
+          Fill out this form to automatically populate the receipt below
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Received From -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Received From
+            </label>
+            <input
+              v-model="receivedFrom"
+              type="text"
+              placeholder="Enter payer name"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Amount (Naira) -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Amount (Naira)
+            </label>
+            <input
+              v-model.number="naira"
+              type="number"
+              min="0"
+              placeholder="0"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Amount (Kobo) -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Amount (Kobo)
+            </label>
+            <input
+              v-model.number="kobo"
+              type="number"
+              min="0"
+              max="99"
+              placeholder="00"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- The Sum of (Amount in Words) -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Amount in Words
+            </label>
+            <input
+              v-model="sumOf"
+              type="text"
+              :placeholder="amountInWords.words || 'Amount in words'"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Being Payment For (Line 1) -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Payment Description (Line 1)
+            </label>
+            <input
+              v-model="paymentFor"
+              type="text"
+              placeholder="Enter payment description"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Being Payment For (Line 2) -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Payment Description (Line 2) - Optional
+            </label>
+            <input
+              v-model="paymentFor2"
+              type="text"
+              placeholder="Additional description (optional)"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <!-- Amount Display -->
+        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-blue-900 dark:text-blue-300">
+              Total Amount:
+            </span>
+            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              ₦{{ naira || 0 }}.{{ String(kobo || 0).padStart(2, '0') }}
+            </span>
+          </div>
+          <div v-if="amountInWords.words" class="mt-2 text-xs text-blue-700 dark:text-blue-300 italic">
+            {{ amountInWords.words }}
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="w-full max-w-4xl">
       <div
         id="receipt-canvas"
         ref="receiptRef"
-        class="bg-white shadow-lg border border-gray-300 p-4"
-        style="width: 6in; height: 4in"
+        class="bg-white shadow-lg border border-gray-300 p-5 pb-[50px]"
+        style="width: 6in; height: 4.5in; overflow: hidden"
       >
         <!-- Header -->
         <div class="text-center border-b pb-2 mb-2">
-          <!-- Organization Name -->
-          <input
-            v-model="organizationName"
-            placeholder="Organization Name"
-            class="text-lg font-bold uppercase text-center w-full bg-transparent border-none focus:outline-none focus:border-b focus:border-gray-300"
-          />
-
-          <!-- Address -->
-          <textarea
-            v-model="address"
-            rows="1"
-            placeholder="Address"
-            class="text-xs text-center w-full bg-transparent border-none focus:outline-none resize-none"
-          ></textarea>
-          
-          <div class="flex justify-center items-center gap-1">
-            <span class="text-xs">Tel:</span>
-            <input
-              v-model="phone"
-              placeholder="Phone Number"
-              class="text-xs text-center bg-transparent border-none focus:outline-none w-32"
-            />
+          <div class="flex items-start">
+            <!-- Logo (Fixed - Developer Only) -->
+            <div v-if="logoDataUrl" class="flex justify-center mb-2">
+              <img :src="logoDataUrl" alt="ICAN Logo" class="h-20 w-auto object-contain" />
+            </div>
+            
+            <!-- Organization Name (Fixed - Developer Only) -->
+            <h2 class="ml-4 text-xl font-bold uppercase text-left">
+              Institute of Chartered Accountants <br> of Nigeria (ICAN)
+            </h2>
           </div>
+
+          <!-- Address (Fixed - Developer Only) -->
+          <p class="text-xs text-left mt-[-25px] ml-[98px]">
+            {{ organizationAddress }}
+          </p>
+          
+          <!-- Phone (Fixed - Developer Only) -->
+          <p class="text-xs text-center font-bold">
+            Tel: {{ organizationPhone }}
+          </p>
 
           <!-- Receipt Title -->
           <p class="text-sm font-semibold mt-1 bg-red-500 text-white inline-block px-3 py-1 rounded">
@@ -108,7 +209,7 @@
             <span>Received From:</span>
             <input
               v-model="receivedFrom"
-              placeholder="_______________________"
+              placeholder=" "
               class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
           </div>
@@ -117,19 +218,18 @@
             <span>The Sum of:</span>
             <input
               v-model="sumOf"
-              :placeholder="amountInWords.words || '__________________________'"
+              :placeholder="amountInWords.words || ''"
               class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
           </div>
 
           <div class="flex items-center gap-2">
-            <span>₦</span>
             <input
               v-model.number="naira"
               type="number"
               min="0"
-              placeholder="__________"
-              class="w-24 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-right"
+              placeholder=""
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-right"
             />
             <span>Naira</span>
             <input
@@ -145,29 +245,65 @@
 
           <div class="flex items-start gap-1">
             <span>Being Payment for:</span>
-            <textarea
-              v-model="paymentFor"
-              rows="2"
-              placeholder="____________________"
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none resize-none"
-            ></textarea>
-          </div>
-
-          <!-- Amount in figures -->
-          <div class="flex justify-end mt-2">
-            <div class="border-2 border-yellow-400 p-2 bg-yellow-50">
-              ₦ <span class="font-bold">{{ amountInWords.formatted }}</span>
-            </div>
-          </div>
-
-          <!-- Signature -->
-          <div class="flex justify-end mt-4 items-center gap-2">
             <input
-              v-model="signatureName"
-              placeholder="________________________"
-              class="bg-transparent border-b border-gray-400 focus:outline-none text-center w-48"
+              v-model="paymentFor"
+              placeholder=""
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
-            <p class="italic">Signature</p>
+          </div>
+
+          <!-- Additional line for payment description -->
+          <div class="flex">
+            <input 
+              v-model="paymentFor2"
+              placeholder=""
+              class="w-full bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
+            />
+          </div>
+          
+          <div class="flex justify-between items-start mt-4">
+           
+            <!-- Signature 1 -->
+            <div class="flex flex-col items-center gap-2">
+              <!-- Signature 1 Image -->
+                <div v-if="signatureImage1">
+                <img :src="signatureImage1" alt="Signature 1" class="h-9 w-auto object-contain max-w-[120px] " />
+              </div>
+
+              <div v-else class="mb-2 h-16 w-32 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                No signature
+              </div>
+
+             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+               <p class="italic text-xs">Signature</p>
+             </div> 
+            </div>
+
+            <!-- Amount in figures -->
+            <div class="flex flex-col items-center mt-3">
+              <div class="border-2 border-yellow-400 p-2 py-3 bg-yellow-50 min-w-[200px]">
+                <div class="flex justify-between gap-2">
+                  <span class="font-bold text-xs">₦{{ naira || 0 }}</span>
+                  <span class="font-bold text-xs">.{{ String(kobo || 0).padStart(2, '0') }}</span>
+                </div>
+              </div>
+            </div>
+
+          <!-- Signature 2 -->
+            <div class="flex flex-col items-center gap-2">
+              <!-- Signature 2 Image -->
+                <div v-if="signatureImage2">
+                <img :src="signatureImage2" alt="Signature 1" class="h-9 w-auto object-contain max-w-[120px] " />
+              </div>
+
+              <div v-else class="mb-2 h-16 w-32 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                No signature
+              </div>
+
+             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+               <p class="italic text-xs">Signature</p>
+             </div> 
+            </div>
           </div>
         </div>
 
@@ -182,7 +318,7 @@
 
 <script>
 import { defineComponent, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
@@ -197,14 +333,28 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const receiptStore = useReceiptStore();
     const financeStore = useFinanceStore();
 
+    // Fixed organization details (Developer only - users cannot change these)
+    const organizationName = 'Institute of Chartered Accountants of Nigeria (ICAN)';
+    const organizationAddress = ref('Established by Act of Parliament No. 15 of (1965) Minna and District Society');
+    const organizationPhone = ref('+234 1 234 5678');
+    
+    // Logo data (Developer can set default logos here)
+    const logoDataUrl = ref('/images/ican-logo.png'); // Main org logo
+    
+    // Signature images (Developer can set signature images here - PNG/JPEG)
+    const signatureImage1 = ref('/images/signature1.png'); // Signature 1 image: ref('/images/signature1.png')
+    const signatureImage2 = ref('/images/signature2.png'); // Signature 2 image: ref('/images/signature2.png')
+
+    // Additional fields for signatures and payment description
+    const paymentFor2 = ref('');
+    const signature1 = ref('');
+    const signature2 = ref('');
+
     const {
-      logoDataUrl,
-      organizationName,
-      address,
-      phone,
       date,
       autoDate,
       receivedFrom,
@@ -218,10 +368,9 @@ export default defineComponent({
 
     const { receiptNumber, autoReceiptNumber } = storeToRefs(financeStore);
 
-    const { incrementReceiptNumber, ensureRanges, setLogoFromFile, clearLogo } = receiptStore;
+    const { incrementReceiptNumber, ensureRanges } = receiptStore;
 
     const receiptRef = ref(null);
-    const logoInputRef = ref(null);
 
     const syncDate = () => {
       if (autoDate.value) {
@@ -265,6 +414,38 @@ export default defineComponent({
     const handleExportPDF = async () => {
       if (!receiptRef.value) return;
       ensureRanges();
+      
+      // Save receipt to backend with branch information
+      const branch = route.query.branch || '';
+      const receiptData = {
+        organizationName: organizationName,
+        address: organizationAddress.value,
+        phone: organizationPhone.value,
+        date: date.value,
+        receivedFrom: receivedFrom.value,
+        sumOf: sumOf.value,
+        naira: naira.value,
+        kobo: kobo.value,
+        paymentFor: paymentFor.value,
+        paymentFor2: paymentFor2.value,
+        signature1: signature1.value,
+        signature2: signature2.value,
+        signatureName: signatureName.value,
+        amount: naira.value + (kobo.value / 100),
+        number: receiptNumber.value,
+        branch: branch, // Include branch info
+      };
+
+      try {
+        await fetch('http://localhost:4000/receipt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(receiptData),
+        });
+      } catch (error) {
+        console.error('Failed to save receipt:', error);
+      }
+
       const filename = `receipt-${receiptNumber.value}.pdf`;
       const options = {
         margin: 0,
@@ -280,6 +461,38 @@ export default defineComponent({
     const handleExportJPEG = async () => {
       if (!receiptRef.value) return;
       ensureRanges();
+      
+      // Save receipt to backend with branch information
+      const branch = route.query.branch || '';
+      const receiptData = {
+        organizationName: organizationName,
+        address: organizationAddress.value,
+        phone: organizationPhone.value,
+        date: date.value,
+        receivedFrom: receivedFrom.value,
+        sumOf: sumOf.value,
+        naira: naira.value,
+        kobo: kobo.value,
+        paymentFor: paymentFor.value,
+        paymentFor2: paymentFor2.value,
+        signature1: signature1.value,
+        signature2: signature2.value,
+        signatureName: signatureName.value,
+        amount: naira.value + (kobo.value / 100),
+        number: receiptNumber.value,
+        branch: branch, // Include branch info
+      };
+
+      try {
+        await fetch('http://localhost:4000/receipt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(receiptData),
+        });
+      } catch (error) {
+        console.error('Failed to save receipt:', error);
+      }
+
       const dataUrl = await htmlToImage.toJpeg(receiptRef.value, {
         quality: 0.95,
         pixelRatio: 3,
@@ -291,31 +504,14 @@ export default defineComponent({
       incrementReceiptNumber();
     };
 
-    const triggerLogoUpload = () => {
-      logoInputRef.value?.click();
-    };
-
-    const handleLogoChange = async (event) => {
-      const file = event.target?.files?.[0];
-      if (file) {
-        await setLogoFromFile(file);
-      }
-    };
-
-    const handleClearLogo = () => {
-      clearLogo();
-      if (logoInputRef.value) {
-        logoInputRef.value.value = '';
-      }
-    };
-
     return {
       receiptRef,
-      logoInputRef,
       logoDataUrl,
+      signatureImage1,
+      signatureImage2,
       organizationName,
-      address,
-      phone,
+      organizationAddress,
+      organizationPhone,
       receiptNumber,
       autoReceiptNumber,
       date,
@@ -325,14 +521,14 @@ export default defineComponent({
       naira,
       kobo,
       paymentFor,
+      paymentFor2,
+      signature1,
+      signature2,
       signatureName,
       amountInWords,
       handleBack,
       handleExportPDF,
       handleExportJPEG,
-      triggerLogoUpload,
-      handleLogoChange,
-      handleClearLogo,
       syncDate,
     };
   },

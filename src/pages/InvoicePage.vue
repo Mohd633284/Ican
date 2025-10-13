@@ -249,6 +249,30 @@ export default defineComponent({
 
     const handleExportPDF = async () => {
       if (!invoiceRef.value) return;
+      
+      // Save invoice to backend with branch information
+      const branch = route.query.branch || '';
+      const invoiceData = {
+        organizationName: organizationName.value,
+        address: address.value,
+        phone: phone.value,
+        date: date.value,
+        items: items.value,
+        total: grandTotal.value,
+        number: invoiceNumber.value,
+        branch: branch, // Include branch info
+      };
+
+      try {
+        await fetch('http://localhost:4000/invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(invoiceData),
+        });
+      } catch (error) {
+        console.error('Failed to save invoice:', error);
+      }
+
       const filename = `invoice-${invoiceNumber.value}.pdf`;
       const options = {
         margin: 0,
@@ -263,6 +287,30 @@ export default defineComponent({
 
     const handleExportJPEG = async () => {
       if (!invoiceRef.value) return;
+      
+      // Save invoice to backend with branch information
+      const branch = route.query.branch || '';
+      const invoiceData = {
+        organizationName: organizationName.value,
+        address: address.value,
+        phone: phone.value,
+        date: date.value,
+        items: items.value,
+        total: grandTotal.value,
+        number: invoiceNumber.value,
+        branch: branch, // Include branch info
+      };
+
+      try {
+        await fetch('http://localhost:4000/invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(invoiceData),
+        });
+      } catch (error) {
+        console.error('Failed to save invoice:', error);
+      }
+
       const dataUrl = await htmlToImage.toJpeg(invoiceRef.value, {
         quality: 0.95,
         pixelRatio: 3,

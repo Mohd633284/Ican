@@ -15,7 +15,7 @@ const router = express.Router();
 
 // IMPORTANT: Add authentication middleware here in production!
 // This is a simple password check - in production use proper JWT or session auth
-const ADMIN_PASSWORD = 'ICANAdmin2024!'; // CHANGE THIS PASSWORD!
+const ADMIN_PASSWORD = 'ICANAdmin2025!'; // CHANGE THIS PASSWORD!
 
 function checkAdminAuth(req, res, next) {
   const adminPassword = req.body?.adminPassword || req.query?.adminPassword;
