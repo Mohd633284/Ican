@@ -1,236 +1,215 @@
 <template>
-  <div class="h-screen overflow-y-auto bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900">
-    <!-- Background Pattern -->
-    <div class="fixed inset-0 opacity-5">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(16,185,129,0.3),_transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(6,182,212,0.2),_transparent_50%)]"></div>
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900 relative overflow-auto md:overflow-hidden">
+    <!-- Enhanced Background Pattern -->
+    <div class="fixed inset-0 opacity-10">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(16,185,129,0.4),_transparent_50%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(6,182,212,0.3),_transparent_50%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(139,92,246,0.2),_transparent_50%)]"></div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="fixed inset-0 pointer-events-none">
+      <div class="absolute top-20 left-10 w-20 h-20 bg-emerald-200/30 rounded-full blur-xl animate-pulse"></div>
+      <div class="absolute top-40 right-20 w-32 h-32 bg-blue-200/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+      <div class="absolute bottom-20 left-1/4 w-24 h-24 bg-purple-200/25 rounded-full blur-xl animate-pulse delay-500"></div>
     </div>
 
     <!-- Main Content Container -->
-    <div class="relative py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 pb-20">
+    <div class="relative z-10 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
       <div class="w-full max-w-7xl mx-auto">
-        <!-- Header Section -->
-        <div class="text-center mb-8 lg:mb-12">
-          <div class="inline-flex items-center gap-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-4 py-2 text-emerald-700 dark:text-emerald-300 text-sm font-semibold uppercase tracking-wide mb-4">
-            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Chartered Confidence
-          </div>
-          <h1 class="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 dark:text-white leading-tight mb-4">
-            Institute of Chartered
-            <span class="block text-emerald-600 dark:text-emerald-400">Accountants of Nigeria</span>
-          </h1>
-          <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            A comprehensive workspace for managing branch receipts, invoices, and member services with export-ready documentation and complete audit trails.
-          </p>
-        </div>
-
         <!-- Main Content Grid -->
-        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh]">
 
-          <!-- Left Column: Features & Benefits -->
-          <div class="order-2 lg:order-1 space-y-8">
-            <!-- Feature Cards -->
-            <div class="grid sm:grid-cols-2 gap-4">
-              <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-emerald-100 dark:border-slate-700 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-slate-900 dark:text-white mb-2">Seamless Exports</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-300">Generate professional PDF and JPEG receipts matching official ICAN stationery standards.</p>
-              </div>
+          <!-- Left Column: Enhanced Header -->
+          <div class="order-1 lg:order-1 relative">
+            <!-- Background Card with Gradient -->
+            <div class="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 dark:from-emerald-800 dark:via-emerald-900 dark:to-teal-900 rounded-3xl p-8 lg:p-12 shadow-2xl overflow-hidden">
+              <!-- Decorative Elements -->
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+              <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
 
-              <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-emerald-100 dark:border-slate-700 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                  </svg>
+              <!-- Content -->
+              <div class="relative z-10 text-center">
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-6 py-3 text-white text-sm font-semibold uppercase tracking-wider mb-8 shadow-lg">
+                  <div class="w-3 h-3 bg-white rounded-full animate-pulse shadow-sm"></div>
+                  Chartered Confidence
+                  <div class="w-3 h-3 bg-white rounded-full animate-pulse shadow-sm"></div>
                 </div>
-                <h3 class="font-bold text-slate-900 dark:text-white mb-2">Branch Analytics</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-300">Comprehensive tracking of financial inflows, outstanding invoices, and performance metrics.</p>
-              </div>
-            </div>
 
-            <!-- Additional Features -->
-            <div class="grid sm:grid-cols-2 gap-4">
-              <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-emerald-100 dark:border-slate-700 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-slate-900 dark:text-white mb-2">Secure Access</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-300">Branch-specific authentication with encrypted data storage and audit trails.</p>
-              </div>
+                <!-- Main Title -->
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 tracking-tight">
+                  Institute of
+                  <span class="block bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">
+                    Chartered Accountants
+                  </span>
+                  <span class="block text-emerald-200 text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
+                    of Nigeria
+                  </span>
+                </h1>
 
-              <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-emerald-100 dark:border-slate-700 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-xl flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-slate-900 dark:text-white mb-2">Offline Ready</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-300">Full functionality available offline with automatic synchronization when online.</p>
-              </div>
-            </div>
-
-            <!-- Stats Section -->
-            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
-              <div class="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div class="text-2xl font-bold">50+</div>
-                  <div class="text-sm opacity-90">Branches</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold">10K+</div>
-                  <div class="text-sm opacity-90">Transactions</div>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold">99.9%</div>
-                  <div class="text-sm opacity-90">Uptime</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Login Form -->
-          <div class="order-1 lg:order-2">
-            <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 p-8 lg:p-10">
-              <div class="text-center mb-8">
-                <h2 class="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-2">Access Your Branch</h2>
-                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Sign in with your branch credentials provided by the national secretariat
+                <!-- Description -->
+                <p class="text-lg sm:text-xl text-emerald-100 max-w-2xl mx-auto leading-relaxed mb-8 font-medium">
+                  A comprehensive workspace for managing branch receipts, invoices, and member services with export-ready documentation and complete audit trails.
                 </p>
               </div>
+            </div>
+          </div>
 
-              <form class="space-y-6" @submit.prevent="handleSubmit">
-                <!-- Branch Selection -->
-                <div class="space-y-3">
-                  <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="branch-select">
-                    Select Branch
-                  </label>
-                  <select
-                    id="branch-select"
-                    v-model="selectedBranch"
-                    class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                    :disabled="isLoadingBranches || branches.length === 0"
-                  >
-                    <option value="" disabled>Select your branch</option>
-                    <option 
-                      v-for="branch in branches" 
-                      :key="branch" 
-                      :value="branch"
-                      :class="{ 'text-slate-400': !isBranchAccessible(branch) }"
-                    >
-                      {{ branch }} {{ !isBranchAccessible(branch) ? '' : '' }}
-                    </option>
-                  </select>
-                  <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <!-- Right Column: Enhanced Login Form -->
+          <div class="order-2 lg:order-2">
+            <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/50 p-8 lg:p-10 relative overflow-hidden">
+              <!-- Form Background Pattern -->
+              <div class="absolute inset-0 opacity-5">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500 rounded-full -translate-y-16 translate-x-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-blue-500 rounded-full translate-y-12 -translate-x-12"></div>
+              </div>
+
+                            <div class="relative z-10">
+                <!-- Header -->
+                <div class="text-center mb-10">
+                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-6 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
-                    Loading branches...
-                  </p>
-                  <p v-if="selectedBranch && !isBranchAccessible(selectedBranch)" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 border border-amber-200 dark:border-amber-800">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    Branch locked - Contact administrator for access
+                  </div>
+                  <h2 class="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-3">Access Your Branch</h2>
+                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-base">
+                    Sign in with your branch credentials provided by the national secretariat
                   </p>
                 </div>
 
-                <!-- Password Field -->
-                <div v-if="isPasswordStepVisible" class="space-y-3">
-                  <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="branch-email">
-                    Email Address
-                  </label>
-                  <input
-                    id="branch-email"
-                    v-model="email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="Enter your email"
-                    class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 mb-3"
-                  />
-                  
-                  <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="branch-password">
-                    Password
-                  </label>
-                  <input
-                    id="branch-password"
-                    v-model="password"
-                    type="password"
-                    autocomplete="current-password"
-                    placeholder="Enter your password"
-                    class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                  />
-                </div>
-
-                <!-- Messages -->
-                <div class="min-h-[2rem] flex flex-col justify-center">
-                  <p v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2 border border-red-200 dark:border-red-800">
-                    {{ errorMessage }}
-                  </p>
-                  <p v-if="statusMessage && !errorMessage" class="text-xs text-slate-500 dark:text-slate-400 text-center">
-                    {{ statusMessage }}
-                  </p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div v-if="isPasswordStepVisible" class="space-y-3">
-                  <BaseButton
-                    type="submit"
-                    :disabled="isSubmitDisabled"
-                    class="w-full py-3 text-base font-semibold"
-                    :class="{ 'opacity-50 cursor-not-allowed': isSubmitDisabled }"
-                  >
-                    <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
-                      <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <!-- Form -->
+                <form class="space-y-6" @submit.prevent="handleSubmit">
+                  <!-- Branch Selection -->
+                  <div class="space-y-3">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="branch-select">
+                      Select Branch
+                    </label>
+                    <div class="relative">
+                      <select
+                        id="branch-select"
+                        v-model="selectedBranch"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 appearance-none shadow-sm"
+                        :disabled="isLoadingBranches || branches.length === 0"
+                      >
+                        <option value="" disabled>Select your branch</option>
+                        <option
+                          v-for="branch in branches"
+                          :key="branch"
+                          :value="branch"
+                          :class="{ 'text-slate-400': !isBranchAccessible(branch) }"
+                        >
+                          {{ branch }}
+                        </option>
+                      </select>
+                      <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                      <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Authenticating...
-                    </span>
-                    <span v-else>Login to {{ selectedBranch }}</span>
-                  </BaseButton>
+                      Loading branches...
+                    </p>
+                    <p v-if="selectedBranch && !isBranchAccessible(selectedBranch)" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 border border-amber-200 dark:border-amber-800">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                      </svg>
+                      Branch locked - Contact administrator for access
+                    </p>
+                  </div>
 
-                  <BaseButton
-                    variant="secondary"
-                    type="button"
-                    class="w-full py-3 text-base"
-                    @click="handleSignUp"
-                  >
-                    Sign Up for {{ selectedBranch }}
-                  </BaseButton>
-                </div>
-              </form>
+                  <!-- Password Field -->
+                  <div v-if="isPasswordStepVisible" class="space-y-4">
+                    <div>
+                      <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2" for="branch-email">
+                        Email Address
+                      </label>
+                      <input
+                        id="branch-email"
+                        v-model="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="Enter your email"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 shadow-sm"
+                      />
+                    </div>
 
-              <!-- Help Section -->
-              <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-                <div class="text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
-                  <p class="font-medium">Need Assistance?</p>
-                  <p>Contact your branch administrator or reach out to the ICAN service desk for support.</p>
+                    <div>
+                      <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2" for="branch-password">
+                        Password
+                      </label>
+                      <input
+                        id="branch-password"
+                        v-model="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 shadow-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Messages -->
+                  <div class="min-h-[2rem] flex flex-col justify-center">
+                    <p v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2 border border-red-200 dark:border-red-800">
+                      {{ errorMessage }}
+                    </p>
+                    <p v-if="statusMessage && !errorMessage" class="text-xs text-slate-500 dark:text-slate-400 text-center">
+                      {{ statusMessage }}
+                    </p>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div v-if="isPasswordStepVisible" class="space-y-4">
+                    <BaseButton
+                      type="submit"
+                      :disabled="isSubmitDisabled"
+                      class="w-full py-4 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      :class="{ 'opacity-50 cursor-not-allowed': isSubmitDisabled }"
+                    >
+                      <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Authenticating...
+                      </span>
+                      <span v-else>Login to {{ selectedBranch }}</span>
+                    </BaseButton>
+
+                    <BaseButton
+                      variant="secondary"
+                      type="button"
+                      class="w-full py-4 text-base rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200"
+                      @click="handleSignUp"
+                    >
+                      Sign Up for {{ selectedBranch }}
+                    </BaseButton>
+                  </div>
+                </form>
+
+                <!-- Help Section -->
+                <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                  <div class="text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                    <p class="font-medium">Need Assistance?</p>
+                    <p>Contact your branch administrator or reach out to the ICAN service desk for support.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="mt-12 lg:mt-16 text-center">
-          <p class="text-sm text-slate-500 dark:text-slate-400">
-            © 2025 Institute of Chartered Accountants of Nigeria. All rights reserved.
-          </p>
         </div>
       </div>
     </div>
   </div>
-</template>
-
-<script>
-import { defineComponent, ref, computed, watch, onMounted } from 'vue';
+</template><script>
+import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 
@@ -327,6 +306,42 @@ export default defineComponent({
 
     onMounted(() => {
       loadBranches();
+      
+      // Override Ionic's body styles to enable scrolling on all screen sizes
+      const body = document.body;
+      const html = document.documentElement;
+      
+      // Store original styles
+      const originalBodyPosition = body.style.position;
+      const originalBodyOverflow = body.style.overflow;
+      const originalHtmlOverflow = html.style.overflow;
+      
+      // Apply scrollable styles for all screen sizes
+      body.style.position = 'relative';
+      body.style.overflow = 'auto';
+      body.style.overflowX = 'hidden';
+      html.style.overflow = 'auto';
+      
+      // Store in component for cleanup
+      body.dataset.originalPosition = originalBodyPosition;
+      body.dataset.originalOverflow = originalBodyOverflow;
+      html.dataset.originalOverflow = originalHtmlOverflow;
+    });
+
+    onUnmounted(() => {
+      // Restore original Ionic styles when leaving the page
+      const body = document.body;
+      const html = document.documentElement;
+      
+      if (body.dataset.originalPosition !== undefined) {
+        body.style.position = body.dataset.originalPosition || '';
+        body.style.overflow = body.dataset.originalOverflow || '';
+        html.style.overflow = html.dataset.originalOverflow || '';
+        
+        delete body.dataset.originalPosition;
+        delete body.dataset.originalOverflow;
+        delete html.dataset.originalOverflow;
+      }
     });
 
     const handleSubmit = async () => {
