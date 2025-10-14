@@ -1,17 +1,17 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900 relative overflow-auto md:overflow-hidden">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 relative overflow-auto md:overflow-hidden">
     <!-- Enhanced Background Pattern -->
     <div class="fixed inset-0 opacity-10">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(16,185,129,0.4),_transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(6,182,212,0.3),_transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(139,92,246,0.2),_transparent_50%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(59,130,246,0.35),_transparent_55%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(14,165,233,0.3),_transparent_55%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(99,102,241,0.25),_transparent_55%)]"></div>
     </div>
 
     <!-- Floating Elements -->
     <div class="fixed inset-0 pointer-events-none">
-      <div class="absolute top-20 left-10 w-20 h-20 bg-emerald-200/30 rounded-full blur-xl animate-pulse"></div>
-      <div class="absolute top-40 right-20 w-32 h-32 bg-blue-200/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
-      <div class="absolute bottom-20 left-1/4 w-24 h-24 bg-purple-200/25 rounded-full blur-xl animate-pulse delay-500"></div>
+      <div class="absolute top-20 left-10 w-20 h-20 bg-blue-200/35 rounded-full blur-xl animate-pulse"></div>
+      <div class="absolute top-40 right-20 w-32 h-32 bg-sky-200/25 rounded-full blur-2xl animate-pulse delay-1000"></div>
+      <div class="absolute bottom-20 left-1/4 w-24 h-24 bg-indigo-200/25 rounded-full blur-xl animate-pulse delay-500"></div>
     </div>
 
     <!-- Main Content Container -->
@@ -23,13 +23,16 @@
           <!-- Left Column: Enhanced Header -->
           <div class="order-1 lg:order-1 relative">
             <!-- Background Card with Gradient -->
-            <div class="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 dark:from-emerald-800 dark:via-emerald-900 dark:to-teal-900 rounded-3xl p-8 lg:p-12 shadow-2xl overflow-hidden">
+            <div class="relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-800 dark:from-blue-900 dark:via-slate-900 dark:to-indigo-950 rounded-3xl p-8 lg:p-12 shadow-2xl overflow-hidden">
               <!-- Decorative Elements -->
               <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
               <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
 
               <!-- Content -->
               <div class="relative z-10 text-center">
+                <div class="flex justify-center mb-8">
+                  <img src="/images/ican-web-logo.png" alt="ICAN logo" class="h-14 w-auto drop-shadow-xl" />
+                </div>
                 <!-- Badge -->
                 <div class="inline-flex items-center gap-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-6 py-3 text-white text-sm font-semibold uppercase tracking-wider mb-8 shadow-lg">
                   <div class="w-3 h-3 bg-white rounded-full animate-pulse shadow-sm"></div>
@@ -40,16 +43,16 @@
                 <!-- Main Title -->
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 tracking-tight">
                   Institute of
-                  <span class="block bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">
+                  <span class="block bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                     Chartered Accountants
                   </span>
-                  <span class="block text-emerald-200 text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
+                  <span class="block text-blue-200 text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
                     of Nigeria
                   </span>
                 </h1>
 
                 <!-- Description -->
-                <p class="text-lg sm:text-xl text-emerald-100 max-w-2xl mx-auto leading-relaxed mb-8 font-medium">
+                <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed mb-8 font-medium">
                   A comprehensive workspace for managing branch receipts, invoices, and member services with export-ready documentation and complete audit trails.
                 </p>
               </div>
@@ -61,14 +64,14 @@
             <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/50 p-8 lg:p-10 relative overflow-hidden">
               <!-- Form Background Pattern -->
               <div class="absolute inset-0 opacity-5">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500 rounded-full -translate-y-16 translate-x-16"></div>
-                <div class="absolute bottom-0 left-0 w-24 h-24 bg-blue-500 rounded-full translate-y-12 -translate-x-12"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full -translate-y-16 translate-x-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500 rounded-full translate-y-12 -translate-x-12"></div>
               </div>
 
-                            <div class="relative z-10">
+              <div class="relative z-10">
                 <!-- Header -->
                 <div class="text-center mb-10">
-                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-6 shadow-lg">
+                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
@@ -90,7 +93,7 @@
                       <select
                         id="branch-select"
                         v-model="selectedBranch"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 appearance-none shadow-sm"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm"
                         :disabled="isLoadingBranches || branches.length === 0"
                       >
                         <option value="" disabled>Select your branch</option>
@@ -136,7 +139,7 @@
                         type="email"
                         autocomplete="email"
                         placeholder="Enter your email"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 shadow-sm"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                       />
                     </div>
 
@@ -150,7 +153,7 @@
                         type="password"
                         autocomplete="current-password"
                         placeholder="Enter your password"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 shadow-sm"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                       />
                     </div>
                   </div>
@@ -186,7 +189,7 @@
                     <BaseButton
                       variant="secondary"
                       type="button"
-                      class="w-full py-4 text-base rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200"
+                      class="w-full py-4 text-base rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200"
                       @click="handleSignUp"
                     >
                       Sign Up for {{ selectedBranch }}

@@ -49,15 +49,15 @@ export default defineComponent({
 
 <style scoped>
 .base-button {
-  @apply px-4 py-2 rounded focus:outline-none transition duration-200;
+  @apply px-4 py-2 rounded focus:outline-none transition duration-200 flex items-center justify-center;
 }
 
 .btn-primary {
-  @apply bg-blue-500 text-white;
+  @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800;
 }
 
 .btn-secondary {
-  @apply bg-gray-500 text-white;
+  @apply bg-slate-600 text-white hover:bg-slate-700 active:bg-slate-800;
 }
 
 .btn-medium {
