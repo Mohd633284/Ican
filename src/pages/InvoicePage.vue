@@ -1,7 +1,42 @@
 <template>
-  <div class="h-screen overflow-y-auto flex flex-col gap-6 items-center bg-slate-100 dark:bg-slate-900 py-8 px-4">
-    <section class="w-full max-w-4xl bg-white dark:bg-slate-800 shadow-lg rounded-2xl p-6 mb-6 border border-slate-200 dark:border-slate-700">
-      <div class="flex items-center justify-between">
+  <div>
+    <!-- Password Verification Modal -->
+    <PasswordVerificationModal
+      :is-open="showPasswordModal"
+      target-page="Invoice Page"
+      @verified="onPasswordVerified"
+      @cancel="onPasswordCancel"
+    />
+
+    <div class="h-screen overflow-y-auto flex flex-col gap-6 items-center bg-slate-100 dark:bg-slate-900 pt-8 pb-24 px-4">
+      <!-- Member Info Banner -->
+      <div class="w-full max-w-4xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-3 rounded-lg shadow-md flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold">Logged in as: {{ authenticatedMember?.name || 'Unknown' }}</p>
+          <p class="text-xs opacity-90">{{ authenticatedMember?.role || 'Member' }}</p>
+        </div>
+      </div>
+      <button
+        @click="handleLogout"
+        class="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        Logout
+      </button>
+    </div>
+
+    <!-- Control Panel Section -->
+    <section class="w-full max-w-4xl bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <!-- Title -->
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-xl flex items-center justify-center">
             <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,31 +48,210 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">Create and manage your invoices</p>
           </div>
         </div>
-        <div class="flex gap-3 flex-wrap">
-          <BaseButton variant="secondary" @click="handleSaveInvoice" :disabled="isExporting || isSaving">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-            </svg>
-            {{ isSaving ? 'Saving...' : 'Save Invoice' }}
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 flex-wrap items-center">
+          <BaseButton variant="primary" @click="handleExportPDF" :disabled="isExporting">
+            📄 Export PDF
           </BaseButton>
+          
           <BaseButton variant="secondary" @click="handleExportJPEG" :disabled="isExporting">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            {{ isExporting && exportType === 'jpeg' ? 'Exporting...' : 'Export JPEG' }}
+            🖼️ Export JPEG
           </BaseButton>
-          <BaseButton @click="handleExportPDF" :disabled="isExporting">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            {{ isExporting && exportType === 'pdf' ? 'Exporting...' : 'Export PDF' }}
+
+          <div class="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
+
+          <BaseButton variant="ghost" @click="handleBack">
+            ← Back to Dashboard
           </BaseButton>
-          <BaseButton variant="secondary" @click="handleBack">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Back to Dashboard
-          </BaseButton>
+        </div>
+      </div>
+
+      <!-- Settings Row -->
+      <div class="mt-4 flex justify-between items-center flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex gap-4 flex-wrap">
+          <!-- Auto Receipt Toggle -->
+          <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+            <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+            <span>Auto Receipt #</span>
+          </label>
+
+          <!-- Auto Date Toggle -->
+          <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+            <input type="checkbox" v-model="autoDate" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+            <span>Auto Date</span>
+          </label>
+        </div>
+
+        <!-- Summary Display -->
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-700">
+          <div class="flex items-center gap-4 text-sm">
+            <div>
+              <span class="text-slate-600 dark:text-slate-400">Subtotal:</span>
+              <span class="font-bold text-slate-900 dark:text-white ml-2">{{ toCurrency(subtotal) }}</span>
+            </div>
+            <div v-if="taxEnabled">
+              <span class="text-slate-600 dark:text-slate-400">Tax:</span>
+              <span class="font-bold text-emerald-600 ml-2">{{ toCurrency(taxAmount) }}</span>
+            </div>
+            <div class="pl-4 border-l border-emerald-300 dark:border-emerald-700">
+              <span class="text-slate-600 dark:text-slate-400">Total:</span>
+              <span class="font-bold text-lg text-emerald-700 dark:text-emerald-400 ml-2">{{ toCurrency(grandTotal) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Fill Form Section -->
+    <section class="w-full max-w-4xl">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          📝 Quick Fill Form
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
+          Fill out this form to automatically populate the invoice below
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Invoice Number -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Invoice Number
+            </label>
+            <input
+              v-model="receiptNumber"
+              type="number"
+              min="1"
+              :disabled="autoReceiptNumber"
+              placeholder="Invoice #"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Date
+            </label>
+            <input
+              v-model="date"
+              type="date"
+              :disabled="autoDate"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Customer Name
+            </label>
+            <input
+              v-model="customerName"
+              type="text"
+              placeholder="Enter customer name"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+
+          <!-- LPO Number -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              LPO Number (Optional)
+            </label>
+            <input
+              v-model="lpo"
+              type="text"
+              placeholder="Enter LPO number"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            />
+          </div>
+
+          <!-- Customer Address -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Customer Address
+            </label>
+            <textarea
+              v-model="customerAddress"
+              rows="2"
+              placeholder="Enter customer address"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Tax Settings -->
+          <div class="md:col-span-2 flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                v-model="taxEnabled" 
+                class="rounded border-gray-300 cursor-pointer accent-emerald-600"
+              />
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Enable Tax</span>
+            </label>
+            
+            <div v-if="taxEnabled" class="flex items-center gap-2 flex-1">
+              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Tax Rate (%):
+              </label>
+              <input
+                v-model.number="taxRate"
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                class="w-24 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+              <span class="text-sm text-slate-600 dark:text-slate-400">
+                (Tax: {{ toCurrency(taxAmount) }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Amount in Words -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Amount in Words (Auto-generated)
+            </label>
+            <div class="grid grid-cols-1 gap-2">
+              <input
+                ref="sumOfInput1"
+                v-model="sumOf"
+                type="text"
+                placeholder="Line 1"
+                @input="handleSumOfOverflow"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+              />
+              <input
+                ref="sumOfInput2"
+                v-model="sumOf2"
+                type="text"
+                placeholder="Line 2 (overflow)"
+                @input="handleSumOf2Input"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+              />
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Automatically filled based on total amount
+            </p>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="mt-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-emerald-900 dark:text-emerald-300">
+              Total Amount:
+            </span>
+            <span class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+              {{ toCurrency(grandTotal) }}
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -46,11 +260,11 @@
       <div
         ref="invoiceRef"
         id="meblink-invoice"
-        class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 rounded-2xl p-6"
-        :style="{ width: a5Width, minHeight: a5Height }"
+        class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col"
+        style="width: 5.827in; height: 8.268in"
       >
          <!-- Header -->
-        <div class="text-center border-b pb-2 mb-2">
+        <div class="text-center border-b ">
           <div class="flex items-center ">
             <!-- Logo (Fixed - Developer Only) -->
             <div v-if="logoDataUrl" class="flex justify-center ">
@@ -58,31 +272,32 @@
             </div>
             
           
-                            <!-- Organization Name (Fixed - Developer Only) -->
+             <!-- Organization Name (Fixed - Developer Only) -->
             <div class="w-auto">
-              <h2 class="text-blue-800 text-xl  font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+              <h2 class="text-blue-800 text-[14px]  font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
               Institute of Chartered Accountants  of Nigeria (ICAN)
               </h2>
               <p class="text-[12px] text-left">Established by Act of Parliament No. 15 of (1965) Minna and District Society</p>
           </div>
           
 
-        <div class="pl-5 border-solid border-l-[2px]">
+        <div class="pl-3 ml-2 border-solid border-l-[2px]">
             <!-- Address (Fixed - Developer Only) -->
-          <p class="text-xs text-left ">
+          <p class="text-[10px] text-left ">
             {{ organizationAddress }}
           </p>
           
           <!-- Phone (Fixed - Developer Only) -->
-          <p class="text-xs text-left mt-2 font-bold">
+          <p class="text-[10px] text-left mt-1 font-bold">
             Tel: {{ organizationPhone }}
           </p>
         </div>
 
-              </div>
+          </div>
+
           <!-- Receipt Title -->
-          <div class="flex justify-end items-center">
-            <p class="text-sm font-semibold mr-40 bg-red-500 text-white inline-block px-3 py-1 rounded">
+          <div class="flex justify-end items-center mt-[-20px] mb-2">
+            <p class="text-sm font-semibold mr-[60px] bg-red-500 text-white inline-block px-3 py-1 rounded">
               CASH/CREDIT INVOICE
             </p>
             
@@ -94,51 +309,51 @@
                 :disabled="autoReceiptNumber"
                 type="number"
                 min="1"
-                class="w-16 bg-transparent border-none focus:outline-none text-right"
+                class="w-16 bg-transparent border-none focus:outline-none text-center"
               />
               </div>
           </div>
           </div>
 
         <!-- Customer details -->
-        <div class="mt-4 grid grid-cols-3 gap-4">
-          <div class="border-[2px] col-span-2 rounded-xl p-2">
+        <div class="mt-2 grid grid-cols-3 gap-3">
+          <div class="border-[1.5px] col-span-2 rounded-xl p-1.5">
             <div class="flex items-center gap-1">
-            <span class="text-xs text-slate-400 font-medium">Name:</span>
+            <span class="text-[10px] text-slate-400 font-medium">Name:</span>
             <input
               v-model="customerName"
               placeholder=" "
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
             />
           </div>
 
           <div class="flex items-center gap-1">
-            <span class="text-xs text-slate-400 font-medium">Address:</span>
+            <span class="text-[10px] text-slate-400 font-medium">Address:</span>
             <input
               v-model="customerAddress"
               placeholder=" "
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
             />
           </div>
           </div>
 
-          <div class="border-[2px] rounded-xl p-2">
+          <div class="border-[1.5px] rounded-xl p-1.5">
             <div class="flex items-center gap-1">
-           <span class="text-xs text-slate-400 font-medium">Date:</span>
+           <span class="text-[10px] text-slate-400 font-medium">Date:</span>
                 <input
                   v-model="date"
                   type="date"
                   :disabled="autoDate"
-                  class="bg-transparent border-none focus:outline-none text-sm"
+                  class="bg-transparent border-none focus:outline-none text-[11px]"
                 />
           </div>
 
           <div class="flex items-center gap-1">
-            <span class="text-xs text-slate-400 font-medium whitespace-nowrap">L.P.O No.:</span>
+            <span class="text-[10px] text-slate-400 font-medium whitespace-nowrap">L.P.O No.:</span>
             <input
               v-model="lpo"
               placeholder=" "
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
+              class="w-[80px] bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
             />
           </div>
           </div>
@@ -148,46 +363,54 @@
         </div>
 
         <!-- Table -->
-        <div class="mt-4 overflow-visible rounded">
-          <table class="w-full text-sm table-fixed border-collapse overflow-visible">
-            <thead class="bg-blue-800 text-white uppercase text-xs">
+        <div class="mt-3 overflow-visible rounded relative">
+          <table class="w-full text-xs table-fixed border-collapse overflow-visible">
+            <thead class="bg-blue-800 text-white uppercase text-[10px]">
               <tr>
-                <th class="w-1/12 px-2 py-1.5 border text-center">QTY</th>
-                <th class="w-6/12 px-2 py-1.5 border text-left">DESCRIPTION OF GOODS</th>
-                <th class="w-2/12 px-2 py-1.5 border text-center">RATE</th>
-                <th class="w-3/12 px-2 py-1.5 border text-center">AMOUNT</th>
+                <th class="w-1/12 px-1.5 py-1 border text-center">QTY</th>
+                <th class="w-6/12 px-1.5 py-1 border text-left">DESCRIPTION OF GOODS</th>
+                <th class="w-2/12 px-1.5 py-1 border text-center">RATE</th>
+                <th class="w-3/12 px-1.5 py-1 border text-center">AMOUNT</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in items" :key="item.id" class="border-t hover:bg-slate-50 transition-colors group">
-                <td class="px-2 py-1 text-center align-top">
-                  <span class="font-medium text-slate-700">{{ index + 1 }}</span>
+                <td class="px-1.5 py-0.5 text-center align-top">
+                  <input 
+                    v-model.number="item.quantity" 
+                    type="number" 
+                    step="1" 
+                    min="0" 
+                    placeholder=""
+                    class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
+                  />
                 </td>
-                <td class="px-2 py-1 align-top">
-                  <textarea 
+                <td class="px-1.5 py-0.5 align-top">
+                  <input 
                     v-model="item.description" 
+                    type="text"
                     placeholder="Description" 
-                    rows="1"
-                    class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 resize-none overflow-hidden leading-tight" 
-                    @input="autoResize($event)"
-                  ></textarea>
+                    class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
+                    @input="handleDescriptionInput(item, index)"
+                    @keydown.enter.prevent="addItemAfter(index)"
+                  />
                 </td>
-                <td class="px-2 py-1 text-right align-top">
+                <td class="px-1.5 py-0.5 text-right align-top">
                   <input 
                     v-model.number="item.price" 
                     type="number" 
                     step="0.01" 
                     min="0" 
-                    class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5" 
+                    class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
                   />
                 </td>
-                <td class="px-2 py-1 text-right font-semibold align-top relative overflow-visible">
-                  {{ toCurrency(item.quantity * item.price) }}
+                <td class="px-1.5 py-0.5 text-right font-semibold align-top relative overflow-visible text-[11px]">
+                  {{ toCurrency((item.quantity || 0) * (item.price || 0)) }}
                   <!-- Delete button absolutely positioned on right edge -->
                   <button 
                     v-if="items.length > 1"
                     @click="removeItem(item.id)" 
-                    class="absolute right-[-13px] top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-200 w-5 h-5 flex items-center justify-center text-lg font-bold hover:scale-110 z-50"
+                    class="absolute right-[-13px] top-0 -translate-y-1/2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-200 w-5 h-5 flex items-center justify-center text-lg font-bold hover:scale-110 z-50"
                     title="Remove item"
                   >
                     ×
@@ -196,89 +419,167 @@
               </tr>
             </tbody>
           </table>
+          
+          <!-- Add button absolutely positioned at bottom left -->
+          <button 
+            @click="addItem"
+            class="absolute left-[-13px] bottom-0 translate-y-1/2 text-emerald-400 hover:text-emerald-600 opacity-0 hover:opacity-100 transition-all duration-200 w-6 h-6 flex items-center justify-center text-2xl font-bold hover:scale-110 z-50 bg-white rounded-full shadow-md border border-emerald-300"
+            title="Add new item"
+          >
+            +
+          </button>
         </div>
 
-        <div class="mt-3 flex justify-between items-center text-xs text-slate-600">
-          <button 
-            class="text-emerald-600 hover:text-emerald-700 font-medium transition-colors flex items-center gap-1" 
-            @click="addItem"
-          >
-            <span class="text-lg">+</span> Add Line
-          </button>
-          <div class="w-56 space-y-1">
-            <div class="flex justify-between">
-              <span>Subtotal</span>
-              <span class="font-medium">{{ toCurrency(subtotal) }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  v-model="taxEnabled" 
-                  class="cursor-pointer accent-emerald-600" 
-                /> 
-                Apply Tax ({{ taxRate }}%)
-              </label>
-              <span class="font-medium">{{ toCurrency(taxAmount) }}</span>
-            </div>
-            <div class="flex justify-between mt-2 font-bold text-slate-900 text-base border-t pt-2">
-              <span>TOTAL ₦</span>
+        <!-- Total -->
+        <div class="flex justify-end font-bold text-slate-900 text-base">
+              <span class="mr-5">TOTAL</span>
               <span>{{ toCurrency(grandTotal) }}</span>
-            </div>
-          </div>
         </div>
 
         <!-- Footer -->
-        <div class="mt-6 grid grid-cols-3 gap-4 text-xs">
+        <div class="mt-auto text-[12px]">
+
           <div>
-            <div class="mb-1 text-slate-500 font-medium">Amount in Words</div>
-            <div class="p-2 border border-slate-200 rounded bg-slate-50 text-slate-700 min-h-[3rem] flex items-center">
-              {{ amountInWords.words }}
-            </div>
+            <div class="flex items-center gap-1">
+            <span class="flex whitespace-nowrap">Amount in words:</span>
+            <input
+              ref="sumOfInput1"
+              v-model="sumOf"
+              @input="handleSumOfOverflow"
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
+            />
           </div>
 
-          <div class="col-span-2 flex flex-col justify-end">
-            <div class="flex justify-between items-center gap-4">
-              <div class="text-xs flex-1">
-                <div class="font-medium text-slate-600 mb-1">Customer's Signature</div>
-                <input 
-                  v-model="customerSign" 
-                  placeholder="Sign here" 
-                  class="w-full p-2 border-b border-slate-300 bg-transparent focus:outline-none focus:border-emerald-500 transition-colors" 
-                />
-              </div>
-              <div class="text-xs flex-1">
-                <div class="font-medium text-slate-600 mb-1">For: Meblink Pharmaceuticals Ltd.</div>
-                <input 
-                  v-model="managerSign" 
-                  placeholder="Manager's Sign" 
-                  class="w-full p-2 border-b border-slate-300 bg-transparent focus:outline-none focus:border-emerald-500 transition-colors" 
-                />
-              </div>
+          <div class="flex items-center h-7 gap-2">
+            <input
+              ref="sumOfInput2"
+              v-model="sumOf2"
+              type="text"
+              @input="handleSumOf2Input"
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
+            />
+            <span>Naira</span>
+            <div class="w-14 bg-transparent border-b border-dotted border-gray-400 flex items-center justify-center text-center">
+              <span>Only</span>
             </div>
-            <div class="mt-3 text-emerald-600 text-center font-medium">Thanks for your patronage</div>
+            <span>Kobo</span>
           </div>
+
+          </div>
+
+           <div class="flex justify-between items-start mt-1">
+           
+            <!-- Signature 1 -->
+            <div class="flex flex-col items-center gap-1">
+              <!-- Signature 1 Image -->
+                <div v-if="signatureImage1">
+                <img :src="signatureImage1" alt="Signature 1" class="h-5 w-auto object-contain max-w-[80px] " />
+              </div>
+
+              <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
+                No signature
+              </div>
+
+             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+               <p class="italic">Signature</p>
+             </div> 
+            </div>
+
+            <!-- Thanks for your patronage -->
+             <div class="mt-2 text-emerald-600 text-center font-medium text-[10px]">Thanks for your patronage</div>
+
+          <!-- Signature 2 -->
+            <div class="flex flex-col items-center gap-1">
+              <!-- Signature 2 Image -->
+                <div v-if="signatureImage2">
+                <img :src="signatureImage2" alt="Signature 1" class="h-7 w-auto object-contain max-w-[100px] " />
+              </div>
+
+              <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
+                No signature
+              </div>
+
+             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+               <p class="italic">Signature</p>
+             </div> 
+            </div>
+          </div>
+          
+
         </div>
       </div>
     </section>
   </div>
+  </div>
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, watch, onMounted } from 'vue';
 import BaseButton from '@/components/BaseButton.vue';
+import PasswordVerificationModal from '@/components/PasswordVerificationModal.vue';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
 import { API_BASE } from '../api.js';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'MeblinkInvoice',
-  components: { BaseButton },
+  components: { 
+    BaseButton,
+    PasswordVerificationModal 
+  },
   setup() {
+    const router = useRouter();
     const invoiceRef = ref(null);
     const isExporting = ref(false);
     const exportType = ref('');
-    const isSaving = ref(false);
+    const authenticatedMember = ref(null);
+    const showPasswordModal = ref(false);
+    const passwordVerified = ref(false);
+
+    // Load authenticated member info and check for password verification
+    onMounted(() => {
+      const memberData = localStorage.getItem('authenticatedMember');
+      if (memberData) {
+        authenticatedMember.value = JSON.parse(memberData);
+        
+        // Check if password was recently verified (within last 5 minutes)
+        const lastVerification = sessionStorage.getItem('invoicePasswordVerified');
+        const now = Date.now();
+        
+        if (lastVerification && (now - parseInt(lastVerification)) < 5 * 60 * 1000) {
+          // Password was recently verified, no need to ask again
+          passwordVerified.value = true;
+        } else {
+          // Show password modal
+          showPasswordModal.value = true;
+        }
+      }
+    });
+
+    // Handle successful password verification
+    const onPasswordVerified = (memberInfo) => {
+      showPasswordModal.value = false;
+      passwordVerified.value = true;
+      
+      // Store authenticated member info
+      authenticatedMember.value = {
+        id: memberInfo.memberId,
+        name: memberInfo.memberName,
+        role: 'Member'
+      };
+      
+      // Store verification timestamp in sessionStorage (expires when tab closes)
+      sessionStorage.setItem('invoicePasswordVerified', Date.now().toString());
+      sessionStorage.setItem('authenticatedMember', JSON.stringify(authenticatedMember.value));
+    };
+
+    // Handle password verification cancel
+    const onPasswordCancel = () => {
+      showPasswordModal.value = false;
+      // Redirect back to dashboard
+      router.push({ name: 'Dashboard' });
+    };
 
     // A5 landscape dimensions in inches (width x height)
     const a5Width = '8.27in';
@@ -306,15 +607,47 @@ export default defineComponent({
 
     // Logo data (Developer can set default logos here)
     const logoDataUrl = ref('/images/ican-logo.png'); // Main org logo
+    
+    // Signature images (can be set by user or loaded from backend)
+    const signatureImage1 = ref('');
+    const signatureImage2 = ref('');
+    
+    // Amount in words input refs
+    const sumOfInput1 = ref(null);
+    const sumOfInput2 = ref(null);
+    const sumOf = ref('');
+    const sumOf2 = ref('');
 
     const items = ref([
-      { id: 1, description: '', quantity: 1, price: 0.0 },
-      { id: 2, description: '', quantity: 1, price: 0.0 },
-      { id: 3, description: '', quantity: 1, price: 0.0 },
+      { id: 1, description: '', quantity: '', price: 0.0 },
+      { id: 2, description: '', quantity: '', price: 0.0 },
+      { id: 3, description: '', quantity: '', price: 0.0 },
     ]);
 
+    const MAX_ITEMS = 17; // Maximum number of rows allowed
+
     const addItem = () => {
-      items.value.push({ id: Date.now(), description: '', quantity: 1, price: 0 });
+      if (items.value.length >= MAX_ITEMS) {
+        alert(`Maximum ${MAX_ITEMS} items allowed`);
+        return;
+      }
+      items.value.push({ id: Date.now(), description: '', quantity: '', price: 0 });
+    };
+
+    const addItemAfter = (index) => {
+      if (items.value.length >= MAX_ITEMS) {
+        alert(`Maximum ${MAX_ITEMS} items allowed`);
+        return;
+      }
+      const newItem = { id: Date.now(), description: '', quantity: '', price: 0 };
+      items.value.splice(index + 1, 0, newItem);
+      // Focus on the new item's description field after a short delay
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('input[type="text"]');
+        if (inputs[index + 1]) {
+          inputs[index + 1].focus();
+        }
+      }, 50);
     };
 
     const removeItem = (id) => {
@@ -324,7 +657,7 @@ export default defineComponent({
     };
 
     const subtotal = computed(() =>
-      items.value.reduce((sum, it) => sum + (Number(it.quantity) || 1) * (Number(it.price) || 0), 0)
+      items.value.reduce((sum, it) => sum + (Number(it.quantity) || 0) * (Number(it.price) || 0), 0)
     );
 
     const taxAmount = computed(() => (taxEnabled.value ? (subtotal.value * (Number(taxRate.value) || 0)) / 100 : 0));
@@ -380,58 +713,104 @@ export default defineComponent({
       return { words: words.replace(/\b\w/g, (s) => s.toUpperCase()), formatted: `${naira} Naira ${kobo} Kobo` };
     });
 
-    // Save invoice to backend
-    const saveInvoiceToBackend = async () => {
-      try {
-        const invoiceData = {
-          organizationName: organizationName.value,
-          address: address.value,
-          date: date.value,
-          lpo: lpo.value,
-          customerName: customerName.value,
-          customerAddress: customerAddress.value,
-          items: items.value.map(item => ({
-            description: item.description,
-            quantity: item.quantity,
-            price: item.price
-          })),
-          subtotal: subtotal.value,
-          taxEnabled: taxEnabled.value,
-          taxRate: taxRate.value,
-          taxAmount: taxAmount.value,
-          grandTotal: grandTotal.value,
-          customerSign: customerSign.value,
-          managerSign: managerSign.value,
-        };
-
-        const response = await fetch(`${API_BASE}/invoice`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(invoiceData),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to save invoice');
-        }
-
-        const result = await response.json();
-        console.log('Invoice saved successfully:', result);
-        return result.data;
-      } catch (error) {
-        console.error('Error saving invoice:', error);
-        throw error;
-      }
-    };
-
     // Auto-resize textarea as user types
     const autoResize = (event) => {
       const textarea = event.target;
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     };
+
+    // Handle description input and auto-continue to next row when filled
+    const handleDescriptionInput = (item, index) => {
+      const maxLength = 30; // Maximum characters before moving to next row
+      
+      if (item.description.length >= maxLength) {
+        // Get the overflow text
+        const overflow = item.description.substring(maxLength);
+        
+        // Trim current item description to max length
+        item.description = item.description.substring(0, maxLength);
+        
+        // Check if next row exists and is empty
+        if (index + 1 < items.value.length) {
+          const nextItem = items.value[index + 1];
+          if (!nextItem.description && !nextItem.quantity && !nextItem.price) {
+            // Next row is empty, use it for overflow
+            nextItem.description = overflow;
+            
+            // Focus on the next row's description field
+            setTimeout(() => {
+              const inputs = document.querySelectorAll('input[placeholder="Description"]');
+              if (inputs[index + 1]) {
+                inputs[index + 1].focus();
+                inputs[index + 1].setSelectionRange(overflow.length, overflow.length);
+              }
+            }, 0);
+          }
+        } else if (items.value.length < MAX_ITEMS) {
+          // Create a new row for overflow
+          const newItem = { id: Date.now(), description: overflow, quantity: '', price: 0 };
+          items.value.splice(index + 1, 0, newItem);
+          
+          // Focus on the new row's description field
+          setTimeout(() => {
+            const inputs = document.querySelectorAll('input[placeholder="Description"]');
+            if (inputs[index + 1]) {
+              inputs[index + 1].focus();
+              inputs[index + 1].setSelectionRange(overflow.length, overflow.length);
+            }
+          }, 0);
+        }
+      }
+    };
+
+    // Handle text overflow from first input to second input
+    const handleSumOfOverflow = () => {
+      if (sumOfInput1.value) {
+        const maxLength = 60; // Approximate character limit for first line
+        if (sumOf.value.length > maxLength) {
+          const overflow = sumOf.value.substring(maxLength);
+          sumOf.value = sumOf.value.substring(0, maxLength);
+          sumOf2.value = overflow + sumOf2.value;
+        }
+      }
+    };
+
+    // Handle input for second sum field
+    const handleSumOf2Input = () => {
+      // Keep it within reasonable bounds
+      const maxLength = 80;
+      if (sumOf2.value.length > maxLength) {
+        sumOf2.value = sumOf2.value.substring(0, maxLength);
+      }
+    };
+
+    // Watch grandTotal and auto-fill amount in words
+    watch(grandTotal, (newTotal) => {
+      const words = amountInWords.value.words;
+      // Auto-populate the sum fields
+      sumOf.value = words.substring(0, 60);
+      if (words.length > 60) {
+        sumOf2.value = words.substring(60);
+      } else {
+        sumOf2.value = '';
+      }
+    });
+
+    // Auto-generate receipt number when needed
+    watch(autoReceiptNumber, async (enabled) => {
+      if (enabled) {
+        try {
+          const response = await fetch(`${API_BASE}/invoice/next-number`);
+          if (response.ok) {
+            const data = await response.json();
+            receiptNumber.value = data.nextNumber || 1;
+          }
+        } catch (error) {
+          console.error('Error fetching next receipt number:', error);
+        }
+      }
+    });
 
     // Export handlers
     const handleExportPDF = async () => {
@@ -441,24 +820,27 @@ export default defineComponent({
         isExporting.value = true;
         exportType.value = 'pdf';
         
-        // Save to backend first
-        await saveInvoiceToBackend();
-        
+        // Export the invoice
+        console.log('Starting PDF export...');
         const element = invoiceRef.value;
-        const filename = `meblink-invoice-${Date.now()}.pdf`;
+        const filename = `ICAN-Invoice-${receiptNumber.value || Date.now()}.pdf`;
         const options = {
           margin: 0,
           filename,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 3, useCORS: true },
-          jsPDF: { unit: 'in', format: [8.27, 5.83], orientation: 'landscape' },
+          html2canvas: { scale: 3, useCORS: true, logging: false },
+          jsPDF: { unit: 'in', format: [5.827, 8.268], orientation: 'portrait' },
         };
         
         await html2pdf().set(options).from(element).save();
-        alert('Invoice saved and exported successfully!');
+        
+        // Log activity
+        logActivity(`Created Invoice #${receiptNumber.value || 'N/A'}`);
+        
+        alert('✅ Invoice exported as PDF successfully!');
       } catch (error) {
         console.error('Error exporting PDF:', error);
-        alert('Failed to export PDF: ' + error.message);
+        alert(`❌ Failed to export PDF: ${error.message}`);
       } finally {
         isExporting.value = false;
         exportType.value = '';
@@ -472,40 +854,77 @@ export default defineComponent({
         isExporting.value = true;
         exportType.value = 'jpeg';
         
-        // Save to backend first
-        await saveInvoiceToBackend();
-        
-        const dataUrl = await htmlToImage.toJpeg(invoiceRef.value, { quality: 0.95, pixelRatio: 3 });
+        // Export the invoice
+        console.log('Starting JPEG export...');
+        const dataUrl = await htmlToImage.toJpeg(invoiceRef.value, { 
+          quality: 0.95, 
+          pixelRatio: 3,
+          cacheBust: true
+        });
         const link = document.createElement('a');
         link.href = dataUrl;
-        link.download = `meblink-invoice-${Date.now()}.jpg`;
+        link.download = `ICAN-Invoice-${receiptNumber.value || Date.now()}.jpg`;
         link.click();
-        alert('Invoice saved and exported successfully!');
+        
+        // Log activity
+        logActivity(`Created Invoice #${receiptNumber.value || 'N/A'}`);
+        
+        alert('✅ Invoice exported as JPEG successfully!');
       } catch (error) {
         console.error('Error exporting JPEG:', error);
-        alert('Failed to export JPEG: ' + error.message);
+        alert(`❌ Failed to export JPEG: ${error.message}`);
       } finally {
         isExporting.value = false;
         exportType.value = '';
       }
     };
 
+    const logActivity = (action) => {
+      const authMember = localStorage.getItem('authenticatedMember');
+      if (!authMember) return;
+      
+      const member = JSON.parse(authMember);
+      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+      
+      activities.unshift({
+        id: Date.now(),
+        memberName: member.name,
+        action,
+        branch: member.branch,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Keep only last 50 activities
+      if (activities.length > 50) {
+        activities.splice(50);
+      }
+      
+      localStorage.setItem('memberActivities', JSON.stringify(activities));
+    };
+
     const handleBack = () => {
       history.back();
     };
 
-    const handleSaveInvoice = async () => {
-      if (isSaving.value) return;
-      
-      try {
-        isSaving.value = true;
-        await saveInvoiceToBackend();
-        alert('Invoice saved successfully to the backend!');
-      } catch (error) {
-        console.error('Error saving invoice:', error);
-        alert('Failed to save invoice: ' + error.message);
-      } finally {
-        isSaving.value = false;
+    const handleLogout = () => {
+      if (confirm('Are you sure you want to logout? You will need to login again to access Invoice and Receipt pages.')) {
+        localStorage.removeItem('authenticatedMember');
+        
+        // Log activity
+        if (authenticatedMember.value) {
+          const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+          activities.unshift({
+            id: Date.now(),
+            memberName: authenticatedMember.value.name,
+            action: 'Logged out',
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString(),
+            details: 'Logged out from Invoice page'
+          });
+          localStorage.setItem('memberActivities', JSON.stringify(activities));
+        }
+        
+        router.push({ name: 'Dashboard', query: { branch: authenticatedMember.value?.branch || '' } });
       }
     };
 
@@ -513,13 +932,23 @@ export default defineComponent({
       invoiceRef,
       isExporting,
       exportType,
-      isSaving,
+      authenticatedMember,
+      showPasswordModal,
+      passwordVerified,
+      onPasswordVerified,
+      onPasswordCancel,
       a5Width,
       a5Height,
       organizationName,
       organizationAddress,
       organizationPhone,
       logoDataUrl,
+      signatureImage1,
+      signatureImage2,
+      sumOfInput1,
+      sumOfInput2,
+      sumOf,
+      sumOf2,
       address,
       date,
       autoDate,
@@ -533,8 +962,12 @@ export default defineComponent({
       autoReceiptNumber,
       items,
       addItem,
+      addItemAfter,
       removeItem,
       autoResize,
+      handleDescriptionInput,
+      handleSumOfOverflow,
+      handleSumOf2Input,
       subtotal,
       taxEnabled,
       taxRate,
@@ -544,8 +977,8 @@ export default defineComponent({
       amountInWords,
       handleExportPDF,
       handleExportJPEG,
-      handleSaveInvoice,
       handleBack,
+      handleLogout,
     };
   },
 });
@@ -624,11 +1057,12 @@ input[type="date"]:focus::-webkit-calendar-picker-indicator {
 /* Compact table rows */
 table tbody tr {
   height: auto;
+  line-height: 1.2;
 }
 
 table tbody td {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
 }
 
 /* Group hover effect for delete button */

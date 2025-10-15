@@ -1,5 +1,33 @@
 <template>
-  <div class="h-screen overflow-y-auto flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 pt-[80px] pb-[150px] px-4">
+  <div>
+    <!-- Password Verification Modal -->
+    <PasswordVerificationModal
+      :is-open="showPasswordModal"
+      target-page="Receipt Page"
+      @verified="onPasswordVerified"
+      @cancel="onPasswordCancel"
+    />
+
+    <div class="h-screen overflow-y-auto flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 pt-[80px] pb-[150px] px-4">
+      <!-- Member Info Banner -->
+      <div v-if="authenticatedMember" class="w-full max-w-4xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-lg shadow-md flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+          <span class="text-lg">👤</span>
+        </div>
+        <div>
+          <p class="text-sm font-medium">Logged in as: <span class="font-bold">{{ authenticatedMember?.name }}</span></p>
+          <p class="text-xs opacity-90">Role: {{ authenticatedMember?.role || 'Member' }}</p>
+        </div>
+      </div>
+      <button @click="handleLogout" class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-md transition-colors text-sm font-medium">
+        <span>Logout</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </div>
+
     <section class="w-full max-w-4xl flex flex-wrap items-center justify-between gap-3">
       <div class="space-y-2">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Receipt Designer</h1>
@@ -131,7 +159,7 @@
         style="width: 6in; height: 4.5in; overflow: hidden; background-color: white;"
       >
         <!-- Header -->
-        <div class="text-center border-b pb-2 mb-2">
+        <div class="text-center">
           <div class="flex items-start">
             <!-- Logo (Fixed - Developer Only) -->
             <div v-if="logoDataUrl" class="flex justify-center mb-2">
@@ -140,11 +168,11 @@
             
             <!-- Organization Name (Fixed - Developer Only) -->
             <div class="text-blue-800">
-              <h2 class="ml-4 text-xl font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+              <h2 class="ml-4 text-xl font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
               Institute of Chartered Accountants 
               
             </h2>
-            <h2 class="ml-4 mt-[-5px] text-xl font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+            <h2 class="ml-4 mt-[-5px] text-xl font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
               of Nigeria (ICAN)
             </h2>
             </div>
@@ -161,7 +189,7 @@
           </p>
 
           <!-- Receipt Title -->
-          <p class="text-sm font-semibold mt-1 bg-red-500 text-white inline-block px-3 py-1 rounded">
+          <p class="text-md font-bold uppercase mt-1 bg-red-500 text-white inline-block px-3  rounded">
             CASH RECEIPT
           </p>
         </div>
@@ -185,7 +213,7 @@
                 :disabled="autoReceiptNumber"
                 type="number"
                 min="1"
-                class="w-16 bg-transparent border-none focus:outline-none text-right"
+                class="w-16 bg-transparent border-none focus:outline-none text-center"
               />
             </div>
           </div>
@@ -297,12 +325,14 @@
       </div>
       </div>
     </section>
+    </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import PasswordVerificationModal from '@/components/PasswordVerificationModal.vue';
 import { storeToRefs } from 'pinia';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
@@ -315,12 +345,62 @@ export default defineComponent({
   name: 'ReceiptPage',
   components: {
     BaseButton,
+    PasswordVerificationModal
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
     const receiptStore = useReceiptStore();
     const financeStore = useFinanceStore();
+
+    // Member authentication
+    const authenticatedMember = ref(null);
+    const showPasswordModal = ref(false);
+    const passwordVerified = ref(false);
+
+    // Load authenticated member info and check for password verification
+    onMounted(() => {
+      const storedMember = localStorage.getItem('authenticatedMember');
+      if (storedMember) {
+        authenticatedMember.value = JSON.parse(storedMember);
+        
+        // Check if password was recently verified (within last 5 minutes)
+        const lastVerification = sessionStorage.getItem('receiptPasswordVerified');
+        const now = Date.now();
+        
+        if (lastVerification && (now - parseInt(lastVerification)) < 5 * 60 * 1000) {
+          // Password was recently verified, no need to ask again
+          passwordVerified.value = true;
+        } else {
+          // Show password modal
+          showPasswordModal.value = true;
+        }
+      }
+    });
+
+    // Handle successful password verification
+    const onPasswordVerified = (memberInfo) => {
+      showPasswordModal.value = false;
+      passwordVerified.value = true;
+      
+      // Store authenticated member info
+      authenticatedMember.value = {
+        id: memberInfo.memberId,
+        name: memberInfo.memberName,
+        role: 'Member'
+      };
+      
+      // Store verification timestamp in sessionStorage (expires when tab closes)
+      sessionStorage.setItem('receiptPasswordVerified', Date.now().toString());
+      sessionStorage.setItem('authenticatedMember', JSON.stringify(authenticatedMember.value));
+    };
+
+    // Handle password verification cancel
+    const onPasswordCancel = () => {
+      showPasswordModal.value = false;
+      // Redirect back to dashboard
+      router.push({ name: 'Dashboard' });
+    };
 
     // Fixed organization details (Developer only - users cannot change these)
     const organizationName = 'Institute of Chartered Accountants of Nigeria (ICAN)';
@@ -410,6 +490,27 @@ export default defineComponent({
 
     const handleBack = () => {
       router.push({ name: 'Dashboard' });
+    };
+
+    // Handle logout
+    const handleLogout = () => {
+      if (confirm('Are you sure you want to logout? You will be returned to the Dashboard.')) {
+        // Remove authentication
+        localStorage.removeItem('authenticatedMember');
+        
+        // Log the logout activity
+        const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+        activities.push({
+          memberName: authenticatedMember.value?.name || 'Unknown',
+          action: 'Logged out',
+          timestamp: new Date().toISOString(),
+          branch: route.query.branch || 'Unknown'
+        });
+        localStorage.setItem('memberActivities', JSON.stringify(activities));
+        
+        // Navigate to Dashboard
+        router.push({ name: 'Dashboard' });
+      }
     };
 
     // Auto-overflow handlers for Sum of fields
@@ -505,6 +606,10 @@ export default defineComponent({
         jsPDF: { unit: 'in', format: [8.268, 5.824], orientation: 'landscape' },
       };
       await html2pdf().set(options).from(receiptOuterRef.value).save();
+      
+      // Log activity
+      logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
+      
       incrementReceiptNumber();
     };
 
@@ -552,7 +657,34 @@ export default defineComponent({
       link.href = dataUrl;
       link.download = `receipt-${receiptNumber.value}.jpg`;
       link.click();
+      
+      // Log activity
+      logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
+      
       incrementReceiptNumber();
+    };
+
+    const logActivity = (action) => {
+      const authMember = localStorage.getItem('authenticatedMember');
+      if (!authMember) return;
+      
+      const member = JSON.parse(authMember);
+      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+      
+      activities.unshift({
+        id: Date.now(),
+        memberName: member.name,
+        action,
+        branch: member.branch,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Keep only last 50 activities
+      if (activities.length > 50) {
+        activities.splice(50);
+      }
+      
+      localStorage.setItem('memberActivities', JSON.stringify(activities));
     };
 
     return {
@@ -583,7 +715,13 @@ export default defineComponent({
       signature2,
       signatureName,
       amountInWords,
+      authenticatedMember,
+      showPasswordModal,
+      passwordVerified,
+      onPasswordVerified,
+      onPasswordCancel,
       handleBack,
+      handleLogout,
       handleSumOfOverflow,
       handleSumOf2Input,
       handlePaymentForOverflow,

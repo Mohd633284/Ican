@@ -43,7 +43,7 @@
         <!-- Stats Grid -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Total Members -->
-          <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl transition-all duration-300">
+          <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleMemberLogin">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Members</p>
@@ -80,9 +80,7 @@
                 <p class="text-2xl font-bold text-slate-900 dark:text-white">₦{{ monthlyRevenue }}</p>
               </div>
               <div class="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
+                <span class="text-2xl font-bold text-green-600 dark:text-green-400">₦</span>
               </div>
             </div>
           </div>
@@ -108,7 +106,14 @@
       <div class="max-w-7xl mx-auto mb-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Create Invoice -->
-          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleCreateInvoice">
+          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer relative" @click="handleCreateInvoice">
+            <!-- Member Auth Required Badge -->
+            <div class="absolute top-3 right-3 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Login Required</span>
+            </div>
             <div class="flex items-center space-x-4">
               <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,7 +128,14 @@
           </div>
 
           <!-- Create Receipt -->
-          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleCreateReceipt">
+          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer relative" @click="handleCreateReceipt">
+            <!-- Member Auth Required Badge -->
+            <div class="absolute top-3 right-3 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Login Required</span>
+            </div>
             <div class="flex items-center space-x-4">
               <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,22 +179,7 @@
             </div>
           </div>
 
-          <!-- Branch Settings -->
-          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleBranchSettings">
-            <div class="flex items-center space-x-4">
-              <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Branch Settings</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Configure branch preferences</p>
-              </div>
-            </div>
-          </div>
-
+      
           <!-- Reports & Analytics -->
           <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleReports">
             <div class="flex items-center space-x-4">
@@ -203,46 +200,61 @@
       <!-- Recent Activity -->
       <div class="max-w-7xl mx-auto mb-8">
         <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6">
-          <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Recent Activity</h3>
-          <div class="space-y-4">
-            <div class="flex items-center space-x-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
-              <div class="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <svg class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-slate-900 dark:text-white">New member registered</p>
-                <p class="text-xs text-slate-600 dark:text-slate-400">John Doe joined the {{ branchTitle }} branch</p>
-              </div>
-              <span class="text-xs text-slate-500 dark:text-slate-400">2 hours ago</span>
-            </div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Recent Activity</h3>
+            <button @click="refreshActivities" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+          
+          <div v-if="recentActivities.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
+            <svg class="h-12 w-12 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>No recent activities</p>
+          </div>
 
-            <div class="flex items-center space-x-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
-              <div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <div v-else class="space-y-3">
+            <div v-for="activity in displayedActivities" :key="activity.id" class="flex items-center space-x-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <div :class="getActivityIconClass(activity.action)">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path v-if="activity.action.includes('Login')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path v-else-if="activity.action.includes('Invoice')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path v-else-if="activity.action.includes('Receipt')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-slate-900 dark:text-white">Invoice generated</p>
-                <p class="text-xs text-slate-600 dark:text-slate-400">Invoice #INV-2024-001 created for ₦150,000</p>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-slate-900 dark:text-white truncate">{{ activity.action }}</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400">
+                  <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ activity.memberName }}</span>
+                  <span class="mx-1">•</span>
+                  <span>{{ activity.branch }} branch</span>
+                </p>
               </div>
-              <span class="text-xs text-slate-500 dark:text-slate-400">4 hours ago</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ formatTimeAgo(activity.timestamp) }}</span>
             </div>
+          </div>
 
-            <div class="flex items-center space-x-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
-              <div class="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <svg class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-slate-900 dark:text-white">Payment received</p>
-                <p class="text-xs text-slate-600 dark:text-slate-400">Receipt #REC-2024-001 issued for ₦75,000</p>
-              </div>
-              <span class="text-xs text-slate-500 dark:text-slate-400">6 hours ago</span>
-            </div>
+          <!-- See More Button -->
+          <div v-if="recentActivities.length > 3" class="mt-4 text-center">
+            <button 
+              @click="showAllActivities = !showAllActivities"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors duration-200"
+            >
+              <span>{{ showAllActivities ? 'Show Less' : `See More (${recentActivities.length - 3} more)` }}</span>
+              <svg 
+                class="h-4 w-4 transition-transform duration-200" 
+                :class="{ 'rotate-180': showAllActivities }"
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -282,6 +294,8 @@ export default defineComponent({
     const pendingTasks = ref(0);
     const loading = ref(true);
     const error = ref(null);
+    const recentActivities = ref([]);
+    const showAllActivities = ref(false);
 
     const branchTitle = computed(() => {
       const branch = route.query.branch;
@@ -289,6 +303,11 @@ export default defineComponent({
     });
 
     const branchName = computed(() => route.query.branch || '');
+
+    // Computed property for displaying limited activities
+    const displayedActivities = computed(() => {
+      return showAllActivities.value ? recentActivities.value : recentActivities.value.slice(0, 3);
+    });
 
     // Fetch branch-specific statistics
     const fetchBranchStats = async () => {
@@ -311,7 +330,7 @@ export default defineComponent({
         const result = await response.json();
         const stats = result.data;
 
-        // Update dashboard stats
+        // Update dashboard stats from backend
         totalMembers.value = stats.totalMembers;
         activeInvoices.value = stats.activeInvoices;
         monthlyRevenue.value = stats.monthlyRevenue.toLocaleString('en-NG');
@@ -327,7 +346,47 @@ export default defineComponent({
 
     onMounted(() => {
       fetchBranchStats();
+      loadActivities();
     });
+
+    const loadActivities = () => {
+      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+      // Filter activities for current branch or show all if no branch filter
+      recentActivities.value = activities
+        .filter(act => !branchName.value || act.branch === branchName.value)
+        .slice(0, 10); // Show latest 10 activities
+    };
+
+    const refreshActivities = () => {
+      loadActivities();
+    };
+
+    const formatTimeAgo = (timestamp) => {
+      const now = new Date();
+      const activityTime = new Date(timestamp);
+      const diffMs = now - activityTime;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    };
+
+    const getActivityIconClass = (action) => {
+      const baseClass = 'h-8 w-8 rounded-full flex items-center justify-center';
+      if (action.includes('Login')) {
+        return `${baseClass} bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400`;
+      } else if (action.includes('Invoice')) {
+        return `${baseClass} bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400`;
+      } else if (action.includes('Receipt')) {
+        return `${baseClass} bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400`;
+      } else {
+        return `${baseClass} bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400`;
+      }
+    };
 
     const handleGoBack = () => {
       router.replace({ name: 'Home' });
@@ -350,6 +409,10 @@ export default defineComponent({
       alert('Member management feature coming soon!');
     };
 
+    const handleMemberLogin = () => {
+      router.push({ name: 'MemberLogin', query: { branch: branchName.value } });
+    };
+
     const handleBranchSettings = () => {
       router.push({ name: 'Settings', query: { branch: branchName.value } });
     };
@@ -368,13 +431,20 @@ export default defineComponent({
       pendingTasks,
       loading,
       error,
+      recentActivities,
+      showAllActivities,
+      displayedActivities,
       handleGoBack,
       handleCreateInvoice,
       handleCreateReceipt,
       handleViewStats,
       handleMemberManagement,
+      handleMemberLogin,
       handleBranchSettings,
       handleReports,
+      refreshActivities,
+      formatTimeAgo,
+      getActivityIconClass,
     };
   },
 });

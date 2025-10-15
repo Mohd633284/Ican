@@ -140,6 +140,18 @@ app.post('/invoice', (req, res) => {
   }
 });
 
+// Get next invoice number
+app.get('/invoice/next-number', (_req, res) => {
+  try {
+    const counters = getCounters();
+    const nextNumber = (counters.invoices || 0) + 1;
+    return res.json({ nextNumber });
+  } catch (err) {
+    console.error('Failed to get next invoice number', err);
+    return res.status(500).json({ error: 'Failed to get next invoice number' });
+  }
+});
+
 app.post('/receipt', (req, res) => {
   const error = validatePayload(req.body, ['receivedFrom']);
   if (error) {
@@ -152,6 +164,18 @@ app.post('/receipt', (req, res) => {
   } catch (err) {
     console.error('Failed to save receipt', err);
     return res.status(500).json({ error: 'Failed to save receipt' });
+  }
+});
+
+// Get next receipt number
+app.get('/receipt/next-number', (_req, res) => {
+  try {
+    const counters = getCounters();
+    const nextNumber = (counters.receipts || 0) + 1;
+    return res.json({ nextNumber });
+  } catch (err) {
+    console.error('Failed to get next receipt number', err);
+    return res.status(500).json({ error: 'Failed to get next receipt number' });
   }
 });
 

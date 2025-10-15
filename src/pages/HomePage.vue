@@ -20,80 +20,82 @@
         <!-- Main Content Grid -->
         <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh]">
 
+        
+          
           <!-- Left Column: Enhanced Header -->
           <div class="order-1 lg:order-1 relative">
             <!-- Background Card with Gradient -->
-            <div class="relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-800 dark:from-blue-900 dark:via-slate-900 dark:to-indigo-950 rounded-3xl p-8 lg:p-12 shadow-2xl overflow-hidden">
+            <div class="relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-800 dark:from-blue-900 dark:via-slate-900 dark:to-indigo-950 rounded-2xl p-4 lg:p-8 shadow-xl overflow-hidden">
               <!-- Decorative Elements -->
-              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-              <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+              <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
+              <div class="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
 
               <!-- Content -->
               <div class="relative z-10 text-center">
-                <div class="flex justify-center mb-8">
-                  <img src="/images/ican-web-logo.png" alt="ICAN logo" class="h-14 w-auto drop-shadow-xl" />
+                <div class="flex justify-center mb-4">
+                  <img src="/images/ican-web-logo.png" alt="ICAN logo" class="h-10 w-auto drop-shadow-lg" />
                 </div>
                 <!-- Badge -->
-                <div class="inline-flex items-center gap-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-6 py-3 text-white text-sm font-semibold uppercase tracking-wider mb-8 shadow-lg">
-                  <div class="w-3 h-3 bg-white rounded-full animate-pulse shadow-sm"></div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-2 text-white text-xs font-semibold uppercase tracking-wider mb-4 shadow-md">
+                  <div class="w-2 h-2 bg-white rounded-full animate-pulse shadow-sm"></div>
                   Chartered Confidence
-                  <div class="w-3 h-3 bg-white rounded-full animate-pulse shadow-sm"></div>
+                  <div class="w-2 h-2 bg-white rounded-full animate-pulse shadow-sm"></div>
                 </div>
 
                 <!-- Main Title -->
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 tracking-tight">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-4 tracking-tight">
                   Institute of
                   <span class="block bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                    Chartered Accountants
+                    Chartered Accountants of Nigeria
                   </span>
-                  <span class="block text-blue-200 text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
-                    of Nigeria
-                  </span>
+                
                 </h1>
 
                 <!-- Description -->
-                <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed mb-8 font-medium">
+                <p class="text-sm sm:text-base text-blue-100 max-w-xl mx-auto leading-relaxed mb-4 font-medium">
                   A comprehensive workspace for managing branch receipts, invoices, and member services with export-ready documentation and complete audit trails.
                 </p>
               </div>
             </div>
           </div>
 
+          
+
           <!-- Right Column: Enhanced Login Form -->
           <div class="order-2 lg:order-2">
-            <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/50 p-8 lg:p-10 relative overflow-hidden">
+            <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 p-5 lg:p-7 relative overflow-hidden">
               <!-- Form Background Pattern -->
               <div class="absolute inset-0 opacity-5">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full -translate-y-16 translate-x-16"></div>
-                <div class="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500 rounded-full translate-y-12 -translate-x-12"></div>
+                <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500 rounded-full -translate-y-10 translate-x-10"></div>
+                <div class="absolute bottom-0 left-0 w-16 h-16 bg-indigo-500 rounded-full translate-y-8 -translate-x-8"></div>
               </div>
 
               <div class="relative z-10">
                 <!-- Header -->
-                <div class="text-center mb-10">
-                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="text-center mb-6">
+                  <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl mb-4 shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
                   </div>
-                  <h2 class="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-3">Access Your Branch</h2>
-                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-base">
+                  <h2 class="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mb-2">Access Your Branch</h2>
+                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
                     Sign in with your branch credentials provided by the national secretariat
                   </p>
                 </div>
 
                 <!-- Form -->
-                <form class="space-y-6" @submit.prevent="handleSubmit">
+                <form class="space-y-4" @submit.prevent="handleSubmit">
                   <!-- Branch Selection -->
-                  <div class="space-y-3">
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="branch-select">
+                  <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200" for="branch-select">
                       Select Branch
                     </label>
                     <div class="relative">
                       <select
                         id="branch-select"
                         v-model="selectedBranch"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm"
+                        class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm"
                         :disabled="isLoadingBranches || branches.length === 0"
                       >
                         <option value="" disabled>Select your branch</option>
@@ -106,21 +108,21 @@
                           {{ branch }}
                         </option>
                       </select>
-                      <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                       </div>
                     </div>
-                    <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Loading branches...
                     </p>
-                    <p v-if="selectedBranch && !isBranchAccessible(selectedBranch)" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 border border-amber-200 dark:border-amber-800">
-                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <p v-if="selectedBranch && !isBranchAccessible(selectedBranch)" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5 border border-amber-200 dark:border-amber-800">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                       </svg>
                       Branch locked - Contact administrator for access
@@ -128,9 +130,9 @@
                   </div>
 
                   <!-- Password Field -->
-                  <div v-if="isPasswordStepVisible" class="space-y-4">
+                  <div v-if="isPasswordStepVisible" class="space-y-3">
                     <div>
-                      <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2" for="branch-email">
+                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="branch-email">
                         Email Address
                       </label>
                       <input
@@ -139,28 +141,43 @@
                         type="email"
                         autocomplete="email"
                         placeholder="Enter your email"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                        class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                       />
                     </div>
 
                     <div>
-                      <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2" for="branch-password">
+                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="branch-password">
                         Password
                       </label>
-                      <input
-                        id="branch-password"
-                        v-model="password"
-                        type="password"
-                        autocomplete="current-password"
-                        placeholder="Enter your password"
-                        class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
-                      />
+                      <div class="relative">
+                        <input
+                          id="branch-password"
+                          v-model="password"
+                          :type="showPassword ? 'text' : 'password'"
+                          autocomplete="current-password"
+                          placeholder="Enter your password"
+                          class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                        />
+                        <button 
+                          type="button"
+                          @click="showPassword = !showPassword"
+                          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                        >
+                          <svg v-if="!showPassword" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   <!-- Messages -->
-                  <div class="min-h-[2rem] flex flex-col justify-center">
-                    <p v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2 border border-red-200 dark:border-red-800">
+                  <div class="min-h-[1rem] flex flex-col justify-center">
+                    <p v-if="errorMessage" class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-2.5 py-1.5 border border-red-200 dark:border-red-800">
                       {{ errorMessage }}
                     </p>
                     <p v-if="statusMessage && !errorMessage" class="text-xs text-slate-500 dark:text-slate-400 text-center">
@@ -169,15 +186,15 @@
                   </div>
 
                   <!-- Action Buttons -->
-                  <div v-if="isPasswordStepVisible" class="space-y-4">
+                  <div v-if="isPasswordStepVisible" class="space-y-2.5">
                     <BaseButton
                       type="submit"
                       :disabled="isSubmitDisabled"
-                      class="w-full py-4 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      class="w-full py-2 text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                       :class="{ 'opacity-50 cursor-not-allowed': isSubmitDisabled }"
                     >
                       <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
-                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -189,7 +206,7 @@
                     <BaseButton
                       variant="secondary"
                       type="button"
-                      class="w-full py-4 text-base rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200"
+                      class="w-full py-2 text-sm rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200"
                       @click="handleSignUp"
                     >
                       Sign Up for {{ selectedBranch }}
@@ -198,8 +215,8 @@
                 </form>
 
                 <!-- Help Section -->
-                <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-                  <div class="text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <div class="text-center text-xs text-slate-500 dark:text-slate-400 space-y-1.5">
                     <p class="font-medium">Need Assistance?</p>
                     <p>Contact your branch administrator or reach out to the ICAN service desk for support.</p>
                   </div>
@@ -229,6 +246,7 @@ export default defineComponent({
     const selectedBranch = ref('');
     const email = ref('');
     const password = ref('');
+    const showPassword = ref(false);
     const errorMessage = ref('');
     const statusMessage = ref('');
     const isSubmitting = ref(false);
@@ -435,6 +453,7 @@ export default defineComponent({
       selectedBranch,
       email,
       password,
+      showPassword,
       errorMessage,
       statusMessage,
       isPasswordStepVisible,
