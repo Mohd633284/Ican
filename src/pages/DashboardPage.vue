@@ -44,15 +44,25 @@
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- Total Members -->
           <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleMemberLogin">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-4">
+              <!-- Top Row: Icon -->
+              <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Members</p>
-                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ totalMembers }}</p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ totalMembers }}</p>
               </div>
-              <div class="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
+
+                <div class="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                  <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
+                </div>
+              </div>
+              
+              
+              <!-- Bottom: Action Text -->
+              <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400">→ Register New Member</p>
               </div>
             </div>
           </div>
@@ -273,10 +283,11 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, onMounted } from 'vue';
+import { defineComponent, computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 import { API_BASE } from '../api.js';
+import { getAllMembers, getMemberActivities } from '@/firebase';
 
 export default defineComponent({
   name: 'DashboardPage',
@@ -321,7 +332,19 @@ export default defineComponent({
         loading.value = true;
         error.value = null;
 
-    const response = await fetch(`${API_BASE}/dashboard/${branchName.value}`);
+        // Get member count from Firebase (updated to use Firebase instead of localStorage)
+        console.log('🔥 Loading member count from Firebase...');
+        const membersResult = await getAllMembers(branchName.value);
+        if (membersResult.success) {
+          totalMembers.value = membersResult.data.length;
+          console.log(`✅ Loaded ${totalMembers.value} members from Firebase`);
+        } else {
+          console.warn('⚠️ Failed to load members from Firebase:', membersResult.error);
+          totalMembers.value = 0;
+        }
+
+        // Get other stats from backend
+        const response = await fetch(`${API_BASE}/dashboard/${branchName.value}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch branch statistics');
@@ -330,8 +353,6 @@ export default defineComponent({
         const result = await response.json();
         const stats = result.data;
 
-        // Update dashboard stats from backend
-        totalMembers.value = stats.totalMembers;
         activeInvoices.value = stats.activeInvoices;
         monthlyRevenue.value = stats.monthlyRevenue.toLocaleString('en-NG');
         pendingTasks.value = stats.pendingTasks;
@@ -349,12 +370,22 @@ export default defineComponent({
       loadActivities();
     });
 
-    const loadActivities = () => {
-      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
-      // Filter activities for current branch or show all if no branch filter
-      recentActivities.value = activities
-        .filter(act => !branchName.value || act.branch === branchName.value)
-        .slice(0, 10); // Show latest 10 activities
+    const loadActivities = async () => {
+      // Load activities from Firebase (updated to use Firebase instead of localStorage)
+      console.log('🔥 Loading activities from Firebase...');
+      try {
+        const result = await getMemberActivities(branchName.value, 10);
+        if (result.success) {
+          recentActivities.value = result.data;
+          console.log(`✅ Loaded ${result.data.length} activities from Firebase`);
+        } else {
+          console.warn('⚠️ Failed to load activities from Firebase:', result.error);
+          recentActivities.value = [];
+        }
+      } catch (err) {
+        console.error('❌ Error loading activities:', err);
+        recentActivities.value = [];
+      }
     };
 
     const refreshActivities = () => {

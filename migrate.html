@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Migration Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+    }
+    
+    h1 {
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #718096;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .status-box {
+      background: #f7fafc;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #4299e1;
+    }
+    
+    .status-box h3 {
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      color: #4a5568;
+      font-size: 14px;
+    }
+    
+    .status-item strong {
+      color: #2d3748;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(245, 101, 101, 0.4);
+    }
+    
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+    
+    .log-box {
+      background: #1a202c;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .log-box:empty::before {
+      content: 'Logs will appear here...';
+      color: #718096;
+    }
+    
+    .warning {
+      background: #fef5e7;
+      border-left: 4px solid #f39c12;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      color: #7d6608;
+    }
+    
+    .success {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      color: #155724;
+    }
+    
+    .icon {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔥</div>
+    <h1>Firebase Migration Tool</h1>
+    <p class="subtitle">Migrate your data from localStorage to Firebase Cloud</p>
+    
+    <div class="status-box">
+      <h3>📊 Current Status</h3>
+      <div class="status-item">
+        <span>LocalStorage Members:</span>
+        <strong id="localMemberCount">-</strong>
+      </div>
+      <div class="status-item">
+        <span>LocalStorage Activities:</span>
+        <strong id="localActivityCount">-</strong>
+      </div>
+      <div class="status-item">
+        <span>Branch Name:</span>
+        <strong id="branchName">-</strong>
+      </div>
+    </div>
+    
+    <div id="warningBox" class="warning" style="display: none;">
+      ⚠️ <strong>Warning:</strong> Make sure your Firestore rules allow write access before migrating!
+    </div>
+    
+    <div id="successBox" class="success" style="display: none;">
+      ✅ <strong>Success!</strong> Migration completed successfully.
+    </div>
+    
+    <button class="btn btn-primary" onclick="checkStatus()" id="checkBtn">
+      🔍 Check Status
+    </button>
+    
+    <button class="btn btn-primary" onclick="migrateData()" id="migrateBtn" disabled>
+      🚀 Migrate to Firebase
+    </button>
+    
+    <button class="btn btn-danger" onclick="clearLocal()" id="clearBtn" disabled>
+      🗑️ Clear localStorage (After Migration)
+    </button>
+    
+    <button class="btn btn-success" onclick="window.location.href='/'" id="doneBtn" style="display:none;">
+      ✅ Done - Go to App
+    </button>
+    
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+  <script type="module">
+    import { saveMember, saveMemberActivity, getAllMembers } from './src/firebase/index.js';
+    
+    let migrationComplete = false;
+    
+    window.log = function(message, type = 'info') {
+      const logBox = document.getElementById('logBox');
+      const time = new Date().toLocaleTimeString();
+      const colors = {
+        info: '#e2e8f0',
+        success: '#48bb78',
+        error: '#f56565',
+        warning: '#f39c12'
+      };
+      logBox.innerHTML += `<div style="color: ${colors[type]}">[${time}] ${message}</div>`;
+      logBox.scrollTop = logBox.scrollHeight;
+    };
+    
+    window.checkStatus = async function() {
+      document.getElementById('logBox').innerHTML = '';
+      log('🔍 Checking status...', 'info');
+      
+      const members = localStorage.getItem('members');
+      const activities = localStorage.getItem('memberActivities');
+      const branchName = localStorage.getItem('branchName') || 'default';
+      
+      const memberCount = members ? JSON.parse(members).length : 0;
+      const activityCount = activities ? JSON.parse(activities).length : 0;
+      
+      document.getElementById('localMemberCount').textContent = memberCount;
+      document.getElementById('localActivityCount').textContent = activityCount;
+      document.getElementById('branchName').textContent = branchName;
+      
+      if (memberCount > 0 || activityCount > 0) {
+        document.getElementById('migrateBtn').disabled = false;
+        document.getElementById('warningBox').style.display = 'block';
+        log(`✅ Found ${memberCount} members and ${activityCount} activities`, 'success');
+      } else {
+        log('⚠️ No data found in localStorage', 'warning');
+      }
+      
+      // Check Firebase connection
+      try {
+        const result = await getAllMembers(branchName);
+        if (result.success) {
+          log(`🔥 Firebase connected! Found ${result.data.length} members in cloud`, 'success');
+        }
+      } catch (err) {
+        log('❌ Firebase connection error: ' + err.message, 'error');
+      }
+    };
+    
+    window.migrateData = async function() {
+      document.getElementById('migrateBtn').disabled = true;
+      document.getElementById('logBox').innerHTML = '';
+      log('🚀 Starting migration...', 'info');
+      
+      const branchName = localStorage.getItem('branchName') || 'default';
+      
+      // Migrate members
+      const members = localStorage.getItem('members');
+      if (members) {
+        const memberList = JSON.parse(members);
+        log(`📦 Migrating ${memberList.length} members...`, 'info');
+        
+        let successCount = 0;
+        for (const member of memberList) {
+          try {
+            const result = await saveMember(branchName, member.id, member);
+            if (result.success) {
+              successCount++;
+              log(`✅ Migrated: ${member.name}`, 'success');
+            } else {
+              log(`❌ Failed: ${member.name} - ${result.error}`, 'error');
+            }
+          } catch (err) {
+            log(`❌ Error: ${member.name} - ${err.message}`, 'error');
+          }
+        }
+        log(`🎉 Members migration complete! ${successCount}/${memberList.length} successful`, 'success');
+      }
+      
+      // Migrate activities
+      const activities = localStorage.getItem('memberActivities');
+      if (activities) {
+        const activityList = JSON.parse(activities);
+        log(`📦 Migrating ${activityList.length} activities...`, 'info');
+        
+        let successCount = 0;
+        for (const activity of activityList) {
+          try {
+            const result = await saveMemberActivity(branchName, activity);
+            if (result.success) {
+              successCount++;
+            }
+          } catch (err) {
+            log(`❌ Activity error: ${err.message}`, 'error');
+          }
+        }
+        log(`🎉 Activities migration complete! ${successCount}/${activityList.length} successful`, 'success');
+      }
+      
+      log('✅ Migration completed!', 'success');
+      document.getElementById('successBox').style.display = 'block';
+      document.getElementById('clearBtn').disabled = false;
+      migrationComplete = true;
+    };
+    
+    window.clearLocal = function() {
+      if (!confirm('⚠️ This will delete all localStorage data. Are you sure?')) {
+        return;
+      }
+      
+      localStorage.removeItem('members');
+      localStorage.removeItem('memberActivities');
+      
+      log('✅ localStorage cleared!', 'success');
+      log('🔥 App will now use Firebase only', 'success');
+      
+      document.getElementById('clearBtn').disabled = true;
+      document.getElementById('doneBtn').style.display = 'block';
+    };
+    
+    // Auto-check status on load
+    window.addEventListener('load', () => {
+      setTimeout(checkStatus, 500);
+    });
+  </script>
+</body>
+</html>

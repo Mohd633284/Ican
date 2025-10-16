@@ -103,412 +103,516 @@
       </div>
     </section>
 
-    <!-- Quick Fill Form Section -->
-    <section class="w-full max-w-4xl">
-      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          📝 Quick Fill Form
-        </h2>
-        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
-          Fill out this form to automatically populate the invoice below
-        </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Invoice Number -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Invoice Number
-            </label>
-            <input
-              v-model="receiptNumber"
-              type="number"
-              min="1"
-              :disabled="autoReceiptNumber"
-              placeholder="Invoice #"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
+        <!-- Flex Container for Form and Preview -->
+    <div class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 items-start">
 
-          <!-- Date -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Date
-            </label>
-            <input
-              v-model="date"
-              type="date"
-              :disabled="autoDate"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          <!-- Customer Name -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Customer Name
-            </label>
-            <input
-              v-model="customerName"
-              type="text"
-              placeholder="Enter customer name"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <!-- LPO Number -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              LPO Number (Optional)
-            </label>
-            <input
-              v-model="lpo"
-              type="text"
-              placeholder="Enter LPO number"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <!-- Customer Address -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Customer Address
-            </label>
-            <textarea
-              v-model="customerAddress"
-              rows="2"
-              placeholder="Enter customer address"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white resize-none"
-            ></textarea>
-          </div>
-
-          <!-- Tax Settings -->
-          <div class="md:col-span-2 flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                v-model="taxEnabled" 
-                class="rounded border-gray-300 cursor-pointer accent-emerald-600"
-              />
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Enable Tax</span>
-            </label>
-            
-            <div v-if="taxEnabled" class="flex items-center gap-2 flex-1">
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Tax Rate (%):
+      <!-- Quick Fill Form Section -->
+      <section class="w-full max-w-4xl">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            📝 Quick Fill Form
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
+            Fill out this form to automatically populate the invoice below
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+  
+            <!-- Customer Name -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Customer Name
               </label>
               <input
-                v-model.number="taxRate"
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
-                class="w-24 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                v-model="customerName"
+                type="text"
+                placeholder="Enter customer name"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
               />
-              <span class="text-sm text-slate-600 dark:text-slate-400">
-                (Tax: {{ toCurrency(taxAmount) }})
+            </div>
+  
+            <!-- LPO Number -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                LPO Number (Optional)
+              </label>
+              <input
+                v-model="lpo"
+                type="text"
+                placeholder="Enter LPO number"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+            </div>
+  
+            <!-- Customer Address -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Customer Address
+              </label>
+              <textarea
+                v-model="customerAddress"
+                rows="2"
+                placeholder="Enter customer address"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Items Table -->
+            <div class="md:col-span-2">
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Invoice Items
+                </label>
+                <button
+                  @click="addItem"
+                  :disabled="items.length >= MAX_ITEMS"
+                  class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+                  :title="items.length >= MAX_ITEMS ? `Maximum ${MAX_ITEMS} items allowed` : 'Add new item'"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Item
+                </button>
+              </div>
+
+              <!-- Items List -->
+              <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                  <table class="w-full text-sm">
+                    <thead class="bg-emerald-600 text-white sticky top-0 z-10">
+                      <tr>
+                        <th class="px-2 py-2 text-left text-xs font-semibold w-16">QTY</th>
+                        <th class="px-2 py-2 text-left text-xs font-semibold">DESCRIPTION OF GOODS</th>
+                        <th class="px-2 py-2 text-left text-xs font-semibold w-24">RATE (₦)</th>
+                        <th class="px-2 py-2 text-center text-xs font-semibold w-24">AMOUNT</th>
+                        <th class="px-2 py-2 text-center text-xs font-semibold w-12"></th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-slate-700">
+                      <tr 
+                        v-for="(item, index) in items" 
+                        :key="item.id"
+                        class="border-t border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+                      >
+                        <td class="px-2 py-2">
+                          <input
+                            v-model.number="item.quantity"
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-center"
+                          />
+                        </td>
+                        <td class="px-2 py-2">
+                          <textarea
+                            v-model="item.description"
+                            placeholder="Item description"
+                            @keydown.enter.prevent="addItemAfter(index)"
+                            rows="2"
+                            class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none overflow-hidden"
+                            @input="autoResize"
+                          />
+                        </td>
+                        <td class="px-2 py-2">
+                          <input
+                            v-model.number="item.price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                            class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-right"
+                          />
+                        </td>
+                        <td class="px-2 py-2 text-right font-semibold text-slate-900 dark:text-white">
+                          {{ toCurrency((item.quantity || 0) * (item.price || 0)) }}
+                        </td>
+                        <td class="px-2 py-2 text-center">
+                          <button
+                            v-if="items.length > 1"
+                            @click="removeItem(item.id)"
+                            class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                            title="Remove item"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Subtotal Display -->
+                <div class="bg-gray-50 dark:bg-slate-800 px-4 py-2 border-t border-gray-300 dark:border-gray-600">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Subtotal:</span>
+                    <span class="text-lg font-bold text-slate-900 dark:text-white">{{ toCurrency(subtotal) }}</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Press Enter in description field to quickly add a new item. Maximum {{ MAX_ITEMS }} items allowed.
+              </p>
+            </div>
+  
+            <!-- Tax Settings -->
+            <div class="md:col-span-2 flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  v-model="taxEnabled" 
+                  class="rounded border-gray-300 cursor-pointer accent-emerald-600"
+                />
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Enable Tax</span>
+              </label>
+              
+              <div v-if="taxEnabled" class="flex items-center gap-2 flex-1">
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Tax Rate (%):
+                </label>
+                <input
+                  v-model.number="taxRate"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  class="w-24 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                />
+                <span class="text-sm text-slate-600 dark:text-slate-400">
+                  (Tax: {{ toCurrency(taxAmount) }})
+                </span>
+              </div>
+            </div>
+  
+            <!-- Amount in Words -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Amount in Words (Auto-generated)
+              </label>
+              <div class="grid grid-cols-1 gap-2">
+                <input
+                  ref="sumOfInput1"
+                  v-model="sumOf"
+                  type="text"
+                  placeholder="Line 1"
+                  @input="handleSumOfOverflow"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                />
+                <input
+                  ref="sumOfInput2"
+                  v-model="sumOf2"
+                  type="text"
+                  placeholder="Line 2 (overflow)"
+                  @input="handleSumOf2Input"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                />
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Automatically filled based on total amount
+              </p>
+            </div>
+          </div>
+  
+          <!-- Summary -->
+          <div class="mt-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-emerald-900 dark:text-emerald-300">
+                Total Amount:
+              </span>
+              <span class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+                {{ toCurrency(grandTotal) }}
               </span>
             </div>
           </div>
-
-          <!-- Amount in Words -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Amount in Words (Auto-generated)
-            </label>
-            <div class="grid grid-cols-1 gap-2">
+  
+          <!-- Mobile Preview Button -->
+          <div class="mt-4 md:hidden">
+            <button
+              @click="showPreview = !showPreview"
+              class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-lg"
+            >
+              <svg v-if="!showPreview" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>{{ showPreview ? 'Hide Preview' : 'Preview Invoice' }}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Invoice Preview Section - Hidden on mobile unless showPreview is true -->
+      <section 
+        class="w-full max-w-4xl flex items-center justify-center"
+        :class="{ 'hidden md:flex': !showPreview }"
+      >
+        <!-- Mobile wrapper with scroll -->
+        <div class="w-full md:w-auto overflow-x-auto md:overflow-visible">
+          <div
+            ref="invoiceRef"
+            id="meblink-invoice"
+            class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col mx-auto"
+            style="width: 5.827in; height: 8.268in; min-width: 5.827in;"
+          >
+           <!-- Header -->
+          <div class="text-center border-b ">
+            <div class="flex items-center ">
+              <!-- Logo (Fixed - Developer Only) -->
+              <div v-if="logoDataUrl" class="flex justify-center ">
+                <img :src="logoDataUrl" alt="ICAN Logo" class="h-[120px]  object-contain" @error="logoDataUrl = null" />
+              </div>
+              
+            
+               <!-- Organization Name (Fixed - Developer Only) -->
+              <div class="w-auto">
+                <h2 class="text-blue-800 text-[14px]  font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+                Institute of Chartered Accountants  of Nigeria (ICAN)
+                </h2>
+                <p class="text-[12px] text-left">Established by Act of Parliament No. 15 of (1965) Minna and District Society</p>
+            </div>
+            
+  
+          <div class="pl-3 ml-2 border-solid border-l-[2px]">
+              <!-- Address (Fixed - Developer Only) -->
+            <p class="text-[10px] text-left ">
+              {{ organizationAddress }}
+            </p>
+            
+            <!-- Phone (Fixed - Developer Only) -->
+            <p class="text-[10px] text-left mt-1 font-bold">
+              Tel: {{ organizationPhone }}
+            </p>
+          </div>
+  
+            </div>
+  
+            <!-- Receipt Title -->
+            <div class="flex justify-end items-center mt-[-20px] mb-2">
+              <p class="text-sm font-semibold mr-[60px] bg-red-500 text-white inline-block px-3 py-1 rounded">
+                CASH/CREDIT INVOICE
+              </p>
+              
+              <div></div>
+              <div class="flex items-center gap-1">
+                   <span>No.:</span>
+                <input
+                  v-model.number="receiptNumber"
+                  :disabled="autoReceiptNumber"
+                  type="number"
+                  min="1"
+                  class="w-16 bg-transparent border-none focus:outline-none text-center"
+                />
+                </div>
+            </div>
+            </div>
+  
+          <!-- Customer details -->
+          <div class="mt-2 grid grid-cols-3 gap-3">
+            <div class="border-[1.5px] col-span-2 rounded-xl p-1.5">
+              <div class="flex items-center gap-1">
+              <span class="text-[10px] text-slate-400 font-medium">Name:</span>
+              <input
+                v-model="customerName"
+                placeholder=" "
+                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+              />
+            </div>
+  
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] text-slate-400 font-medium">Address:</span>
+              <input
+                v-model="customerAddress"
+                placeholder=" "
+                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+              />
+            </div>
+            </div>
+  
+            <div class="border-[1.5px] rounded-xl p-1.5">
+              <div class="flex items-center gap-1">
+             <span class="text-[10px] text-slate-400 font-medium">Date:</span>
+                  <input
+                    v-model="date"
+                    type="date"
+                    :disabled="autoDate"
+                    class="bg-transparent border-none focus:outline-none text-[11px]"
+                  />
+            </div>
+  
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] text-slate-400 font-medium whitespace-nowrap">L.P.O No.:</span>
+              <input
+                v-model="lpo"
+                placeholder=" "
+                class="w-[80px] bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+              />
+            </div>
+            </div>
+  
+  
+           
+          </div>
+  
+          <!-- Table -->
+          <div class="mt-3 overflow-visible rounded relative">
+            <table class="w-full text-xs table-fixed border-collapse overflow-visible">
+              <thead class="bg-blue-800 text-white uppercase text-[10px]">
+                <tr>
+                  <th class="w-1/12 px-1.5 py-1 border text-center">QTY</th>
+                  <th class="w-6/12 px-1.5 py-1 border text-left">DESCRIPTION OF GOODS</th>
+                  <th class="w-2/12 px-1.5 py-1 border text-center">RATE</th>
+                  <th class="w-3/12 px-1.5 py-1 border text-center">AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in items" :key="item.id" class="border-t hover:bg-slate-50 transition-colors group">
+                  <td class="px-1.5 py-0.5 text-center align-top">
+                    <input 
+                      v-model.number="item.quantity" 
+                      type="number" 
+                      step="1" 
+                      min="0" 
+                      placeholder=""
+                      class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
+                    />
+                  </td>
+                  <td class="px-1.5 py-0.5 align-top">
+                    <textarea 
+                      v-model="item.description" 
+                      placeholder="Description" 
+                      rows="1"
+                      class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none overflow-hidden leading-tight" 
+                      @keydown.enter.prevent="addItemAfter(index)"
+                      @input="autoResize"
+                    />
+                  </td>
+                  <td class="px-1.5 py-0.5 text-right align-top">
+                    <input 
+                      v-model.number="item.price" 
+                      type="number" 
+                      step="0.01" 
+                      min="0" 
+                      class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
+                    />
+                  </td>
+                  <td class="px-1.5 py-0.5 text-right font-semibold align-top relative overflow-visible text-[11px]">
+                    {{ toCurrency((item.quantity || 0) * (item.price || 0)) }}
+                    <!-- Delete button absolutely positioned on right edge -->
+                    <button 
+                      v-if="items.length > 1"
+                      @click="removeItem(item.id)" 
+                      class="absolute right-[-13px] top-0 -translate-y-1/2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-200 w-5 h-5 flex items-center justify-center text-lg font-bold hover:scale-110 z-50"
+                      title="Remove item"
+                    >
+                      ×
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <!-- Add button absolutely positioned at bottom left -->
+            <button 
+              @click="addItem"
+              class="absolute left-[-13px] bottom-0 translate-y-1/2 text-emerald-400 hover:text-emerald-600 opacity-0 hover:opacity-100 transition-all duration-200 w-6 h-6 flex items-center justify-center text-2xl font-bold hover:scale-110 z-50 bg-white rounded-full shadow-md border border-emerald-300"
+              title="Add new item"
+            >
+              +
+            </button>
+          </div>
+  
+          <!-- Total -->
+          <div class="flex justify-end font-bold text-slate-900 text-base">
+                <span class="mr-5">TOTAL</span>
+                <span>{{ toCurrency(grandTotal) }}</span>
+          </div>
+  
+          <!-- Footer -->
+          <div class="mt-auto text-[12px]">
+  
+            <div>
+              <div class="flex items-center gap-1">
+              <span class="flex whitespace-nowrap">Amount in words:</span>
               <input
                 ref="sumOfInput1"
                 v-model="sumOf"
-                type="text"
-                placeholder="Line 1"
                 @input="handleSumOfOverflow"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
               />
+            </div>
+  
+            <div class="flex items-center h-7 gap-2">
               <input
                 ref="sumOfInput2"
                 v-model="sumOf2"
                 type="text"
-                placeholder="Line 2 (overflow)"
                 @input="handleSumOf2Input"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
+                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
               />
+              <span>Naira</span>
+              <div class="w-14 bg-transparent border-b border-dotted border-gray-400 flex items-center justify-center text-center">
+                <span>Only</span>
+              </div>
+              <span>Kobo</span>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Automatically filled based on total amount
-            </p>
-          </div>
-        </div>
-
-        <!-- Summary -->
-        <div class="mt-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-emerald-900 dark:text-emerald-300">
-              Total Amount:
-            </span>
-            <span class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
-              {{ toCurrency(grandTotal) }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="w-full max-w-4xl flex items-center justify-center">
-      <div
-        ref="invoiceRef"
-        id="meblink-invoice"
-        class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col"
-        style="width: 5.827in; height: 8.268in"
-      >
-         <!-- Header -->
-        <div class="text-center border-b ">
-          <div class="flex items-center ">
-            <!-- Logo (Fixed - Developer Only) -->
-            <div v-if="logoDataUrl" class="flex justify-center ">
-              <img :src="logoDataUrl" alt="ICAN Logo" class="h-[120px]  object-contain" @error="logoDataUrl = null" />
+  
+            </div>
+  
+             <div class="flex justify-between items-start mt-1">
+             
+              <!-- Signature 1 -->
+              <div class="flex flex-col items-center gap-1">
+                <!-- Signature 1 Image -->
+                  <div v-if="signatureImage1">
+                  <img :src="signatureImage1" alt="Signature 1" class="h-5 w-auto object-contain max-w-[80px] " />
+                </div>
+  
+                <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
+                  No signature
+                </div>
+  
+               <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+                 <p class="italic">Signature</p>
+               </div> 
+              </div>
+  
+              <!-- Thanks for your patronage -->
+               <div class="mt-2 text-emerald-600 text-center font-medium text-[10px]">Thanks for your patronage</div>
+  
+            <!-- Signature 2 -->
+              <div class="flex flex-col items-center gap-1">
+                <!-- Signature 2 Image -->
+                  <div v-if="signatureImage2">
+                  <img :src="signatureImage2" alt="Signature 1" class="h-7 w-auto object-contain max-w-[100px] " />
+                </div>
+  
+                <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
+                  No signature
+                </div>
+  
+               <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+                 <p class="italic">Signature</p>
+               </div> 
+              </div>
             </div>
             
-          
-             <!-- Organization Name (Fixed - Developer Only) -->
-            <div class="w-auto">
-              <h2 class="text-blue-800 text-[14px]  font-bold uppercase text-left" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
-              Institute of Chartered Accountants  of Nigeria (ICAN)
-              </h2>
-              <p class="text-[12px] text-left">Established by Act of Parliament No. 15 of (1965) Minna and District Society</p>
+  
           </div>
-          
-
-        <div class="pl-3 ml-2 border-solid border-l-[2px]">
-            <!-- Address (Fixed - Developer Only) -->
-          <p class="text-[10px] text-left ">
-            {{ organizationAddress }}
-          </p>
-          
-          <!-- Phone (Fixed - Developer Only) -->
-          <p class="text-[10px] text-left mt-1 font-bold">
-            Tel: {{ organizationPhone }}
-          </p>
         </div>
-
-          </div>
-
-          <!-- Receipt Title -->
-          <div class="flex justify-end items-center mt-[-20px] mb-2">
-            <p class="text-sm font-semibold mr-[60px] bg-red-500 text-white inline-block px-3 py-1 rounded">
-              CASH/CREDIT INVOICE
-            </p>
-            
-            <div></div>
-            <div class="flex items-center gap-1">
-                 <span>No.:</span>
-              <input
-                v-model.number="receiptNumber"
-                :disabled="autoReceiptNumber"
-                type="number"
-                min="1"
-                class="w-16 bg-transparent border-none focus:outline-none text-center"
-              />
-              </div>
-          </div>
-          </div>
-
-        <!-- Customer details -->
-        <div class="mt-2 grid grid-cols-3 gap-3">
-          <div class="border-[1.5px] col-span-2 rounded-xl p-1.5">
-            <div class="flex items-center gap-1">
-            <span class="text-[10px] text-slate-400 font-medium">Name:</span>
-            <input
-              v-model="customerName"
-              placeholder=" "
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
-            />
-          </div>
-
-          <div class="flex items-center gap-1">
-            <span class="text-[10px] text-slate-400 font-medium">Address:</span>
-            <input
-              v-model="customerAddress"
-              placeholder=" "
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
-            />
-          </div>
-          </div>
-
-          <div class="border-[1.5px] rounded-xl p-1.5">
-            <div class="flex items-center gap-1">
-           <span class="text-[10px] text-slate-400 font-medium">Date:</span>
-                <input
-                  v-model="date"
-                  type="date"
-                  :disabled="autoDate"
-                  class="bg-transparent border-none focus:outline-none text-[11px]"
-                />
-          </div>
-
-          <div class="flex items-center gap-1">
-            <span class="text-[10px] text-slate-400 font-medium whitespace-nowrap">L.P.O No.:</span>
-            <input
-              v-model="lpo"
-              placeholder=" "
-              class="w-[80px] bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
-            />
-          </div>
-          </div>
-
-
-         
         </div>
+      </section>
 
-        <!-- Table -->
-        <div class="mt-3 overflow-visible rounded relative">
-          <table class="w-full text-xs table-fixed border-collapse overflow-visible">
-            <thead class="bg-blue-800 text-white uppercase text-[10px]">
-              <tr>
-                <th class="w-1/12 px-1.5 py-1 border text-center">QTY</th>
-                <th class="w-6/12 px-1.5 py-1 border text-left">DESCRIPTION OF GOODS</th>
-                <th class="w-2/12 px-1.5 py-1 border text-center">RATE</th>
-                <th class="w-3/12 px-1.5 py-1 border text-center">AMOUNT</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in items" :key="item.id" class="border-t hover:bg-slate-50 transition-colors group">
-                <td class="px-1.5 py-0.5 text-center align-top">
-                  <input 
-                    v-model.number="item.quantity" 
-                    type="number" 
-                    step="1" 
-                    min="0" 
-                    placeholder=""
-                    class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
-                  />
-                </td>
-                <td class="px-1.5 py-0.5 align-top">
-                  <input 
-                    v-model="item.description" 
-                    type="text"
-                    placeholder="Description" 
-                    class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
-                    @input="handleDescriptionInput(item, index)"
-                    @keydown.enter.prevent="addItemAfter(index)"
-                  />
-                </td>
-                <td class="px-1.5 py-0.5 text-right align-top">
-                  <input 
-                    v-model.number="item.price" 
-                    type="number" 
-                    step="0.01" 
-                    min="0" 
-                    class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
-                  />
-                </td>
-                <td class="px-1.5 py-0.5 text-right font-semibold align-top relative overflow-visible text-[11px]">
-                  {{ toCurrency((item.quantity || 0) * (item.price || 0)) }}
-                  <!-- Delete button absolutely positioned on right edge -->
-                  <button 
-                    v-if="items.length > 1"
-                    @click="removeItem(item.id)" 
-                    class="absolute right-[-13px] top-0 -translate-y-1/2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-200 w-5 h-5 flex items-center justify-center text-lg font-bold hover:scale-110 z-50"
-                    title="Remove item"
-                  >
-                    ×
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          
-          <!-- Add button absolutely positioned at bottom left -->
-          <button 
-            @click="addItem"
-            class="absolute left-[-13px] bottom-0 translate-y-1/2 text-emerald-400 hover:text-emerald-600 opacity-0 hover:opacity-100 transition-all duration-200 w-6 h-6 flex items-center justify-center text-2xl font-bold hover:scale-110 z-50 bg-white rounded-full shadow-md border border-emerald-300"
-            title="Add new item"
-          >
-            +
-          </button>
-        </div>
-
-        <!-- Total -->
-        <div class="flex justify-end font-bold text-slate-900 text-base">
-              <span class="mr-5">TOTAL</span>
-              <span>{{ toCurrency(grandTotal) }}</span>
-        </div>
-
-        <!-- Footer -->
-        <div class="mt-auto text-[12px]">
-
-          <div>
-            <div class="flex items-center gap-1">
-            <span class="flex whitespace-nowrap">Amount in words:</span>
-            <input
-              ref="sumOfInput1"
-              v-model="sumOf"
-              @input="handleSumOfOverflow"
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
-            />
-          </div>
-
-          <div class="flex items-center h-7 gap-2">
-            <input
-              ref="sumOfInput2"
-              v-model="sumOf2"
-              type="text"
-              @input="handleSumOf2Input"
-              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
-            />
-            <span>Naira</span>
-            <div class="w-14 bg-transparent border-b border-dotted border-gray-400 flex items-center justify-center text-center">
-              <span>Only</span>
-            </div>
-            <span>Kobo</span>
-          </div>
-
-          </div>
-
-           <div class="flex justify-between items-start mt-1">
-           
-            <!-- Signature 1 -->
-            <div class="flex flex-col items-center gap-1">
-              <!-- Signature 1 Image -->
-                <div v-if="signatureImage1">
-                <img :src="signatureImage1" alt="Signature 1" class="h-5 w-auto object-contain max-w-[80px] " />
-              </div>
-
-              <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
-                No signature
-              </div>
-
-             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
-               <p class="italic">Signature</p>
-             </div> 
-            </div>
-
-            <!-- Thanks for your patronage -->
-             <div class="mt-2 text-emerald-600 text-center font-medium text-[10px]">Thanks for your patronage</div>
-
-          <!-- Signature 2 -->
-            <div class="flex flex-col items-center gap-1">
-              <!-- Signature 2 Image -->
-                <div v-if="signatureImage2">
-                <img :src="signatureImage2" alt="Signature 1" class="h-7 w-auto object-contain max-w-[100px] " />
-              </div>
-
-              <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
-                No signature
-              </div>
-
-             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
-               <p class="italic">Signature</p>
-             </div> 
-            </div>
-          </div>
-          
-
-        </div>
-      </div>
-    </section>
+    </div>
   </div>
   </div>
 </template>
@@ -600,6 +704,7 @@ export default defineComponent({
     const taxRate = ref(7.5);
     const receiptNumber = ref(1);
     const autoReceiptNumber = ref(true);
+    const showPreview = ref(false); // Mobile preview toggle
 
     // Fixed organization details (Developer only - users cannot change these)
     const organizationAddress = ref('Federal University of Technology, Bosso Campus, Minna');
@@ -718,50 +823,6 @@ export default defineComponent({
       const textarea = event.target;
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
-    };
-
-    // Handle description input and auto-continue to next row when filled
-    const handleDescriptionInput = (item, index) => {
-      const maxLength = 30; // Maximum characters before moving to next row
-      
-      if (item.description.length >= maxLength) {
-        // Get the overflow text
-        const overflow = item.description.substring(maxLength);
-        
-        // Trim current item description to max length
-        item.description = item.description.substring(0, maxLength);
-        
-        // Check if next row exists and is empty
-        if (index + 1 < items.value.length) {
-          const nextItem = items.value[index + 1];
-          if (!nextItem.description && !nextItem.quantity && !nextItem.price) {
-            // Next row is empty, use it for overflow
-            nextItem.description = overflow;
-            
-            // Focus on the next row's description field
-            setTimeout(() => {
-              const inputs = document.querySelectorAll('input[placeholder="Description"]');
-              if (inputs[index + 1]) {
-                inputs[index + 1].focus();
-                inputs[index + 1].setSelectionRange(overflow.length, overflow.length);
-              }
-            }, 0);
-          }
-        } else if (items.value.length < MAX_ITEMS) {
-          // Create a new row for overflow
-          const newItem = { id: Date.now(), description: overflow, quantity: '', price: 0 };
-          items.value.splice(index + 1, 0, newItem);
-          
-          // Focus on the new row's description field
-          setTimeout(() => {
-            const inputs = document.querySelectorAll('input[placeholder="Description"]');
-            if (inputs[index + 1]) {
-              inputs[index + 1].focus();
-              inputs[index + 1].setSelectionRange(overflow.length, overflow.length);
-            }
-          }, 0);
-        }
-      }
     };
 
     // Handle text overflow from first input to second input
@@ -935,6 +996,7 @@ export default defineComponent({
       authenticatedMember,
       showPasswordModal,
       passwordVerified,
+      showPreview,
       onPasswordVerified,
       onPasswordCancel,
       a5Width,
@@ -965,7 +1027,6 @@ export default defineComponent({
       addItemAfter,
       removeItem,
       autoResize,
-      handleDescriptionInput,
       handleSumOfOverflow,
       handleSumOf2Input,
       subtotal,
@@ -1118,4 +1179,37 @@ table th {
 tbody tr {
   animation: slideIn 0.3s ease-out;
 }
+
+/* Mobile invoice preview styles */
+@media (max-width: 768px) {
+  /* Smooth horizontal scroll for invoice preview on mobile */
+  section > div.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Add padding to prevent content from touching edges */
+  section > div.overflow-x-auto {
+    padding: 1rem 0;
+  }
+
+  /* Ensure invoice maintains its size on mobile */
+  #meblink-invoice {
+    transform-origin: top left;
+  }
+
+  /* Show scroll hint shadow */
+  section > div.overflow-x-auto {
+    background: 
+      linear-gradient(90deg, #fff 0%, transparent 5%),
+      linear-gradient(-90deg, #fff 0%, transparent 5%),
+      linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 2%),
+      linear-gradient(-90deg, rgba(0,0,0,0.1) 0%, transparent 2%);
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 10px 100%, 10px 100%;
+    background-position: 0 0, 100% 0, 0 0, 100% 0;
+    background-attachment: local, local, scroll, scroll;
+  }
+}
 </style>
+

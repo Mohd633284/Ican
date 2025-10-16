@@ -22,13 +22,18 @@
         <select
           v-model="selectedMemberId"
           @change="onMemberChange"
+          :disabled="isLoadingMembers"
           class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+          style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
         >
-          <option value="">-- Choose a member --</option>
+          <option value="" disabled>{{ isLoadingMembers ? 'Loading members...' : '-- Choose a member --' }}</option>
           <option v-for="member in availableMembers" :key="member.id" :value="member.id">
-            {{ member.name }}
+            {{ member.name }} ({{ member.role }})
           </option>
         </select>
+        <p v-if="availableMembers.length === 0 && !isLoadingMembers" class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+          No members found. Please create a member account first.
+        </p>
       </div>
 
       <!-- Selected Member Info -->
@@ -106,13 +111,19 @@
         </button>
       </div>
 
-      <!-- Forgot Password Link -->
+      <!-- Sign Up Link -->
       <div class="mt-4 text-center">
+        <p class="text-xs text-slate-600 dark:text-slate-400 mb-2">
+          Don't have an account?
+        </p>
         <button 
-          @click="forgotPassword"
-          class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+          @click="signUpAsMember"
+          class="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center justify-center gap-1 mx-auto"
         >
-          Forgot your password?
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          Sign up as a member
         </button>
       </div>
     </div>
@@ -120,7 +131,11 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { getAllMembers, saveMemberActivity } from '@/firebase';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default {
   name: 'PasswordVerificationModal',
@@ -146,24 +161,70 @@ export default {
   },
   emits: ['verified', 'cancel'],
   setup(props, { emit }) {
+    const router = useRouter();
     const password = ref('');
     const showPassword = ref(false);
     const error = ref('');
     const isVerifying = ref(false);
     const selectedMemberId = ref('');
     const selectedMemberName = ref('');
+    const availableMembers = ref([]);
+    const isLoadingMembers = ref(false);
+    // Load members from Firebase ONLY (no localStorage fallback)
+    const loadMembers = async () => {
+      try {
+        isLoadingMembers.value = true;
+        error.value = '';
 
-    // Get all members from localStorage filtered by current branch
-    const availableMembers = computed(() => {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const currentBranch = user.branch;
-      const members = JSON.parse(localStorage.getItem('members') || '[]');
-      return members.filter(m => m.branch === currentBranch);
+        console.log('🔥 Loading members from Firebase...');
+        const branchName = localStorage.getItem('branchName') || 'default';
+        const result = await getAllMembers(branchName);
+        
+        if (result.success) {
+          availableMembers.value = result.data;
+          
+          if (result.data.length > 0) {
+            console.log(`✅ Loaded ${result.data.length} members from Firebase`);
+          } else {
+            console.log('⚠️ No members found in Firebase');
+            console.log('💡 Please create a member account first or run migration');
+            error.value = 'No members found. Please create a member account first.';
+          }
+        } else {
+          console.error('❌ Failed to load members from Firebase:', result.error);
+          error.value = 'Failed to connect to Firebase. Please check your internet connection.';
+          availableMembers.value = [];
+        }
+      } catch (err) {
+        console.error('❌ Error loading members from Firebase:', err);
+        error.value = 'An error occurred while loading members. Please try again.';
+        availableMembers.value = [];
+      } finally {
+        isLoadingMembers.value = false;
+      }
+    };
+
+    // Load members when modal opens
+    watch(() => props.isOpen, (newVal) => {
+      if (newVal) {
+        password.value = '';
+        error.value = '';
+        selectedMemberId.value = props.memberId || '';
+        selectedMemberName.value = props.memberName || '';
+        loadMembers(); // Load from Firebase only
+      }
+    });
+
+    // Also load on mount if already open
+    onMounted(() => {
+      if (props.isOpen) {
+        loadMembers();
+      }
     });
 
     // Handle member selection change
     const onMemberChange = () => {
-      const member = availableMembers.value.find(m => m.id === selectedMemberId.value);
+      const member = availableMembers.value.find(m => m.id == selectedMemberId.value);
       if (member) {
         selectedMemberName.value = member.name;
         error.value = '';
@@ -171,16 +232,6 @@ export default {
         selectedMemberName.value = '';
       }
     };
-
-    // Reset form when modal opens/closes
-    watch(() => props.isOpen, (newVal) => {
-      if (newVal) {
-        password.value = '';
-        error.value = '';
-        selectedMemberId.value = props.memberId || '';
-        selectedMemberName.value = props.memberName || '';
-      }
-    });
 
     const verifyPassword = async () => {
       if (!selectedMemberId.value) {
@@ -197,11 +248,8 @@ export default {
       error.value = '';
 
       try {
-        // Get all members from localStorage
-        const members = JSON.parse(localStorage.getItem('members') || '[]');
-        
-        // Find the selected member
-        const member = members.find(m => m.id === selectedMemberId.value);
+        // Find the selected member from available members
+        const member = availableMembers.value.find(m => m.id == selectedMemberId.value);
         
         if (!member) {
           error.value = 'Member not found. Please select a valid member.';
@@ -217,19 +265,36 @@ export default {
           return;
         }
 
-        // Password is correct - log activity
-        const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
-        activities.push({
+        // Password is correct - log activity to Firebase
+        console.log('✅ Password verified, logging activity...');
+        
+        const activityData = {
           memberName: selectedMemberName.value,
+          memberId: selectedMemberId.value,
           action: `Password verified for ${props.targetPage}`,
           timestamp: new Date().toISOString(),
-          branch: member.branch,
-          id: Date.now()
-        });
-        localStorage.setItem('memberActivities', JSON.stringify(activities));
+          branch: member.branch || localStorage.getItem('branchName') || 'N/A',
+          page: props.targetPage
+        };
+
+        // Save activity to Firebase ONLY
+        try {
+          const result = await saveMemberActivity(activityData.branch, activityData);
+          if (result.success) {
+            console.log('✅ Activity logged to Firebase');
+          } else {
+            console.warn('⚠️ Failed to log activity to Firebase:', result.error);
+          }
+        } catch (err) {
+          console.error('❌ Error saving activity to Firebase:', err);
+        }
 
         // Emit verified event with member info
-        emit('verified', { memberId: selectedMemberId.value, memberName: selectedMemberName.value });
+        emit('verified', { 
+          memberId: selectedMemberId.value, 
+          memberName: selectedMemberName.value,
+          memberRole: member.role
+        });
         
         // Reset form
         password.value = '';
@@ -252,8 +317,18 @@ export default {
       emit('cancel');
     };
 
-    const forgotPassword = () => {
-      alert('Please contact your branch administrator to reset your password.');
+    const signUpAsMember = () => {
+      // Get current branch name from localStorage
+      const branchName = localStorage.getItem('branchName') || 'default';
+      
+      // Cancel the modal first
+      cancel();
+      
+      // Navigate to Member Login page for sign up
+      router.push({ 
+        name: 'MemberLogin', 
+        query: { branch: branchName }
+      });
     };
 
     return {
@@ -264,12 +339,13 @@ export default {
       selectedMemberId,
       selectedMemberName,
       availableMembers,
+      isLoadingMembers,
       onMemberChange,
       verifyPassword,
       cancel,
-      forgotPassword
+      signUpAsMember,
     };
-  }
+  },
 };
 </script>
 
@@ -287,5 +363,19 @@ export default {
 
 .fixed {
   animation: fadeIn 0.2s ease-out;
+}
+
+/* Force text truncation on select and option elements */
+select {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+select option {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
 }
 </style>

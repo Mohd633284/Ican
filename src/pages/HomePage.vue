@@ -1,17 +1,24 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 relative overflow-auto md:overflow-hidden">
-    <!-- Enhanced Background Pattern -->
-    <div class="fixed inset-0 opacity-10">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(59,130,246,0.35),_transparent_55%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(14,165,233,0.3),_transparent_55%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(99,102,241,0.25),_transparent_55%)]"></div>
+    <!-- Animated Background Pattern -->
+    <div class="fixed inset-0 opacity-25 pointer-events-none">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(59,130,246,0.5),_transparent_50%)] animate-pulse-slow"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(14,165,233,0.4),_transparent_50%)] animate-pulse-slow" style="animation-delay: 1s"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(99,102,241,0.35),_transparent_50%)] animate-pulse-slow" style="animation-delay: 2s"></div>
     </div>
 
-    <!-- Floating Elements -->
-    <div class="fixed inset-0 pointer-events-none">
-      <div class="absolute top-20 left-10 w-20 h-20 bg-blue-200/35 rounded-full blur-xl animate-pulse"></div>
-      <div class="absolute top-40 right-20 w-32 h-32 bg-sky-200/25 rounded-full blur-2xl animate-pulse delay-1000"></div>
-      <div class="absolute bottom-20 left-1/4 w-24 h-24 bg-indigo-200/25 rounded-full blur-xl animate-pulse delay-500"></div>
+    <!-- Floating Particles -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div v-for="i in 25" :key="i" 
+           class="absolute w-2 h-2 rounded-full opacity-30 animate-float"
+           :class="i % 3 === 0 ? 'bg-blue-400 dark:bg-blue-300' : i % 3 === 1 ? 'bg-sky-400 dark:bg-sky-300' : 'bg-indigo-400 dark:bg-indigo-300'"
+           :style="{
+             left: `${Math.random() * 100}%`,
+             top: `${Math.random() * 100}%`,
+             animationDelay: `${Math.random() * 5}s`,
+             animationDuration: `${5 + Math.random() * 10}s`
+           }">
+      </div>
     </div>
 
     <!-- Main Content Container -->
@@ -86,34 +93,24 @@
 
                 <!-- Form -->
                 <form class="space-y-4" @submit.prevent="handleSubmit">
-                  <!-- Branch Selection -->
+                  <!-- Branch Selection Button -->
                   <div class="space-y-2">
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200" for="branch-select">
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200">
                       Select Branch
                     </label>
-                    <div class="relative">
-                      <select
-                        id="branch-select"
-                        v-model="selectedBranch"
-                        class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none shadow-sm"
-                        :disabled="isLoadingBranches || branches.length === 0"
-                      >
-                        <option value="" disabled>Select your branch</option>
-                        <option
-                          v-for="branch in branches"
-                          :key="branch"
-                          :value="branch"
-                          :class="{ 'text-slate-400': !isBranchAccessible(branch) }"
-                        >
-                          {{ branch }}
-                        </option>
-                      </select>
-                      <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                      </div>
-                    </div>
+                    <button
+                      type="button"
+                      @click="showBranchModal = true"
+                      class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:border-blue-400 dark:hover:border-blue-500 flex items-center justify-between"
+                      :disabled="isLoadingBranches || branches.length === 0"
+                    >
+                      <span :class="{ 'text-slate-400 dark:text-slate-500': !selectedBranch }">
+                        {{ selectedBranch || 'Select your branch' }}
+                      </span>
+                      <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </button>
                     <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -227,6 +224,171 @@
         </div>
       </div>
     </div>
+
+    <!-- Branch Selection Modal -->
+    <Transition name="modal">
+      <div v-if="showBranchModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showBranchModal = false" @keydown.enter="handleModalEnterKey" @keydown.esc="showBranchModal = false">
+        <!-- Backdrop with Blur -->
+        <div class="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden animate-modal-in">
+          <!-- Modal Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Select Your Branch</h3>
+                  <p class="text-blue-100 text-xs mt-0.5">Choose your ICAN branch location</p>
+                </div>
+              </div>
+              <button 
+                @click="showBranchModal = false"
+                class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              >
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="relative">
+              <input
+                v-model="branchSearchQuery"
+                type="text"
+                placeholder="Search branches..."
+                class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              />
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Branch List -->
+          <div class="overflow-y-auto max-h-96 p-4">
+            <div v-if="filteredBranches.length === 0" class="text-center py-12">
+              <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <p class="text-slate-500 dark:text-slate-400 font-medium">No branches found</p>
+              <p class="text-slate-400 dark:text-slate-500 text-sm mt-1">Try a different search term</p>
+            </div>
+            
+            <div v-else class="space-y-2">
+              <button
+                v-for="branch in filteredBranches"
+                :key="branch"
+                @click="selectBranch(branch)"
+                @keydown.enter="handleBranchKeyDown(branch, $event)"
+                :disabled="!isBranchAccessible(branch)"
+                class="w-full text-left px-4 py-3.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  selectedBranch === branch 
+                    ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500 dark:border-blue-400' 
+                    : 'bg-slate-50 dark:bg-slate-700/50 border-2 border-transparent hover:border-slate-300 dark:hover:border-slate-600',
+                  !isBranchAccessible(branch) ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'
+                ]"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <!-- Branch Icon -->
+                    <div 
+                      class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                      :class="[
+                        selectedBranch === branch
+                          ? 'bg-blue-500 dark:bg-blue-600'
+                          : 'bg-slate-200 dark:bg-slate-600 group-hover:bg-blue-100 dark:group-hover:bg-blue-800/50'
+                      ]"
+                    >
+                      <svg 
+                        class="w-5 h-5"
+                        :class="selectedBranch === branch ? 'text-white' : 'text-slate-600 dark:text-slate-300'"
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                    
+                    <!-- Branch Name -->
+                    <div>
+                      <p 
+                        class="font-semibold text-sm"
+                        :class="[
+                          selectedBranch === branch 
+                            ? 'text-blue-700 dark:text-blue-300' 
+                            : 'text-slate-800 dark:text-slate-200'
+                        ]"
+                      >
+                        {{ branch }}
+                      </p>
+                      <p 
+                        v-if="!isBranchAccessible(branch)"
+                        class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-0.5"
+                      >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Locked
+                      </p>
+                      <p 
+                        v-else-if="selectedBranch === branch"
+                        class="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-0.5"
+                      >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Selected
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Check Icon -->
+                  <svg 
+                    v-if="selectedBranch === branch"
+                    class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="border-t border-slate-200 dark:border-slate-700 px-6 py-2 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex gap-3">
+              <button
+                @click="showBranchModal = false"
+                class="flex-1 px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                @click="confirmBranchSelection"
+                :disabled="!selectedBranch"
+                class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirm Selection
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template><script>
 import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue';
@@ -251,6 +413,8 @@ export default defineComponent({
     const statusMessage = ref('');
     const isSubmitting = ref(false);
     const isLoadingBranches = ref(false);
+    const showBranchModal = ref(false);
+    const branchSearchQuery = ref('');
 
     // ====== DEVELOPER CONFIGURATION ======
     // Configure which branches are accessible here
@@ -271,6 +435,26 @@ export default defineComponent({
     const isBranchAccessible = (branchName) => {
       // If branch is not in config, default to disabled
       return branchAccessConfig[branchName] === true;
+    };
+
+    const filteredBranches = computed(() => {
+      if (!branchSearchQuery.value) {
+        return branches.value;
+      }
+      return branches.value.filter(branch => 
+        branch.toLowerCase().includes(branchSearchQuery.value.toLowerCase())
+      );
+    });
+
+    const selectBranch = (branch) => {
+      if (isBranchAccessible(branch)) {
+        selectedBranch.value = branch;
+      }
+    };
+
+    const confirmBranchSelection = () => {
+      showBranchModal.value = false;
+      branchSearchQuery.value = '';
     };
 
     watch(selectedBranch, (newBranch) => {
@@ -448,6 +632,23 @@ export default defineComponent({
       });
     };
 
+    const handleBranchKeyDown = (branch, event) => {
+      // When Enter is pressed on a branch button
+      if (event.key === 'Enter' && isBranchAccessible(branch)) {
+        event.preventDefault();
+        selectBranch(branch);
+        confirmBranchSelection();
+      }
+    };
+
+    const handleModalEnterKey = (event) => {
+      // When Enter is pressed anywhere in the modal (but not in search input)
+      if (event.target.tagName !== 'INPUT' && selectedBranch.value && isBranchAccessible(selectedBranch.value)) {
+        event.preventDefault();
+        confirmBranchSelection();
+      }
+    };
+
     return {
       branches,
       selectedBranch,
@@ -461,6 +662,13 @@ export default defineComponent({
       isSubmitting,
       isLoadingBranches,
       isBranchAccessible,
+      showBranchModal,
+      branchSearchQuery,
+      filteredBranches,
+      selectBranch,
+      confirmBranchSelection,
+      handleBranchKeyDown,
+      handleModalEnterKey,
       handleSubmit,
       handleSignUp,
     };
@@ -472,6 +680,74 @@ export default defineComponent({
 /* Ensure smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Modal Transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .animate-modal-in,
+.modal-leave-active .animate-modal-in {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-enter-from .animate-modal-in {
+  transform: scale(0.95) translateY(-20px);
+  opacity: 0;
+}
+
+.modal-leave-to .animate-modal-in {
+  transform: scale(0.95) translateY(20px);
+  opacity: 0;
+}
+
+/* Pulse Slow Animation - Similar to SplashScreen */
+@keyframes pulseSlow {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 4s ease-in-out infinite;
+}
+
+/* Float Animation for Particles - From SplashScreen */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-100px) translateX(50px);
+    opacity: 0.4;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-200px) translateX(-50px);
+    opacity: 0;
+  }
+}
+
+.animate-float {
+  animation: float linear infinite;
 }
 
 /* Custom scrollbar styling */

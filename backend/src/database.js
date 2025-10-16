@@ -400,33 +400,7 @@ export function deleteUserByEmail(email) {
   return deletedUser;
 }
 
-/**
- * Delete a user account by ID (DEVELOPER ONLY)
- * @param {number} userId - User's ID
- * @returns {Object} Deleted user info
- */
-export function deleteUserById(userId) {
-  // First get user info before deleting
-  const userResult = db.exec('SELECT id, name, email, branch FROM users WHERE id = ?', [userId]);
-  
-  if (!userResult || userResult.length === 0 || userResult[0].values.length === 0) {
-    throw new Error('User not found');
-  }
-  
-  const user = userResult[0].values[0];
-  const deletedUser = {
-    id: user[0],
-    name: user[1],
-    email: user[2],
-    branch: user[3]
-  };
-  
-  // Delete the user
-  db.run('DELETE FROM users WHERE id = ?', [userId]);
-  saveDb();
-  
-  return deletedUser;
-}
+
 
 /**
  * Enable or disable registration for a specific branch (DEVELOPER ONLY)
@@ -574,4 +548,59 @@ export function getBranchStatistics(branch) {
     recentActivities: activities.slice(0, 5)
   };
 }
+
+/**
+ * Get all users/members for a specific branch
+ * @param {string} branch - Branch name
+ * @returns {Array} Array of user objects
+ */
+export function getUsersByBranch(branch) {
+  const result = db.exec(
+    'SELECT id, name, email, phone, membership_number, branch, created_at FROM users WHERE branch = ? ORDER BY created_at DESC',
+    [branch]
+  );
+  
+  if (!result || !result[0]) {
+    return [];
+  }
+
+  const users = result[0].values.map(row => ({
+    id: row[0],
+    name: row[1],
+    email: row[2],
+    phone: row[3],
+    membershipNumber: row[4],
+    branch: row[5],
+    createdAt: row[6]
+  }));
+
+  return users;
+}
+
+/**
+ * Delete a user/member by ID (Admin only)
+ * @param {number} userId - User ID to delete
+ * @param {string} branch - Branch name for verification
+ * @returns {boolean} Success status
+ */
+export function deleteUserById(userId, branch) {
+  // First verify the user belongs to the specified branch
+  const userResult = db.exec('SELECT branch FROM users WHERE id = ?', [userId]);
+  
+  if (!userResult || !userResult[0] || userResult[0].values.length === 0) {
+    throw new Error('User not found');
+  }
+  
+  const userBranch = userResult[0].values[0][0];
+  if (userBranch !== branch) {
+    throw new Error('User does not belong to this branch');
+  }
+
+  // Delete the user
+  db.run('DELETE FROM users WHERE id = ?', [userId]);
+  saveDb();
+  
+  return true;
+}
+
 

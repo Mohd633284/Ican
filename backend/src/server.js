@@ -12,6 +12,8 @@ import {
   authenticateUser,
   initDatabase,
   getBranchStatistics,
+  getUsersByBranch,
+  deleteUserById,
 } from './database.js';
 import { addBranch } from './database.js';
 import adminRoutes from './adminRoutes.js';
@@ -202,6 +204,58 @@ app.get('/dashboard/:branch', (req, res) => {
   } catch (err) {
     console.error('Failed to fetch branch statistics', err);
     return res.status(500).json({ error: 'Failed to fetch branch statistics' });
+  }
+});
+
+// Get all members/users for a specific branch
+app.get('/members/:branch', (req, res) => {
+  const { branch } = req.params;
+  
+  if (!branch) {
+    return res.status(400).json({ error: 'Branch name is required' });
+  }
+
+  try {
+    const members = getUsersByBranch(branch);
+    return res.json({ 
+      data: members,
+      count: members.length 
+    });
+  } catch (err) {
+    console.error('Failed to fetch members', err);
+    return res.status(500).json({ error: 'Failed to fetch members' });
+  }
+});
+
+// Delete a member (Admin/Branch access only - requires branch password verification)
+app.delete('/members/:branch/:userId', (req, res) => {
+  const { branch, userId } = req.params;
+  const { password } = req.body || {};
+  
+  if (!branch || !userId) {
+    return res.status(400).json({ error: 'Branch name and user ID are required' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ error: 'Branch password is required for this action' });
+  }
+
+  try {
+    // Verify branch credentials first (security check)
+    const isValid = verifyBranchCredentials(branch, password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid branch credentials' });
+    }
+
+    // Delete the user
+    deleteUserById(parseInt(userId), branch);
+    return res.json({ 
+      success: true,
+      message: 'Member deleted successfully' 
+    });
+  } catch (err) {
+    console.error('Failed to delete member', err);
+    return res.status(500).json({ error: err.message || 'Failed to delete member' });
   }
 });
 

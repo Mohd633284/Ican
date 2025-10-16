@@ -65,14 +65,15 @@
       </div>
     </section>
 
-    <!-- Quick Fill Form Section -->
-    <section class="w-full max-w-4xl">
-      <div 
-      style="width: 7.268in; height: 5.324in "
-      class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-          📝 Quick Fill Form
-        </h2>
+    <!-- Flex Container for Form and Preview -->
+    <div class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 items-start">
+      <!-- Quick Fill Form Section -->
+      <section class="w-full lg:w-1/2">
+        <div 
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            📝 Quick Fill Form
+          </h2>
         <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
           Fill out this form to automatically populate the receipt below
         </p>
@@ -144,14 +145,37 @@
             {{ amountInWords.words }}
           </div>
         </div>
+
+        <!-- Mobile Preview Button -->
+        <div class="mt-4 md:hidden">
+          <button
+            @click="showPreview = !showPreview"
+            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-lg"
+          >
+            <svg v-if="!showPreview" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>{{ showPreview ? 'Hide Preview' : 'Preview Receipt' }}</span>
+          </button>
+        </div>
       </div>
     </section>
 
-    <section class="w-full max-w-4xl">
+    <!-- Receipt Preview Section - Hidden on mobile unless showPreview is true -->
+    <section 
+      class="w-full lg:w-1/2"
+      :class="{ 'hidden lg:block': !showPreview }"
+    >
+      <!-- Mobile wrapper with scroll -->
+      <div class="w-full md:w-auto overflow-x-auto md:overflow-visible">
       <div
       ref="receiptOuterRef"
-      class="bg-white shadow-lg border border-gray-300 p-5 flex justify-center items-center"
-      style="width: 7.268in; height: 5.324in; background-color: white;"
+      class="bg-white shadow-lg border border-gray-300 p-5 flex justify-center items-center mx-auto"
+      style="width: 7.268in; height: 5.324in; background-color: white; min-width: 7.268in;"
       >
         <div
         id="receipt-canvas"
@@ -324,7 +348,11 @@
         </div>
       </div>
       </div>
+      </div>
     </section>
+    </div>
+    <!-- End Flex Container -->
+
     </div>
   </div>
 </template>
@@ -442,6 +470,7 @@ export default defineComponent({
     const sumOfInput2 = ref(null);
     const paymentForInput1 = ref(null);
     const paymentForInput2 = ref(null);
+    const showPreview = ref(false); // Mobile preview toggle
 
     const syncDate = () => {
       if (autoDate.value) {
@@ -694,6 +723,7 @@ export default defineComponent({
       sumOfInput2,
       paymentForInput1,
       paymentForInput2,
+      showPreview,
       logoDataUrl,
       signatureImage1,
       signatureImage2,
@@ -735,46 +765,35 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Mobile responsive scaling */
+/* Mobile receipt preview styles */
 @media (max-width: 768px) {
-  /* Make the main container scale down on mobile */
-  section:has(#receipt-canvas) {
-    overflow-x: auto;
-    display: flex;
-    justify-content: flex-start;
+  /* Smooth horizontal scroll for receipt preview on mobile */
+  section > div.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
-  
-  /* Scale down the receipt to fit mobile screens */
-  section:has(#receipt-canvas) > div {
-    transform: scale(0.35);
-    transform-origin: top left;
-    margin-bottom: -400px; /* Adjust negative margin to compensate for scaled height */
-  }
-}
 
-@media (max-width: 480px) {
-  /* Further scale down for very small screens */
-  section:has(#receipt-canvas) > div {
-    transform: scale(0.28);
-    transform-origin: top left;
-    margin-bottom: -450px;
+  /* Add padding to prevent content from touching edges */
+  section > div.overflow-x-auto {
+    padding: 1rem 0;
   }
-}
 
-@media (max-width: 390px) {
-  /* iPhone and small Android phones */
-  section:has(#receipt-canvas) > div {
-    transform: scale(0.24);
+  /* Ensure receipt maintains its size on mobile */
+  #receipt-canvas {
     transform-origin: top left;
-    margin-bottom: -470px;
   }
-}
 
-/* Also scale the form section on mobile */
-@media (max-width: 768px) {
-  section:nth-of-type(2) > div {
-    transform: scale(0.9);
-    transform-origin: top center;
+  /* Show scroll hint shadow */
+  section > div.overflow-x-auto {
+    background: 
+      linear-gradient(90deg, #fff 0%, transparent 5%),
+      linear-gradient(-90deg, #fff 0%, transparent 5%),
+      linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 2%),
+      linear-gradient(-90deg, rgba(0,0,0,0.1) 0%, transparent 2%);
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 10px 100%, 10px 100%;
+    background-position: 0 0, 100% 0, 0 0, 100% 0;
+    background-attachment: local, local, scroll, scroll;
   }
 }
 </style>

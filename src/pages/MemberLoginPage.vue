@@ -179,6 +179,54 @@
                 <p class="text-sm text-amber-800 dark:text-amber-200 font-medium">Maximum limit reached. Delete a member to add new ones.</p>
               </div>
             </div>
+
+            <!-- Existing Members List -->
+            <div v-if="members.length > 0" class="mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Current Members</h3>
+                <span class="text-sm text-slate-600 dark:text-slate-400">{{ members.length }}/3</span>
+              </div>
+
+              <div class="space-y-3">
+                <div 
+                  v-for="member in members" 
+                  :key="member.id"
+                  class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3 flex-1">
+                      <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="font-semibold text-slate-900 dark:text-white">{{ member.name }}</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400">{{ member.role }}</p>
+                      </div>
+                    </div>
+                    
+                    <button
+                      @click="confirmDelete(member)"
+                      class="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
+                      title="Delete member"
+                    >
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- No Members Message -->
+            <div v-else class="mb-6 text-center py-8">
+              <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <p class="text-slate-500 dark:text-slate-400">No members yet. Create the first member account above.</p>
+            </div>
         </div>
 
         <!-- Back Button -->
@@ -201,6 +249,7 @@
 <script>
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { getAllMembers, saveMember, deleteMember, saveMemberActivity } from '@/firebase';
 
 export default defineComponent({
   name: 'MemberLoginPage',
@@ -235,27 +284,38 @@ export default defineComponent({
              newMember.value.password !== newMember.value.confirmPassword;
     });
 
-    // Dynamic members array - loaded from localStorage
+    // Dynamic members array - loaded from Firebase
     const members = ref([]);
+    const branchName = computed(() => route.query.branch || 'default');
 
-    // Load members from localStorage on component mount
-    const loadMembers = () => {
-      const storedMembers = localStorage.getItem('members');
-      if (storedMembers) {
-        members.value = JSON.parse(storedMembers);
-      } else {
-        // Initialize with empty array if no members exist
+    // Load members from Firebase (updated to use Firebase instead of localStorage)
+    const loadMembers = async () => {
+      loading.value = true;
+      error.value = '';
+      
+      try {
+        console.log('🔥 Loading members from Firebase...');
+        const result = await getAllMembers(branchName.value);
+        
+        if (result.success) {
+          members.value = result.data;
+          console.log(`✅ Loaded ${members.value.length} members from Firebase`);
+        } else {
+          console.error('❌ Failed to load members:', result.error);
+          error.value = 'Failed to load members from Firebase';
+          members.value = [];
+        }
+      } catch (err) {
+        console.error('❌ Error loading members:', err);
+        error.value = 'An error occurred while loading members';
         members.value = [];
+      } finally {
+        loading.value = false;
       }
     };
 
-    // Save members to localStorage
-    const saveMembers = () => {
-      localStorage.setItem('members', JSON.stringify(members.value));
-    };
-
-    // Create new member
-    const handleCreateMember = () => {
+    // Create new member (updated to use Firebase instead of localStorage)
+    const handleCreateMember = async () => {
       if (members.value.length >= 3) {
         error.value = 'Maximum of 3 members allowed';
         return;
@@ -270,25 +330,41 @@ export default defineComponent({
       creatingMember.value = true;
       error.value = '';
 
-      // Simulate creation delay
-      setTimeout(() => {
-        const member = {
-          id: `member_${Date.now()}`,
+      try {
+        const memberId = `member_${Date.now()}`;
+        const memberData = {
+          id: memberId,
           name: newMember.value.name.trim(),
           role: newMember.value.role.trim(),
-          password: newMember.value.password
+          password: newMember.value.password,
+          email: `${memberId}@${branchName.value}.ican.org`,
+          branch: branchName.value
         };
 
-        members.value.push(member);
-        saveMembers();
+        console.log('🔥 Saving member to Firebase...');
+        const result = await saveMember(branchName.value, memberId, memberData);
 
-        // Reset form
-        newMember.value = { name: '', role: '', password: '', confirmPassword: '' };
+        if (result.success) {
+          console.log('✅ Member saved to Firebase');
+          
+          // Add to local array
+          members.value.push(memberData);
+
+          // Reset form
+          newMember.value = { name: '', role: '', password: '', confirmPassword: '' };
+
+          // Log activity
+          await logActivity(memberData.name, 'Member account created', branchName.value);
+        } else {
+          error.value = `Failed to create member: ${result.error}`;
+          console.error('❌ Failed to save member:', result.error);
+        }
+      } catch (err) {
+        error.value = 'An error occurred while creating member';
+        console.error('❌ Error creating member:', err);
+      } finally {
         creatingMember.value = false;
-
-        // Log activity
-        logActivity(member.name, 'Member account created', branch.value);
-      }, 500);
+      }
     };
 
     // Edit member (for future implementation)
@@ -303,22 +379,37 @@ export default defineComponent({
       // and update the handleCreateMember to handle both create and update
     };
 
-    // Delete member
-    const deleteMember = (memberId) => {
+    // Delete member (updated to use Firebase instead of localStorage)
+    const handleDeleteMember = async (memberId) => {
       const member = members.value.find(m => m.id === memberId);
-      if (member) {
-        members.value = members.value.filter(m => m.id !== memberId);
-        saveMembers();
+      if (!member) return;
+
+      try {
+        console.log('🔥 Deleting member from Firebase...');
+        const result = await deleteMember(branchName.value, memberId);
         
-        // Log activity
-        logActivity(member.name, 'Member account deleted', branch.value);
+        if (result.success) {
+          console.log('✅ Member deleted from Firebase');
+          
+          // Remove from local array
+          members.value = members.value.filter(m => m.id !== memberId);
+          
+          // Log activity
+          await logActivity(member.name, 'Member account deleted', branchName.value);
+        } else {
+          error.value = `Failed to delete member: ${result.error}`;
+          console.error('❌ Failed to delete member:', result.error);
+        }
+      } catch (err) {
+        error.value = 'An error occurred while deleting member';
+        console.error('❌ Error deleting member:', err);
       }
     };
 
     // Confirm delete with better UX
     const confirmDelete = (member) => {
-      if (confirm(`Are you sure you want to delete ${member.name}?`)) {
-        deleteMember(member.id);
+      if (confirm(`Are you sure you want to delete ${member.name}?\n\nThis action cannot be undone and will remove the member from Firebase.`)) {
+        handleDeleteMember(member.id);
       }
     };
 
@@ -371,23 +462,28 @@ export default defineComponent({
       }, 1000);
     };
 
-    const logActivity = (memberName, action, branch) => {
-      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
-      activities.unshift({
-        id: Date.now(),
-        memberName,
-        action,
-        branch,
-        timestamp: new Date().toISOString(),
-        timeAgo: 'Just now'
-      });
-      
-      // Keep only last 50 activities
-      if (activities.length > 50) {
-        activities.splice(50);
+    const logActivity = async (memberName, action, branchName) => {
+      // Save activity to Firebase (updated to use Firebase instead of localStorage)
+      try {
+        const activityData = {
+          memberName,
+          action,
+          branch: branchName,
+          timestamp: new Date().toISOString(),
+          timeAgo: 'Just now'
+        };
+
+        console.log('🔥 Logging activity to Firebase...');
+        const result = await saveMemberActivity(branchName, activityData);
+        
+        if (result.success) {
+          console.log('✅ Activity logged to Firebase');
+        } else {
+          console.warn('⚠️ Failed to log activity to Firebase:', result.error);
+        }
+      } catch (err) {
+        console.error('❌ Error logging activity:', err);
       }
-      
-      localStorage.setItem('memberActivities', JSON.stringify(activities));
     };
 
     const handleBack = () => {
@@ -398,6 +494,10 @@ export default defineComponent({
     onMounted(() => {
       loadMembers();
     });
+
+    const handleGoBack = () => {
+      router.push({ name: 'Dashboard', query: { branch: branch.value } });
+    };
 
     return {
       activeTab,
@@ -412,13 +512,15 @@ export default defineComponent({
       newMember,
       members,
       branch,
+      branchName,
       passwordMismatch,
       handleCreateMember,
       editMember,
-      deleteMember,
+      handleDeleteMember,
       confirmDelete,
       handleLogin,
-      handleBack
+      handleBack,
+      handleGoBack
     };
   }
 });
