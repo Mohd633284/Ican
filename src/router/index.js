@@ -8,6 +8,8 @@ import ReceiptPage from '../pages/ReceiptPage.vue';
 import StatsPage from '../pages/StatsPage.vue';
 import MemberLoginPage from '../pages/MemberLoginPage.vue';
 import SplashScreen from '../pages/SplashScreen.vue';
+import MemberManagementPage from '../pages/MemberManagementPage.vue';
+import ReportsAnalyticsPage from '../pages/ReportsAnalyticsPage.vue';
 
 const routes = [
   {
@@ -58,6 +60,16 @@ const routes = [
     name: 'Stats',
     component: StatsPage,
   },
+  {
+    path: '/member-management',
+    name: 'MemberManagement',
+    component: MemberManagementPage,
+  },
+  {
+    path: '/reports',
+    name: 'Reports',
+    component: ReportsAnalyticsPage,
+  },
 ];
 
 const router = createRouter({
@@ -65,7 +77,7 @@ const router = createRouter({
   routes,
 });
 
-const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats'];
+const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports'];
 
 router.beforeEach((to, from, next) => {
   // Check if route requires member authentication (for Invoice and Receipt)

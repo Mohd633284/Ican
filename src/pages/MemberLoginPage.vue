@@ -243,6 +243,119 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete Authentication Modal -->
+    <div v-if="showDeleteAuth" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 dark:border-slate-700 overflow-hidden animate-scale-in">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-red-600 to-rose-600 p-6 text-white">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-white/20 rounded-lg">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Authentication Required</h3>
+              <p class="text-red-100 text-sm">Verify your identity to delete</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+          <!-- Warning Message -->
+          <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <p class="text-sm font-semibold text-red-900 dark:text-red-100">You are about to delete:</p>
+                <p class="text-sm text-red-800 dark:text-red-200 font-bold mt-1">{{ pendingDeleteMember?.name }}</p>
+                <p class="text-xs text-red-700 dark:text-red-300 mt-2">This action cannot be undone. Member data will be permanently removed from Firebase.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Member Selection -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Select Your Account *
+            </label>
+            <select
+              v-model="deleteAuthMember"
+              required
+              class="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
+              <option value="" disabled>Choose your account...</option>
+              <option v-for="member in members" :key="member.id" :value="member.id">
+                {{ member.name }} - {{ member.role }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Password Input -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Your Password *
+            </label>
+            <div class="relative">
+              <input
+                v-model="deleteAuthPassword"
+                :type="showDeletePassword ? 'text' : 'password'"
+                placeholder="Enter your password"
+                required
+                @keyup.enter="verifyDeleteAuth"
+                class="w-full px-4 py-2.5 pr-12 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              />
+              <button 
+                type="button"
+                @click="showDeletePassword = !showDeletePassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              >
+                <svg v-if="!showDeletePassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg v-else class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div v-if="deleteAuthError" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+            <p class="text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              {{ deleteAuthError }}
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3">
+            <button
+              @click="cancelDeleteAuth"
+              class="flex-1 px-4 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="verifyDeleteAuth"
+              class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Member
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -266,6 +379,14 @@ export default defineComponent({
     const error = ref('');
     const creatingMember = ref(false);
     const activeTab = ref('login');
+
+    // Delete authentication
+    const showDeleteAuth = ref(false);
+    const deleteAuthPassword = ref('');
+    const deleteAuthMember = ref('');
+    const pendingDeleteMember = ref(null);
+    const deleteAuthError = ref('');
+    const showDeletePassword = ref(false);
 
     // New member creation form
     const newMember = ref({
@@ -408,9 +529,54 @@ export default defineComponent({
 
     // Confirm delete with better UX
     const confirmDelete = (member) => {
-      if (confirm(`Are you sure you want to delete ${member.name}?\n\nThis action cannot be undone and will remove the member from Firebase.`)) {
-        handleDeleteMember(member.id);
+      // Show authentication modal
+      pendingDeleteMember.value = member;
+      showDeleteAuth.value = true;
+      deleteAuthPassword.value = '';
+      deleteAuthMember.value = '';
+      deleteAuthError.value = '';
+    };
+
+    // Verify delete authentication
+    const verifyDeleteAuth = () => {
+      deleteAuthError.value = '';
+
+      // Find the authenticating member
+      const authMember = members.value.find(m => m.id === deleteAuthMember.value);
+      
+      if (!authMember) {
+        deleteAuthError.value = 'Please select a member account';
+        return;
       }
+
+      if (!deleteAuthPassword.value) {
+        deleteAuthError.value = 'Please enter your password';
+        return;
+      }
+
+      // Verify password
+      if (authMember.password !== deleteAuthPassword.value) {
+        deleteAuthError.value = 'Incorrect password';
+        return;
+      }
+
+      // Password verified, proceed with deletion
+      showDeleteAuth.value = false;
+      handleDeleteMember(pendingDeleteMember.value.id);
+      
+      // Reset
+      deleteAuthPassword.value = '';
+      deleteAuthMember.value = '';
+      pendingDeleteMember.value = null;
+    };
+
+    // Cancel delete authentication
+    const cancelDeleteAuth = () => {
+      showDeleteAuth.value = false;
+      deleteAuthPassword.value = '';
+      deleteAuthMember.value = '';
+      deleteAuthError.value = '';
+      pendingDeleteMember.value = null;
     };
 
     const handleLogin = () => {
@@ -520,7 +686,16 @@ export default defineComponent({
       confirmDelete,
       handleLogin,
       handleBack,
-      handleGoBack
+      handleGoBack,
+      // Delete authentication
+      showDeleteAuth,
+      deleteAuthPassword,
+      deleteAuthMember,
+      deleteAuthError,
+      showDeletePassword,
+      pendingDeleteMember,
+      verifyDeleteAuth,
+      cancelDeleteAuth
     };
   }
 });
@@ -555,5 +730,21 @@ select option {
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(16, 185, 129, 0.5) rgba(0, 0, 0, 0.1);
+}
+
+/* Modal animation */
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
 }
 </style>

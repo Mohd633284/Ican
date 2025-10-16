@@ -436,8 +436,7 @@ export default defineComponent({
     };
 
     const handleMemberManagement = () => {
-      // TODO: Implement member management page
-      alert('Member management feature coming soon!');
+      router.push({ name: 'MemberManagement', query: { branch: branchName.value } });
     };
 
     const handleMemberLogin = () => {
@@ -449,8 +448,7 @@ export default defineComponent({
     };
 
     const handleReports = () => {
-      // TODO: Implement reports page
-      alert('Reports & Analytics feature coming soon!');
+      router.push({ name: 'Reports', query: { branch: branchName.value } });
     };
 
     return {
