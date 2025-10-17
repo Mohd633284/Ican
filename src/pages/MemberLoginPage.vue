@@ -357,15 +357,47 @@
       </div>
     </div>
   </div>
+
+  <!-- Forgot Password Modal -->
+  <ForgotPasswordModal 
+    :is-open="showForgotPassword"
+    @close="showForgotPassword = false"
+    @success="handleForgotPasswordSuccess"
+  />
+
+  <!-- Success Message -->
+  <div v-if="forgotPasswordSuccess" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 animate-scale-in">
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Password Reset Successful!</h3>
+        <p class="text-slate-600 dark:text-slate-400 mb-6">{{ forgotPasswordSuccess }}</p>
+        <button
+          @click="forgotPasswordSuccess = ''"
+          class="px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getAllMembers, saveMember, deleteMember, saveMemberActivity } from '@/firebase';
+import ForgotPasswordModal from '@/components/ForgotPasswordModal.vue';
 
 export default defineComponent({
   name: 'MemberLoginPage',
+  components: {
+    ForgotPasswordModal
+  },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -379,6 +411,10 @@ export default defineComponent({
     const error = ref('');
     const creatingMember = ref(false);
     const activeTab = ref('login');
+
+    // Forgot Password modal
+    const showForgotPassword = ref(false);
+    const forgotPasswordSuccess = ref('');
 
     // Delete authentication
     const showDeleteAuth = ref(false);
@@ -665,6 +701,26 @@ export default defineComponent({
       router.push({ name: 'Dashboard', query: { branch: branch.value } });
     };
 
+    // Forgot Password Handlers
+    const handleForgotPasswordSuccess = (data) => {
+      showForgotPassword.value = false;
+      forgotPasswordSuccess.value = `Password successfully reset for ${data.memberName}. You can now login with your new password.`;
+      
+      // Auto-hide success message after 8 seconds
+      setTimeout(() => {
+        forgotPasswordSuccess.value = '';
+      }, 8000);
+    };
+
+    // Watch for ?forgot=true query parameter to auto-open modal
+    watch(() => route.query.forgot, (isForgot) => {
+      if (isForgot === 'true') {
+        showForgotPassword.value = true;
+        // Clean up URL without triggering navigation
+        router.replace({ query: { ...route.query, forgot: undefined } });
+      }
+    }, { immediate: true });
+
     return {
       activeTab,
       selectedMember,
@@ -695,7 +751,11 @@ export default defineComponent({
       showDeletePassword,
       pendingDeleteMember,
       verifyDeleteAuth,
-      cancelDeleteAuth
+      cancelDeleteAuth,
+      // Forgot Password
+      showForgotPassword,
+      forgotPasswordSuccess,
+      handleForgotPasswordSuccess
     };
   }
 });

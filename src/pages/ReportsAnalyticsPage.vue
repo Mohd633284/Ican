@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900">
+  <div class="h-screen overflow-y-auto bg-gradient-to-br from-slate-50 via-sky-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900">
     <!-- Background accents -->
     <div class="fixed inset-0 opacity-5 pointer-events-none">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,_rgba(56,189,248,0.25),_transparent_55%)]"></div>
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,_rgba(16,185,129,0.2),_transparent_55%)]"></div>
     </div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-20">
       <!-- Page header -->
       <header class="mb-10">
         <div class="flex items-center justify-between flex-wrap gap-4">
@@ -107,41 +107,39 @@
                 <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Revenue Trend</h2>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Projected revenue distribution over selected period</p>
               </div>
-              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-900/20 text-sm text-sky-700 dark:text-sky-300">
-                <span class="h-2 w-2 rounded-full bg-sky-500"></span>
-                Forecast model
-              </span>
-            </div>
-            <div class="grid grid-cols-6 gap-3 items-end h-48">
-              <div
-                v-for="point in revenueTrend"
-                :key="point.label"
-                class="flex flex-col-reverse items-center"
-              >
-                <div
-                  class="w-9 rounded-t-xl bg-gradient-to-t from-sky-500 to-emerald-400 shadow-lg shadow-sky-500/20 transition-all"
-                  :style="{ height: `${Math.max(point.value / maxRevenueValue * 100, 4)}%` }"
-                ></div>
-                <span class="mt-2 text-xs text-slate-500 dark:text-slate-400">{{ point.label }}</span>
+              <div class="flex items-center gap-2">
+                <button
+                  @click="chartType = 'bar'"
+                  :class="[
+                    'px-3 py-1 rounded-lg text-xs font-semibold transition',
+                    chartType === 'bar' ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ]"
+                >
+                  Bar
+                </button>
+                <button
+                  @click="chartType = 'line'"
+                  :class="[
+                    'px-3 py-1 rounded-lg text-xs font-semibold transition',
+                    chartType === 'line' ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ]"
+                >
+                  Line
+                </button>
               </div>
+            </div>
+            <div class="h-64">
+              <Bar v-if="chartType === 'bar'" :data="revenueChartData" :options="revenueChartOptions" />
+              <Line v-else :data="revenueChartData" :options="revenueChartOptions" />
             </div>
           </div>
 
           <!-- Activity mix -->
           <div class="bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 rounded-2xl shadow-xl p-6">
             <h2 class="text-xl font-semibold text-slate-900 dark:text-white mb-4">Activity Mix</h2>
-            <ul class="space-y-4">
-              <li v-for="item in activityMix" :key="item.label" class="flex items-center gap-3">
-                <span :class="['h-3 w-3 rounded-full', item.color]"></span>
-                <div class="flex-1">
-                  <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ item.label }}</p>
-                  <div class="mt-1 h-2 rounded-full bg-slate-100 dark:bg-slate-800">
-                    <div :class="['h-full rounded-full bg-gradient-to-r', item.gradient]" :style="{ width: `${item.percent}%` }"></div>
-                  </div>
-                </div>
-                <span class="text-sm text-slate-500 dark:text-slate-400">{{ item.percent }}%</span>
-              </li>
-            </ul>
+            <div class="h-64 flex items-center justify-center">
+              <Doughnut :data="activityMixChartData" :options="activityMixChartOptions" />
+            </div>
           </div>
         </section>
 
@@ -203,6 +201,33 @@
           </div>
         </section>
 
+        <!-- Invoice vs Receipt Comparison Chart -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          <div class="bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 rounded-2xl shadow-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Document Processing</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Invoice vs Receipt comparison</p>
+              </div>
+            </div>
+            <div class="h-64">
+              <Bar :data="documentComparisonChartData" :options="documentComparisonChartOptions" />
+            </div>
+          </div>
+
+          <div class="bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 rounded-2xl shadow-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-white">Processing Status</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Completed vs Pending documents</p>
+              </div>
+            </div>
+            <div class="h-64 flex items-center justify-center">
+              <Doughnut :data="statusComparisonChartData" :options="statusComparisonChartOptions" />
+            </div>
+          </div>
+        </section>
+
         <!-- Activity timeline -->
         <section class="bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 rounded-2xl shadow-xl p-6">
           <div class="flex items-center justify-between mb-4">
@@ -252,6 +277,34 @@ import { defineComponent, computed, ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getMemberActivities } from '@/firebase';
 import { API_BASE } from '../api.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Bar, Line, Doughnut } from 'vue-chartjs';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const KpiCard = defineComponent({
   name: 'KpiCard',
@@ -297,7 +350,7 @@ const TrendCard = defineComponent({
 
 export default defineComponent({
   name: 'ReportsAnalyticsPage',
-  components: { KpiCard, TrendCard },
+  components: { KpiCard, TrendCard, Bar, Line, Doughnut },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -323,6 +376,7 @@ export default defineComponent({
     const receiptInsights = ref({ issued: 0, pending: 0, trend: '+0%' });
 
     const insightSignals = ref([]);
+    const chartType = ref('bar'); // Toggle between 'bar' and 'line'
 
     const activityMix = computed(() => {
       const total = activities.value.length || 1;
@@ -350,6 +404,283 @@ export default defineComponent({
         { label: 'Accounts deleted', value: buckets.deleted, percent: Math.round((buckets.deleted / total) * 100), color: 'bg-rose-500', gradient: 'from-rose-500 to-rose-400' }
       ].filter((item) => item.value > 0);
     });
+
+    // Chart.js data configurations
+    const revenueChartData = computed(() => ({
+      labels: revenueTrend.value.map(point => point.label),
+      datasets: [
+        {
+          label: 'Revenue (₦)',
+          data: revenueTrend.value.map(point => point.value),
+          backgroundColor: chartType.value === 'bar' 
+            ? 'rgba(56, 189, 248, 0.8)' 
+            : 'rgba(56, 189, 248, 0.2)',
+          borderColor: 'rgba(56, 189, 248, 1)',
+          borderWidth: 2,
+          fill: chartType.value === 'line',
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6
+        }
+      ]
+    }));
+
+    const revenueChartOptions = computed(() => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#fff',
+          bodyColor: '#e2e8f0',
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            label: function(context) {
+              return `₦${context.parsed.y.toLocaleString('en-NG')}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(148, 163, 184, 0.1)',
+            drawBorder: false
+          },
+          ticks: {
+            color: 'rgba(148, 163, 184, 0.8)',
+            font: {
+              size: 11
+            },
+            callback: function(value) {
+              return '₦' + (value / 1000).toFixed(0) + 'k';
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            color: 'rgba(148, 163, 184, 0.8)',
+            font: {
+              size: 11
+            }
+          }
+        }
+      }
+    }));
+
+    const activityMixChartData = computed(() => ({
+      labels: activityMix.value.map(item => item.label),
+      datasets: [
+        {
+          data: activityMix.value.map(item => item.value),
+          backgroundColor: [
+            'rgba(16, 185, 129, 0.8)',   // emerald
+            'rgba(56, 189, 248, 0.8)',   // sky
+            'rgba(168, 85, 247, 0.8)',   // purple
+            'rgba(244, 63, 94, 0.8)'     // rose
+          ],
+          borderColor: [
+            'rgba(16, 185, 129, 1)',
+            'rgba(56, 189, 248, 1)',
+            'rgba(168, 85, 247, 1)',
+            'rgba(244, 63, 94, 1)'
+          ],
+          borderWidth: 2,
+          hoverOffset: 10
+        }
+      ]
+    }));
+
+    const activityMixChartOptions = computed(() => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'rgba(148, 163, 184, 0.9)',
+            padding: 15,
+            font: {
+              size: 12,
+              weight: '500'
+            },
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#fff',
+          bodyColor: '#e2e8f0',
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: true,
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percent = ((context.parsed / total) * 100).toFixed(1);
+              return `${context.label}: ${context.parsed} (${percent}%)`;
+            }
+          }
+        }
+      }
+    }));
+
+    // Document comparison chart (Invoice vs Receipt)
+    const documentComparisonChartData = computed(() => ({
+      labels: ['Processed', 'Pending', 'Total'],
+      datasets: [
+        {
+          label: 'Invoices',
+          data: [
+            invoiceInsights.value.processed,
+            invoiceInsights.value.pending,
+            invoiceInsights.value.processed + invoiceInsights.value.pending
+          ],
+          backgroundColor: 'rgba(56, 189, 248, 0.8)',
+          borderColor: 'rgba(56, 189, 248, 1)',
+          borderWidth: 2
+        },
+        {
+          label: 'Receipts',
+          data: [
+            receiptInsights.value.issued,
+            receiptInsights.value.pending,
+            receiptInsights.value.issued + receiptInsights.value.pending
+          ],
+          backgroundColor: 'rgba(168, 85, 247, 0.8)',
+          borderColor: 'rgba(168, 85, 247, 1)',
+          borderWidth: 2
+        }
+      ]
+    }));
+
+    const documentComparisonChartOptions = computed(() => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: 'rgba(148, 163, 184, 0.9)',
+            padding: 15,
+            font: {
+              size: 13,
+              weight: '600'
+            },
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#fff',
+          bodyColor: '#e2e8f0',
+          padding: 12,
+          cornerRadius: 8
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(148, 163, 184, 0.1)',
+            drawBorder: false
+          },
+          ticks: {
+            color: 'rgba(148, 163, 184, 0.8)',
+            font: {
+              size: 11
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            color: 'rgba(148, 163, 184, 0.8)',
+            font: {
+              size: 11
+            }
+          }
+        }
+      }
+    }));
+
+    // Status comparison doughnut chart
+    const statusComparisonChartData = computed(() => {
+      const totalProcessed = invoiceInsights.value.processed + receiptInsights.value.issued;
+      const totalPending = invoiceInsights.value.pending + receiptInsights.value.pending;
+
+      return {
+        labels: ['Completed', 'Pending'],
+        datasets: [
+          {
+            data: [totalProcessed, totalPending],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(251, 146, 60, 0.8)'
+            ],
+            borderColor: [
+              'rgba(16, 185, 129, 1)',
+              'rgba(251, 146, 60, 1)'
+            ],
+            borderWidth: 2,
+            hoverOffset: 10
+          }
+        ]
+      };
+    });
+
+    const statusComparisonChartOptions = computed(() => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'rgba(148, 163, 184, 0.9)',
+            padding: 15,
+            font: {
+              size: 13,
+              weight: '600'
+            },
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#fff',
+          bodyColor: '#e2e8f0',
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: true,
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percent = ((context.parsed / total) * 100).toFixed(1);
+              return `${context.label}: ${context.parsed} documents (${percent}%)`;
+            }
+          }
+        }
+      }
+    }));
 
     const revenueTrendLabel = computed(() => `${revenueChange.value >= 0 ? '+' : ''}${revenueChange.value}%`);
     const invoiceTrendLabel = computed(() => `${invoiceCompletion.value}% complete`);
@@ -548,7 +879,16 @@ export default defineComponent({
       viewRawData,
       actionLabel,
       activityBadge,
-      formatRelativeTime
+      formatRelativeTime,
+      chartType,
+      revenueChartData,
+      revenueChartOptions,
+      activityMixChartData,
+      activityMixChartOptions,
+      documentComparisonChartData,
+      documentComparisonChartOptions,
+      statusComparisonChartData,
+      statusComparisonChartOptions
     };
   }
 });
@@ -588,16 +928,29 @@ function activityBadge(action = '') {
 </script>
 
 <style scoped>
+/* Custom scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.4);
-  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 5px;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.6);
+  background: rgba(56, 189, 248, 0.7);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.5) rgba(148, 163, 184, 0.1);
 }
 </style>

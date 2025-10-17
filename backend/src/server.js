@@ -17,6 +17,12 @@ import {
 } from './database.js';
 import { addBranch } from './database.js';
 import adminRoutes from './adminRoutes.js';
+import {
+  getLicenseStatus,
+  renewLicense,
+  deactivateLicense,
+  licenseMiddleware
+} from './license.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -27,6 +33,9 @@ app.use(morgan('dev'));
 
 // Mount admin routes
 app.use('/admin', adminRoutes);
+
+// Apply license middleware to all routes except license routes and health
+app.use(licenseMiddleware);
 
 function validatePayload(body, requiredFields = []) {
   if (!body || typeof body !== 'object') {
@@ -41,6 +50,61 @@ function validatePayload(body, requiredFields = []) {
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', counters: getCounters() });
+});
+
+// License management endpoints
+app.get('/license/status', (_req, res) => {
+  try {
+    const status = getLicenseStatus();
+    res.json({ data: status });
+  } catch (error) {
+    console.error('Failed to get license status', error);
+    res.status(500).json({ error: 'Failed to retrieve license status' });
+  }
+});
+
+app.post('/license/renew', (req, res) => {
+  const { days, secretKey } = req.body || {};
+  
+  if (!secretKey) {
+    return res.status(401).json({ error: 'Secret key required for license renewal' });
+  }
+  
+  const additionalDays = days || 90;
+  
+  try {
+    const result = renewLicense(additionalDays, secretKey);
+    
+    if (result.success) {
+      res.json({ data: result });
+    } else {
+      res.status(403).json({ error: result.error });
+    }
+  } catch (error) {
+    console.error('License renewal failed', error);
+    res.status(500).json({ error: 'Failed to renew license' });
+  }
+});
+
+app.post('/license/deactivate', (req, res) => {
+  const { secretKey } = req.body || {};
+  
+  if (!secretKey) {
+    return res.status(401).json({ error: 'Secret key required' });
+  }
+  
+  try {
+    const result = deactivateLicense(secretKey);
+    
+    if (result.success) {
+      res.json({ data: result });
+    } else {
+      res.status(403).json({ error: result.error });
+    }
+  } catch (error) {
+    console.error('License deactivation failed', error);
+    res.status(500).json({ error: 'Failed to deactivate license' });
+  }
 });
 
 app.get('/branches', (_req, res) => {

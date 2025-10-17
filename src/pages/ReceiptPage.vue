@@ -167,15 +167,15 @@
 
     <!-- Receipt Preview Section - Hidden on mobile unless showPreview is true -->
     <section 
-      class="w-full lg:w-1/2"
-      :class="{ 'hidden lg:block': !showPreview }"
+      class="w-full max-w-5xl flex items-center justify-center"
+      :class="{ 'hidden lg:flex': !showPreview }"
     >
-      <!-- Mobile wrapper with scroll -->
-      <div class="w-full md:w-auto overflow-x-auto md:overflow-visible">
+      <!-- Mobile wrapper with responsive width -->
+      <div class="w-full flex items-center justify-center md:p-4">
       <div
       ref="receiptOuterRef"
       class="bg-white shadow-lg border border-gray-300 p-5 flex justify-center items-center mx-auto"
-      style="width: 7.268in; height: 5.324in; background-color: white; min-width: 7.268in;"
+      :style="{ width: isMobile ? '100%' : '7.268in', height: '5.324in', backgroundColor: 'white', minWidth: isMobile ? '100%' : '7.268in' }"
       >
         <div
         id="receipt-canvas"
@@ -186,34 +186,35 @@
         <div class="text-center">
           <div class="flex items-start">
             <!-- Logo (Fixed - Developer Only) -->
-            <div v-if="logoDataUrl" class="flex justify-center mb-2">
-              <img :src="logoDataUrl" alt="ICAN Logo" class="h-20 w-auto object-contain" />
+            <div v-if="logoDataUrl" class="">
+              <img :src="logoDataUrl" alt="ICAN Logo" class="h-20 mt-[-25px] md:h-[150px] w-auto object-contain" />
             </div>
             
             <!-- Organization Name (Fixed - Developer Only) -->
-            <div class="text-blue-800">
-              <h2 class="ml-4 text-xl font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
-              Institute of Chartered Accountants 
+            <div>
+              <div>
+                <h2 class="ml-4 text-blue-800 md:text-2xl text-md font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+              Institute of Chartered Accountants of Nigeria (ICAN) </h2>
+              </div>
+            
+              <div>
+                <!-- Address (Fixed - Developer Only) -->
+              <p class="text-sm text-center ">
+                {{ organizationAddress }}
+              </p>
               
-            </h2>
-            <h2 class="ml-4 mt-[-5px] text-xl font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
-              of Nigeria (ICAN)
-            </h2>
+              <!-- Phone (Fixed - Developer Only) -->
+              <p class="text-xs text-center font-bold">
+                Tel: {{ organizationPhone }}
+              </p>
+              </div>
+            
             </div>
           </div>
 
-          <!-- Address (Fixed - Developer Only) -->
-          <p class="text-xs text-left mt-[-35px] ml-[98px]">
-            {{ organizationAddress }}
-          </p>
-          
-          <!-- Phone (Fixed - Developer Only) -->
-          <p class="text-xs text-center font-bold">
-            Tel: {{ organizationPhone }}
-          </p>
 
           <!-- Receipt Title -->
-          <p class="text-md font-bold uppercase mt-1 bg-red-500 text-white inline-block px-3  rounded">
+          <p class="text-lg font-bold uppercase  bg-red-500 text-white inline-block px-3  rounded">
             CASH RECEIPT
           </p>
         </div>
@@ -316,7 +317,7 @@
 
             <!-- Amount in figures -->
             <div class="flex flex-col items-center mt-3">
-              <div class="border-2 border-yellow-400 p-2 py-2 bg-yellow-50 min-w-[200px]">
+              <div class="border-2 border-yellow-400 p-2 py-2 bg-yellow-50 min-w-[100px] md:min-w-[250px]">
                 <div class="flex justify-between gap-2">
                   <span class="font-bold text-lg">₦{{ naira || 0 }}</span>
                   <span class="font-bold text-lg">.{{ String(kobo || 0).padStart(2, '0') }}</span>
@@ -358,7 +359,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch, onMounted } from 'vue';
+import { defineComponent, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import PasswordVerificationModal from '@/components/PasswordVerificationModal.vue';
 import { storeToRefs } from 'pinia';
@@ -404,6 +405,15 @@ export default defineComponent({
           showPasswordModal.value = true;
         }
       }
+
+      // Setup mobile detection
+      calculateMobileScale();
+      window.addEventListener('resize', calculateMobileScale);
+    });
+
+    // Cleanup on unmount
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', calculateMobileScale);
     });
 
     // Handle successful password verification
@@ -471,6 +481,22 @@ export default defineComponent({
     const paymentForInput1 = ref(null);
     const paymentForInput2 = ref(null);
     const showPreview = ref(false); // Mobile preview toggle
+
+    // Mobile detection
+    const isMobile = ref(false);
+    const mobileScale = ref(1);
+
+    const calculateMobileScale = () => {
+      const screenWidth = window.innerWidth;
+      isMobile.value = screenWidth < 768;
+      if (isMobile.value) {
+        // Calculate scale to fit 7.268in width in screen
+        const receiptWidthInPixels = 7.268 * 96; // 7.268in * 96dpi
+        mobileScale.value = Math.min(1, screenWidth / receiptWidthInPixels);
+      } else {
+        mobileScale.value = 1;
+      }
+    };
 
     const syncDate = () => {
       if (autoDate.value) {
@@ -634,12 +660,24 @@ export default defineComponent({
         html2canvas: { scale: 3, useCORS: true },
         jsPDF: { unit: 'in', format: [8.268, 5.824], orientation: 'landscape' },
       };
-      await html2pdf().set(options).from(receiptOuterRef.value).save();
-      
-      // Log activity
-      logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
-      
-      incrementReceiptNumber();
+
+      try {
+        // Add exporting class to temporarily restore original dimensions
+        receiptOuterRef.value.classList.add('exporting');
+        
+        // Wait for styles to be applied
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        await html2pdf().set(options).from(receiptOuterRef.value).save();
+        
+        // Log activity
+        logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
+        
+        incrementReceiptNumber();
+      } finally {
+        // Always remove exporting class
+        receiptOuterRef.value?.classList.remove('exporting');
+      }
     };
 
     const handleExportJPEG = async () => {
@@ -678,19 +716,30 @@ export default defineComponent({
           console.error('Failed to save receipt:', error);
         }
 
-      const dataUrl = await htmlToImage.toJpeg(receiptOuterRef.value, {
-        quality: 0.95,
-        pixelRatio: 3,
-      });
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `receipt-${receiptNumber.value}.jpg`;
-      link.click();
-      
-      // Log activity
-      logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
-      
-      incrementReceiptNumber();
+      try {
+        // Add exporting class to temporarily restore original dimensions
+        receiptOuterRef.value.classList.add('exporting');
+        
+        // Wait for styles to be applied
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const dataUrl = await htmlToImage.toJpeg(receiptOuterRef.value, {
+          quality: 0.95,
+          pixelRatio: 3,
+        });
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `receipt-${receiptNumber.value}.jpg`;
+        link.click();
+        
+        // Log activity
+        logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
+        
+        incrementReceiptNumber();
+      } finally {
+        // Always remove exporting class
+        receiptOuterRef.value?.classList.remove('exporting');
+      }
     };
 
     const logActivity = (action) => {
@@ -724,6 +773,8 @@ export default defineComponent({
       paymentForInput1,
       paymentForInput2,
       showPreview,
+      isMobile,
+      mobileScale,
       logoDataUrl,
       signatureImage1,
       signatureImage2,
@@ -765,35 +816,111 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Mobile receipt preview styles */
+/* Stylish input fields with elegant fonts */
+input.flex-1,
+input.w-full {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+input.flex-1:focus,
+input.w-full:focus {
+  border-color: #3b82f6;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+input::placeholder {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  opacity: 0.5;
+}
+
+/* Optional: Different font styles to choose from */
+/* 
+Option 1 - Elegant Serif (Current - Playfair Display)
+font-family: 'Playfair Display', serif;
+
+Option 2 - Handwritten Style
+font-family: 'Dancing Script', cursive;
+
+Option 3 - Classic Handwriting
+font-family: 'Great Vibes', cursive;
+
+Option 4 - Modern Cursive
+font-family: 'Satisfy', cursive;
+*/
+
+/* Export mode - forces original dimensions */
+.exporting {
+  width: 7.268in !important;
+  height: 5.324in !important;
+  min-width: 7.268in !important;
+  transform: none !important;
+}
+
+/* Mobile receipt preview styles - only apply when NOT exporting */
 @media (max-width: 768px) {
-  /* Smooth horizontal scroll for receipt preview on mobile */
-  section > div.overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+  /* Base font size reduction for all text in receipt */
+  div[ref="receiptOuterRef"]:not(.exporting),
+  div[ref="receiptOuterRef"]:not(.exporting) * {
+    font-size: 0.55rem !important;
   }
 
-  /* Add padding to prevent content from touching edges */
-  section > div.overflow-x-auto {
-    padding: 1rem 0;
+  /* Organization name - slightly bigger but still reduced */
+  div[ref="receiptOuterRef"]:not(.exporting) .text-xl,
+  div[ref="receiptOuterRef"]:not(.exporting) h2 {
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
   }
 
-  /* Ensure receipt maintains its size on mobile */
-  #receipt-canvas {
-    transform-origin: top left;
+  /* Receipt title "CASH RECEIPT" */
+  div[ref="receiptOuterRef"]:not(.exporting) .text-2xl,
+  div[ref="receiptOuterRef"]:not(.exporting) .text-md {
+    font-size: 0.65rem !important;
   }
 
-  /* Show scroll hint shadow */
-  section > div.overflow-x-auto {
-    background: 
-      linear-gradient(90deg, #fff 0%, transparent 5%),
-      linear-gradient(-90deg, #fff 0%, transparent 5%),
-      linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 2%),
-      linear-gradient(-90deg, rgba(0,0,0,0.1) 0%, transparent 2%);
-    background-repeat: no-repeat;
-    background-size: 40px 100%, 40px 100%, 10px 100%, 10px 100%;
-    background-position: 0 0, 100% 0, 0 0, 100% 0;
-    background-attachment: local, local, scroll, scroll;
+  /* Date, receipt number and all small text */
+  div[ref="receiptOuterRef"]:not(.exporting) .text-sm,
+  div[ref="receiptOuterRef"]:not(.exporting) .text-xs {
+    font-size: 0.5rem !important;
+  }
+
+  /* All input fields */
+  div[ref="receiptOuterRef"]:not(.exporting) input {
+    font-size: 0.55rem !important;
+  }
+
+  /* All paragraphs and spans */
+  div[ref="receiptOuterRef"]:not(.exporting) p,
+  div[ref="receiptOuterRef"]:not(.exporting) span {
+    font-size: 0.55rem !important;
+  }
+
+  /* Amount display (Naira/Kobo) - keep slightly bigger */
+  div[ref="receiptOuterRef"]:not(.exporting) .text-lg {
+    font-size: 0.75rem !important;
+  }
+
+  /* Logo sizing - make bigger on mobile */
+  div[ref="receiptOuterRef"]:not(.exporting) img[alt*="Logo"] {
+    height: 150px !important;
+    width: auto !important;
+  }
+
+  /* Signature images */
+  div[ref="receiptOuterRef"]:not(.exporting) img[alt*="Signature"] {
+    height: 30px !important;
+    max-width: 80px !important;
+  }
+
+  /* Italic signature label */
+  div[ref="receiptOuterRef"]:not(.exporting) .italic {
+    font-size: 0.5rem !important;
   }
 }
 </style>

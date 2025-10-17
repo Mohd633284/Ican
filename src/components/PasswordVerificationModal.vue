@@ -112,18 +112,31 @@
       </div>
 
       <!-- Sign Up Link -->
-      <div class="mt-4 text-center">
+      <div class="mt-4 text-center border-t border-slate-200 dark:border-slate-700 pt-4">
         <p class="text-xs text-slate-600 dark:text-slate-400 mb-2">
           Don't have an account?
         </p>
         <button 
           @click="signUpAsMember"
-          class="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center justify-center gap-1 mx-auto"
+          class="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center justify-center gap-1 mx-auto mb-3"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
           </svg>
           Sign up as a member
+        </button>
+
+        <p class="text-xs text-slate-600 dark:text-slate-400 mb-2">
+          Forgot your password?
+        </p>
+        <button 
+          @click="forgotPassword"
+          class="text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center justify-center gap-1 mx-auto"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+          Reset password
         </button>
       </div>
     </div>
@@ -331,6 +344,20 @@ export default {
       });
     };
 
+    const forgotPassword = () => {
+      // Get current branch name from localStorage
+      const branchName = localStorage.getItem('branchName') || 'default';
+      
+      // Cancel the modal first
+      cancel();
+      
+      // Navigate to Member Login page (which will have forgot password modal)
+      router.push({ 
+        name: 'MemberLogin', 
+        query: { branch: branchName, forgot: 'true' }
+      });
+    };
+
     return {
       password,
       showPassword,
@@ -344,6 +371,7 @@ export default {
       verifyPassword,
       cancel,
       signUpAsMember,
+      forgotPassword,
     };
   },
 };

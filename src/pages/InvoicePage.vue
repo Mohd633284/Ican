@@ -161,103 +161,131 @@
               ></textarea>
             </div>
 
-            <!-- Items Table -->
+            <!-- Invoice Items -->
             <div class="md:col-span-2">
               <div class="flex items-center justify-between mb-2">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Invoice Items
                 </label>
-                <button
-                  @click="addItem"
-                  :disabled="items.length >= MAX_ITEMS"
-                  class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
-                  :title="items.length >= MAX_ITEMS ? `Maximum ${MAX_ITEMS} items allowed` : 'Add new item'"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Item
-                </button>
+                
               </div>
 
               <!-- Items List -->
-              <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
-                  <table class="w-full text-sm">
-                    <thead class="bg-emerald-600 text-white sticky top-0 z-10">
-                      <tr>
-                        <th class="px-2 py-2 text-left text-xs font-semibold w-16">QTY</th>
-                        <th class="px-2 py-2 text-left text-xs font-semibold">DESCRIPTION OF GOODS</th>
-                        <th class="px-2 py-2 text-left text-xs font-semibold w-24">RATE (₦)</th>
-                        <th class="px-2 py-2 text-center text-xs font-semibold w-24">AMOUNT</th>
-                        <th class="px-2 py-2 text-center text-xs font-semibold w-12"></th>
-                      </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-slate-700">
-                      <tr 
-                        v-for="(item, index) in items" 
-                        :key="item.id"
-                        class="border-t border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
-                      >
-                        <td class="px-2 py-2">
-                          <input
-                            v-model.number="item.quantity"
-                            type="number"
-                            min="0"
-                            step="1"
-                            placeholder="0"
-                            class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-center"
-                          />
-                        </td>
-                        <td class="px-2 py-2">
-                          <textarea
-                            v-model="item.description"
-                            placeholder="Item description"
-                            @keydown.enter.prevent="addItemAfter(index)"
-                            rows="2"
-                            class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none overflow-hidden"
-                            @input="autoResize"
-                          />
-                        </td>
-                        <td class="px-2 py-2">
-                          <input
-                            v-model.number="item.price"
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
-                            class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-right"
-                          />
-                        </td>
-                        <td class="px-2 py-2 text-right font-semibold text-slate-900 dark:text-white">
-                          {{ toCurrency((item.quantity || 0) * (item.price || 0)) }}
-                        </td>
-                        <td class="px-2 py-2 text-center">
-                          <button
-                            v-if="items.length > 1"
-                            @click="removeItem(item.id)"
-                            class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                            title="Remove item"
-                          >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                
-                <!-- Subtotal Display -->
-                <div class="bg-gray-50 dark:bg-slate-800 px-4 py-2 border-t border-gray-300 dark:border-gray-600">
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Subtotal:</span>
-                    <span class="text-lg font-bold text-slate-900 dark:text-white">{{ toCurrency(subtotal) }}</span>
+              <div class="space-y-4 max-h-[400px] overflow-y-auto p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-slate-700">
+                <div 
+                  v-for="(item, index) in items" 
+                  :key="item.id"
+                  class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 relative"
+                >
+                  <!-- Delete Button -->
+                  <button
+                    v-if="items.length > 1"
+                    @click="removeItem(item.id)"
+                    class="absolute top-2 right-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                    title="Remove item"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pr-8">
+                    <!-- Quantity -->
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        Quantity
+                      </label>
+                      <input
+                        v-model.number="item.quantity"
+                        type="number"
+                        min="0"
+                        step="1"
+                        placeholder="0"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      />
+                    </div>
+
+                    <!-- Rate -->
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        Rate (₦)
+                      </label>
+                      <input
+                        v-model.number="item.price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      />
+                    </div>
+
+                    <!-- Tax -->
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        Tax (%)
+                      </label>
+                      <input
+                        v-model.number="item.tax"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        placeholder="0.0"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                      />
+                    </div>
+
+                    <!-- Calculated Amount (Read-only) -->
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        Amount
+                      </label>
+                      <div class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-slate-600 text-slate-900 dark:text-white font-semibold">
+                        {{ toCurrency(getItemAmount(item)) }}
+                      </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="md:col-span-4">
+                      <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        v-model="item.description"
+                        placeholder="Enter item description"
+                        @keydown.enter.prevent="addItemAfter(index)"
+                        rows="2"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white resize-none"
+                        @input="autoResize"
+                      ></textarea>
+                    </div>
                   </div>
                 </div>
               </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+
+               <div class=" mt-2">
+                <button
+                     @click="addItem"
+                     :disabled="items.length >= MAX_ITEMS"
+                     class="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+                     :title="items.length >= MAX_ITEMS ? `Maximum ${MAX_ITEMS} items allowed` : 'Add new item'"
+                   >
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                     </svg>
+                     Add Item
+                </button>
+              </div>
+
+              <!-- Subtotal Display -->
+              <div class="mt-3 bg-gray-50 dark:bg-slate-800 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Subtotal:</span>
+                  <span class="text-lg font-bold text-slate-900 dark:text-white">{{ toCurrency(subtotal) }}</span>
+                </div>
+              </div>
+
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
                 Press Enter in description field to quickly add a new item. Maximum {{ MAX_ITEMS }} items allowed.
               </p>
             </div>
@@ -353,16 +381,21 @@
   
       <!-- Invoice Preview Section - Hidden on mobile unless showPreview is true -->
       <section 
-        class="w-full max-w-4xl flex items-center justify-center"
+        class="w-full max-w-5xl flex items-center justify-center"
         :class="{ 'hidden md:flex': !showPreview }"
       >
-        <!-- Mobile wrapper with scroll -->
-        <div class="w-full md:w-auto overflow-x-auto md:overflow-visible">
+        <!-- Mobile wrapper - scales down on mobile, full size on desktop -->
+        <div class="w-full flex items-center justify-center md:p-4">
           <div
             ref="invoiceRef"
             id="meblink-invoice"
-            class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col mx-auto"
-            style="width: 5.827in; height: 8.268in; min-width: 5.827in;"
+            class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col w-full md:w-auto"
+            style="height: 8.268in;"
+            :style="{ 
+              width: isMobile ? '100%' : '5.827in',
+              transform: isMobile ? 'scale(1)' : 'scale(1)', 
+              transformOrigin: 'top center' 
+            }"
           >
            <!-- Header -->
           <div class="text-center border-b ">
@@ -454,7 +487,7 @@
               <input
                 v-model="lpo"
                 placeholder=" "
-                class="w-[80px] bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+                class="w-full bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
               />
             </div>
             </div>
@@ -468,45 +501,60 @@
             <table class="w-full text-xs table-fixed border-collapse overflow-visible">
               <thead class="bg-blue-800 text-white uppercase text-[10px]">
                 <tr>
-                  <th class="w-1/12 px-1.5 py-1 border text-center">QTY</th>
-                  <th class="w-6/12 px-1.5 py-1 border text-left">DESCRIPTION OF GOODS</th>
-                  <th class="w-2/12 px-1.5 py-1 border text-center">RATE</th>
-                  <th class="w-3/12 px-1.5 py-1 border text-center">AMOUNT</th>
+                  <th class="w-[7%] px-1.5 py-1 border text-center">QTY</th>
+                  <th class="w-[56%] px-1.5 py-1 border text-left">DESCRIPTION OF GOODS</th>
+                  <th class="w-[9%] px-1.5 py-1 border text-center">RATE</th>
+                  <th class="w-[8%] px-1.5 py-1 border text-center">TAX%</th>
+                  <th class="w-[16%] px-1.5 py-1 border text-center">AMOUNT</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in items" :key="item.id" class="border-t hover:bg-slate-50 transition-colors group">
                   <td class="px-1.5 py-0.5 text-center align-top">
-                    <input 
+                    <textarea 
                       v-model.number="item.quantity" 
-                      type="number" 
-                      step="1" 
-                      min="0" 
+                      rows="1"
                       placeholder=""
-                      class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
-                    />
+                      class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                      style="overflow: hidden; min-height: 20px;"
+                      @input="autoResize"
+                    ></textarea>
                   </td>
                   <td class="px-1.5 py-0.5 align-top">
-                    <textarea 
-                      v-model="item.description" 
-                      placeholder="Description" 
-                      rows="1"
-                      class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none overflow-hidden leading-tight" 
-                      @keydown.enter.prevent="addItemAfter(index)"
-                      @input="autoResize"
-                    />
+                    <div class="w-full">
+                      <textarea 
+                        v-model="item.description" 
+                        placeholder="Description" 
+                        rows="1"
+                        class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                        style="overflow: hidden; min-height: 20px;"
+                        @keydown.enter.prevent="addItemAfter(index)"
+                        @input="autoResize"
+                      ></textarea>
+                    </div>
                   </td>
                   <td class="px-1.5 py-0.5 text-right align-top">
-                    <input 
+                    <textarea 
                       v-model.number="item.price" 
-                      type="number" 
-                      step="0.01" 
-                      min="0" 
-                      class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px]" 
-                    />
+                      rows="1"
+                      placeholder=""
+                      class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                      style="overflow: hidden; min-height: 20px;"
+                      @input="autoResize"
+                    ></textarea>
+                  </td>
+                  <td class="px-1.5 py-0.5 text-center align-top">
+                    <textarea 
+                      v-model.number="item.tax" 
+                      rows="1"
+                      placeholder="0"
+                      class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                      style="overflow: hidden; min-height: 20px;"
+                      @input="autoResize"
+                    ></textarea>
                   </td>
                   <td class="px-1.5 py-0.5 text-right font-semibold align-top relative overflow-visible text-[11px]">
-                    {{ toCurrency((item.quantity || 0) * (item.price || 0)) }}
+                    {{ toCurrency(getItemAmount(item)) }}
                     <!-- Delete button absolutely positioned on right edge -->
                     <button 
                       v-if="items.length > 1"
@@ -524,8 +572,9 @@
             <!-- Add button absolutely positioned at bottom left -->
             <button 
               @click="addItem"
-              class="absolute left-[-13px] bottom-0 translate-y-1/2 text-emerald-400 hover:text-emerald-600 opacity-0 hover:opacity-100 transition-all duration-200 w-6 h-6 flex items-center justify-center text-2xl font-bold hover:scale-110 z-50 bg-white rounded-full shadow-md border border-emerald-300"
-              title="Add new item"
+              :disabled="items.length >= MAX_ITEMS"
+              class="absolute left-[-13px] bottom-0 translate-y-1/2 text-emerald-400 hover:text-emerald-600 disabled:text-gray-300 disabled:cursor-not-allowed opacity-0 hover:opacity-100 transition-all duration-200 w-6 h-6 flex items-center justify-center text-2xl font-bold hover:scale-110 z-50 bg-white rounded-full shadow-md border border-emerald-300 disabled:border-gray-300"
+              :title="items.length >= MAX_ITEMS ? `Maximum ${MAX_ITEMS} items allowed` : 'Add new item'"
             >
               +
             </button>
@@ -609,6 +658,7 @@
   
           </div>
         </div>
+        <!-- End of invoice wrapper -->
         </div>
       </section>
 
@@ -618,7 +668,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, watch, onMounted } from 'vue';
+import { defineComponent, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import BaseButton from '@/components/BaseButton.vue';
 import PasswordVerificationModal from '@/components/PasswordVerificationModal.vue';
 import html2pdf from 'html2pdf.js';
@@ -659,6 +709,26 @@ export default defineComponent({
           showPasswordModal.value = true;
         }
       }
+
+      // Calculate mobile scale
+      calculateMobileScale();
+      
+      // Add resize listener for responsive scaling
+      window.addEventListener('resize', calculateMobileScale);
+
+      // Initialize all textareas to auto-resize
+      setTimeout(() => {
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+          textarea.style.height = 'auto';
+          textarea.style.height = textarea.scrollHeight + 'px';
+        });
+      }, 100);
+    });
+
+    // Cleanup resize listener on component unmount
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', calculateMobileScale);
     });
 
     // Handle successful password verification
@@ -706,6 +776,28 @@ export default defineComponent({
     const autoReceiptNumber = ref(true);
     const showPreview = ref(false); // Mobile preview toggle
 
+    // Mobile scaling for invoice preview
+    const isMobile = ref(false);
+    const mobileScale = ref(1);
+
+    // Calculate scale for mobile devices
+    const calculateMobileScale = () => {
+      if (typeof window !== 'undefined') {
+        const screenWidth = window.innerWidth;
+        isMobile.value = screenWidth < 768; // md breakpoint
+        
+        if (isMobile.value) {
+          // Invoice width is 5.827 inches = ~559px at 96dpi
+          const invoiceWidthPx = 5.827 * 96;
+          // Account for padding (4 * 16px on each side = 32px total)
+          const availableWidth = screenWidth - 32;
+          mobileScale.value = Math.min(availableWidth / invoiceWidthPx, 1);
+        } else {
+          mobileScale.value = 1;
+        }
+      }
+    };
+
     // Fixed organization details (Developer only - users cannot change these)
     const organizationAddress = ref('Federal University of Technology, Bosso Campus, Minna');
     const organizationPhone = ref('+234 1 234 5678');
@@ -713,9 +805,9 @@ export default defineComponent({
     // Logo data (Developer can set default logos here)
     const logoDataUrl = ref('/images/ican-logo.png'); // Main org logo
     
-    // Signature images (can be set by user or loaded from backend)
-    const signatureImage1 = ref('');
-    const signatureImage2 = ref('');
+    // Signature images (Developer can set signature images here - PNG/JPEG)
+    const signatureImage1 = ref('/images/signature1.png'); // Signature 1 image path
+    const signatureImage2 = ref('/images/signature2.png'); // Signature 2 image path
     
     // Amount in words input refs
     const sumOfInput1 = ref(null);
@@ -724,19 +816,19 @@ export default defineComponent({
     const sumOf2 = ref('');
 
     const items = ref([
-      { id: 1, description: '', quantity: '', price: 0.0 },
-      { id: 2, description: '', quantity: '', price: 0.0 },
-      { id: 3, description: '', quantity: '', price: 0.0 },
+      { id: 1, description: '', quantity: '', price: 0.0, tax: 0.0 },
+      { id: 2, description: '', quantity: '', price: 0.0, tax: 0.0 },
+      { id: 3, description: '', quantity: '', price: 0.0, tax: 0.0 },
     ]);
 
-    const MAX_ITEMS = 17; // Maximum number of rows allowed
+    const MAX_ITEMS = 12; // Maximum number of rows allowed
 
     const addItem = () => {
       if (items.value.length >= MAX_ITEMS) {
         alert(`Maximum ${MAX_ITEMS} items allowed`);
         return;
       }
-      items.value.push({ id: Date.now(), description: '', quantity: '', price: 0 });
+      items.value.push({ id: Date.now(), description: '', quantity: '', price: 0, tax: 0 });
     };
 
     const addItemAfter = (index) => {
@@ -744,7 +836,7 @@ export default defineComponent({
         alert(`Maximum ${MAX_ITEMS} items allowed`);
         return;
       }
-      const newItem = { id: Date.now(), description: '', quantity: '', price: 0 };
+      const newItem = { id: Date.now(), description: '', quantity: '', price: 0, tax: 0 };
       items.value.splice(index + 1, 0, newItem);
       // Focus on the new item's description field after a short delay
       setTimeout(() => {
@@ -765,9 +857,28 @@ export default defineComponent({
       items.value.reduce((sum, it) => sum + (Number(it.quantity) || 0) * (Number(it.price) || 0), 0)
     );
 
-    const taxAmount = computed(() => (taxEnabled.value ? (subtotal.value * (Number(taxRate.value) || 0)) / 100 : 0));
+    const taxAmount = computed(() => {
+      if (!taxEnabled.value) return 0;
+      
+      // Calculate tax from individual item tax percentages
+      return items.value.reduce((sum, it) => {
+        const itemTotal = (Number(it.quantity) || 0) * (Number(it.price) || 0);
+        const itemTax = itemTotal * ((Number(it.tax) || 0) / 100);
+        return sum + itemTax;
+      }, 0);
+    });
 
     const grandTotal = computed(() => subtotal.value + taxAmount.value);
+
+    // Calculate individual item amount (including tax if enabled)
+    const getItemAmount = (item) => {
+      const baseAmount = (Number(item.quantity) || 0) * (Number(item.price) || 0);
+      if (taxEnabled.value && item.tax) {
+        const itemTax = baseAmount * ((Number(item.tax) || 0) / 100);
+        return baseAmount + itemTax;
+      }
+      return baseAmount;
+    };
 
     function toCurrency(value) {
       return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(value || 0);
@@ -858,6 +969,19 @@ export default defineComponent({
       }
     });
 
+    // Watch items to ensure textareas resize properly
+    watch(items, () => {
+      setTimeout(() => {
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+          if (textarea.value) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+          }
+        });
+      }, 50);
+    }, { deep: true });
+
     // Auto-generate receipt number when needed
     watch(autoReceiptNumber, async (enabled) => {
       if (enabled) {
@@ -881,6 +1005,12 @@ export default defineComponent({
         isExporting.value = true;
         exportType.value = 'pdf';
         
+        // Add exporting class to restore original dimensions
+        invoiceRef.value.classList.add('exporting');
+        
+        // Wait a moment for styles to apply
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Export the invoice
         console.log('Starting PDF export...');
         const element = invoiceRef.value;
@@ -903,6 +1033,10 @@ export default defineComponent({
         console.error('Error exporting PDF:', error);
         alert(`❌ Failed to export PDF: ${error.message}`);
       } finally {
+        // Remove exporting class to restore mobile styles
+        if (invoiceRef.value) {
+          invoiceRef.value.classList.remove('exporting');
+        }
         isExporting.value = false;
         exportType.value = '';
       }
@@ -914,6 +1048,12 @@ export default defineComponent({
       try {
         isExporting.value = true;
         exportType.value = 'jpeg';
+        
+        // Add exporting class to restore original dimensions
+        invoiceRef.value.classList.add('exporting');
+        
+        // Wait a moment for styles to apply
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         // Export the invoice
         console.log('Starting JPEG export...');
@@ -935,6 +1075,10 @@ export default defineComponent({
         console.error('Error exporting JPEG:', error);
         alert(`❌ Failed to export JPEG: ${error.message}`);
       } finally {
+        // Remove exporting class to restore mobile styles
+        if (invoiceRef.value) {
+          invoiceRef.value.classList.remove('exporting');
+        }
         isExporting.value = false;
         exportType.value = '';
       }
@@ -997,6 +1141,8 @@ export default defineComponent({
       showPasswordModal,
       passwordVerified,
       showPreview,
+      isMobile,
+      mobileScale,
       onPasswordVerified,
       onPasswordCancel,
       a5Width,
@@ -1023,6 +1169,7 @@ export default defineComponent({
       receiptNumber,
       autoReceiptNumber,
       items,
+      MAX_ITEMS,
       addItem,
       addItemAfter,
       removeItem,
@@ -1034,6 +1181,7 @@ export default defineComponent({
       taxRate,
       taxAmount,
       grandTotal,
+      getItemAmount,
       toCurrency,
       amountInWords,
       handleExportPDF,
@@ -1046,6 +1194,29 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* Stylish input fields with elegant fonts */
+input.flex-1,
+input.w-full {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+input.flex-1:focus,
+input.w-full:focus {
+  border-color: #3b82f6;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+input::placeholder {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  opacity: 0.5;
+}
+
 /* Custom Scrollbar Styling */
 :deep(*) {
   scrollbar-width: thin;
@@ -1180,7 +1351,7 @@ tbody tr {
   animation: slideIn 0.3s ease-out;
 }
 
-/* Mobile invoice preview styles */
+/* Mobile invoice preview styles - Only apply when NOT exporting */
 @media (max-width: 768px) {
   /* Smooth horizontal scroll for invoice preview on mobile */
   section > div.overflow-x-auto {
@@ -1194,7 +1365,7 @@ tbody tr {
   }
 
   /* Ensure invoice maintains its size on mobile */
-  #meblink-invoice {
+  #meblink-invoice:not(.exporting) {
     transform-origin: top left;
   }
 
@@ -1210,6 +1381,96 @@ tbody tr {
     background-position: 0 0, 100% 0, 0 0, 100% 0;
     background-attachment: local, local, scroll, scroll;
   }
+
+  /* Reduce all font sizes inside invoice preview on mobile - EXCEPT when exporting */
+  #meblink-invoice:not(.exporting) {
+    font-size: 0.7rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) h2 {
+    font-size: 0.65rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) p,
+  #meblink-invoice:not(.exporting) span,
+  #meblink-invoice:not(.exporting) input,
+  #meblink-invoice:not(.exporting) textarea {
+    font-size: 0.6rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-\[14px\] {
+    font-size: 0.65rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-\[12px\] {
+    font-size: 0.6rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-\[11px\] {
+    font-size: 0.55rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-\[10px\] {
+    font-size: 0.5rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-\[9px\] {
+    font-size: 0.45rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-xs {
+    font-size: 0.55rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-sm {
+    font-size: 0.65rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-base {
+    font-size: 0.75rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-lg {
+    font-size: 0.8rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) .text-2xl {
+    font-size: 0.9rem !important;
+  }
+
+  /* Make logo bigger on mobile - EXCEPT when exporting */
+  #meblink-invoice:not(.exporting) img[alt="ICAN Logo"] {
+    height: 150px !important;
+    max-height: 150px !important;
+  }
+
+  /* Adjust table font sizes - EXCEPT when exporting */
+  #meblink-invoice:not(.exporting) table thead {
+    font-size: 0.5rem !important;
+  }
+
+  #meblink-invoice:not(.exporting) table tbody td {
+    font-size: 0.55rem !important;
+  }
+
+  /* Adjust padding/spacing for mobile - EXCEPT when exporting */
+  #meblink-invoice:not(.exporting) {
+    padding: 1rem !important;
+  }
+}
+
+/* Ensure original dimensions are restored when exporting */
+#meblink-invoice.exporting {
+  width: 5.827in !important;
+  height: 8.268in !important;
+  padding: 1.5rem !important;
+  font-size: 1rem !important;
+  transform: none !important;
+}
+
+#meblink-invoice.exporting img[alt="ICAN Logo"] {
+  height: 120px !important;
+  max-height: 120px !important;
 }
 </style>
 
