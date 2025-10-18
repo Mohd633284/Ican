@@ -204,6 +204,21 @@
               </div>
             </div>
           </div>
+      
+          <!-- Create Signature -->
+          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleSignature">
+            <div class="flex items-center space-x-4">
+              <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Create Signature</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Draw digital signatures</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -451,6 +466,10 @@ export default defineComponent({
       router.push({ name: 'Reports', query: { branch: branchName.value } });
     };
 
+    const handleSignature = () => {
+      router.push({ name: 'Signature', query: { branch: branchName.value } });
+    };
+
     return {
       branchTitle,
       branchName,
@@ -471,6 +490,7 @@ export default defineComponent({
       handleMemberLogin,
       handleBranchSettings,
       handleReports,
+      handleSignature,
       refreshActivities,
       formatTimeAgo,
       getActivityIconClass,

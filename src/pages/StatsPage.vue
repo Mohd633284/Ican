@@ -14,9 +14,10 @@
         </div>
       </header>
 
-      <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-        <div class="flex flex-wrap items-center gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
-          <div class="relative flex-1 min-w-[220px]">
+      <section class="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
+          <!-- Search Input -->
+          <div class="relative flex-1 w-full sm:min-w-[220px]">
             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
@@ -29,25 +30,31 @@
               class="w-full rounded-2xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-emerald-500"
             />
           </div>
-          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300">
+          
+          <!-- Date Range Filter -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-slate-500 dark:text-slate-300 w-full sm:w-auto">
             <label class="font-medium">Date:</label>
-            <input
-              v-model="filters.start"
-              type="date"
-              class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
-            />
-            <span>—</span>
-            <input
-              v-model="filters.end"
-              type="date"
-              class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
-            />
+            <div class="flex items-center gap-2">
+              <input
+                v-model="filters.start"
+                type="date"
+                class="flex-1 sm:flex-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+              />
+              <span>—</span>
+              <input
+                v-model="filters.end"
+                type="date"
+                class="flex-1 sm:flex-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+              />
+            </div>
           </div>
-          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300">
-            <label class="font-medium">Type:</label>
+          
+          <!-- Type Filter -->
+          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300 w-full sm:w-auto">
+            <label class="font-medium whitespace-nowrap">Type:</label>
             <select
               v-model="filters.type"
-              class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+              class="flex-1 sm:flex-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
             >
               <option value="all">All</option>
               <option value="invoice">Invoice</option>
@@ -55,36 +62,167 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <BaseButton variant="secondary" @click="resetFilters">Clear</BaseButton>
+          
+          <!-- Clear Button -->
+          <div class="w-full sm:w-auto">
+            <BaseButton variant="secondary" @click="resetFilters" class="w-full sm:w-auto">Clear</BaseButton>
+          </div>
         </div>
 
-        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+        <!-- Mobile Card View (visible on small screens) -->
+        <div class="mt-4 block lg:hidden space-y-3">
+          <div v-for="transaction in filteredTransactions" :key="transaction.id"
+               class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+               :class="{ 'bg-amber-50/30 dark:bg-amber-900/10': transaction.isCorrected }">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                  {{ transaction.name }}
+                  <span v-if="transaction.isCorrected" class="ml-2 text-xs text-amber-600 dark:text-amber-400 italic">
+                    (Corrected)
+                  </span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {{ formatDate(transaction.date) }}
+                </p>
+              </div>
+              <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap"
+                :class="{
+                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300': transaction.type === 'invoice',
+                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': transaction.type === 'receipt',
+                  'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300': transaction.type === 'other'
+                }">
+                {{ transaction.type }}
+              </span>
+            </div>
+            
+            <p class="text-sm text-slate-600 dark:text-slate-300 mb-3 line-clamp-2">
+              {{ transaction.description }}
+            </p>
+            
+            <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
+              <div class="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {{ formatCurrency(transaction.amount) }}
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="!transaction.isMistake && !transaction.isCorrected"
+                  @click="markAsMistake(transaction)"
+                  title="Mark as Mistake"
+                  class="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </button>
+                
+                <button
+                  v-if="transaction.isMistake"
+                  @click="openCorrectionModal(transaction)"
+                  title="Correct this Entry"
+                  class="rounded-lg p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+                
+                <span v-if="transaction.isCorrected" class="text-amber-500 dark:text-amber-400" title="This entry has been corrected">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div v-if="filteredTransactions.length === 0"
+               class="rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
+            <p class="text-sm text-slate-500 dark:text-slate-300">
+              No transactions found for the selected filters.
+            </p>
+          </div>
+        </div>
+
+        <!-- Desktop Table View (visible on large screens) -->
+        <div class="mt-4 hidden lg:block overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
           <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead class="bg-slate-100 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-300">
               <tr>
                 <th scope="col" class="px-4 py-3 text-left">Date</th>
                 <th scope="col" class="px-4 py-3 text-left">Name</th>
                 <th scope="col" class="px-4 py-3 text-left">Description</th>
+                <th scope="col" class="px-4 py-3 text-left">Type</th>
                 <th scope="col" class="px-4 py-3 text-right">Amount</th>
+                <th scope="col" class="px-4 py-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 bg-white text-sm dark:divide-slate-800 dark:bg-slate-900">
-              <tr v-for="transaction in filteredTransactions" :key="transaction.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+              <tr v-for="transaction in filteredTransactions" :key="transaction.id" 
+                  class="hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  :class="{ 'bg-amber-50/30 dark:bg-amber-900/10': transaction.isCorrected }">
                 <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
                   {{ formatDate(transaction.date) }}
                 </td>
                 <td class="px-4 py-3 font-medium text-slate-800 dark:text-slate-100">
                   {{ transaction.name }}
+                  <span v-if="transaction.isCorrected" class="ml-2 text-xs text-amber-600 dark:text-amber-400 italic">
+                    (Corrected)
+                  </span>
                 </td>
                 <td class="px-4 py-3 text-slate-600 dark:text-slate-300">
                   {{ transaction.description }}
                 </td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium"
+                    :class="{
+                      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300': transaction.type === 'invoice',
+                      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': transaction.type === 'receipt',
+                      'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300': transaction.type === 'other'
+                    }">
+                    {{ transaction.type }}
+                  </span>
+                </td>
                 <td class="px-4 py-3 text-right font-semibold text-slate-800 dark:text-slate-100">
                   {{ formatCurrency(transaction.amount) }}
                 </td>
+                <td class="px-4 py-3 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <!-- Mark as Mistake Button -->
+                    <button
+                      v-if="!transaction.isMistake && !transaction.isCorrected"
+                      @click="markAsMistake(transaction)"
+                      title="Mark as Mistake"
+                      class="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </button>
+
+                    <!-- Correct Button (only shows if marked as mistake) -->
+                    <button
+                      v-if="transaction.isMistake"
+                      @click="openCorrectionModal(transaction)"
+                      title="Correct this Entry"
+                      class="rounded-lg p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 transition-colors"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+
+                    <!-- Corrected Indicator -->
+                    <span v-if="transaction.isCorrected" class="text-amber-500 dark:text-amber-400" title="This entry has been corrected">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                    </span>
+                  </div>
+                </td>
               </tr>
               <tr v-if="filteredTransactions.length === 0">
-                <td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300">
+                <td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-300">
                   No transactions found for the selected filters.
                 </td>
               </tr>
@@ -106,23 +244,108 @@
           </div>
         </footer>
       </section>
+
+      <!-- Correction Modal -->
+      <div v-if="showCorrectionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Correct Transaction Entry</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">
+              Replace the incorrect entry with the correct information
+            </p>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <!-- Original (Mistake) Entry -->
+            <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <h3 class="text-sm font-semibold text-red-800 dark:text-red-300 mb-3">❌ Original Entry (Mistake)</h3>
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span class="text-slate-600 dark:text-slate-400">Name:</span>
+                  <p class="font-medium text-slate-900 dark:text-white">{{ mistakeEntry?.name }}</p>
+                </div>
+                <div>
+                  <span class="text-slate-600 dark:text-slate-400">Amount:</span>
+                  <p class="font-medium text-slate-900 dark:text-white">{{ formatCurrency(mistakeEntry?.amount) }}</p>
+                </div>
+                <div class="col-span-2">
+                  <span class="text-slate-600 dark:text-slate-400">Description:</span>
+                  <p class="font-medium text-slate-900 dark:text-white">{{ mistakeEntry?.description }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Correct Entry Form -->
+            <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+              <h3 class="text-sm font-semibold text-green-800 dark:text-green-300 mb-3">✅ Correct Entry</h3>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
+                  <input
+                    v-model="correctionForm.name"
+                    type="text"
+                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter correct name"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Amount</label>
+                  <input
+                    v-model.number="correctionForm.amount"
+                    type="number"
+                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter correct amount"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                  <textarea
+                    v-model="correctionForm.description"
+                    rows="3"
+                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter correct description"
+                  ></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Correction Reason</label>
+                  <input
+                    v-model="correctionForm.reason"
+                    type="text"
+                    class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                    placeholder="Why was this corrected?"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+            <BaseButton variant="ghost" @click="closeCorrectionModal">Cancel</BaseButton>
+            <BaseButton variant="primary" @click="applyCorrection">Apply Correction</BaseButton>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { computed, defineComponent, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, defineComponent, reactive, ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 import { useFinanceStore } from '@/stores/finance';
+import { getAllInvoices, getAllReceipts } from '@/firebase/database';
 
-const makeTransaction = (date, name, amount, description, type) => ({
-  id: `${date}-${name}-${amount}-${type}`,
+const makeTransaction = (date, name, amount, description, type, id, isCorrected = false, isMistake = false, originalId = null) => ({
+  id: id || `${date}-${name}-${amount}-${type}`,
   date,
   name,
   amount,
   description,
   type,
+  isCorrected,
+  isMistake,
+  originalId,
 });
 
 export default defineComponent({
@@ -132,31 +355,112 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const financeStore = useFinanceStore();
 
-    const fallbackTransactions = ref([
-      makeTransaction('2025-09-28', 'Amina Yusuf', 75000, 'CPD workshop facilitation fee', 'invoice'),
-      makeTransaction('2025-09-30', 'Emeka Okoye', 48000, 'Membership renewal payment', 'receipt'),
-      makeTransaction('2025-10-02', 'Kaduna Branch Hall', 31000, 'Venue booking for seminar', 'invoice'),
-      makeTransaction('2025-10-03', 'Seyi Adeboye', 22000, 'Student conference registration', 'receipt'),
-      makeTransaction('2025-10-04', 'Logistics Express', 12000, 'Courier services for study packs', 'invoice'),
-      makeTransaction('2025-10-05', 'Maryam Musa', 15000, 'Annual dues settlement', 'receipt'),
-      makeTransaction('2025-10-06', 'ICT Outsource Ltd', 54000, 'Software maintenance retainer', 'invoice'),
-      makeTransaction('2025-10-07', 'Training Support Fund', 190000, 'Grant disbursement', 'other'),
-    ]);
+    const allTransactions = ref([]);
+    const loading = ref(true);
+    const showCorrectionModal = ref(false);
+    const mistakeEntry = ref(null);
+    const correctionForm = reactive({
+      name: '',
+      amount: 0,
+      description: '',
+      reason: '',
+    });
+
+    // Get branch from route or authenticated member
+    const branch = ref('');
+    
+    onMounted(async () => {
+      // Get branch info
+      const storedMember = localStorage.getItem('authenticatedMember');
+      if (storedMember) {
+        const member = JSON.parse(storedMember);
+        branch.value = member.branch || route.query.branch || 'Unknown';
+      } else {
+        branch.value = route.query.branch || 'Unknown';
+      }
+
+      // Check if returning from correction (pendingCorrection was cleared)
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromCorrection = urlParams.get('corrected');
+      
+      if (fromCorrection) {
+        console.log('Reloading after correction...');
+        // Remove the query parameter
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      await loadAllTransactions();
+    });
+
+    // Load real data from Firebase
+    const loadAllTransactions = async () => {
+      loading.value = true;
+      try {
+        const transactionsList = [];
+
+        // Load Invoices
+        const invoicesResult = await getAllInvoices(branch.value);
+        if (invoicesResult.success && invoicesResult.data.length > 0) {
+          invoicesResult.data.forEach(invoice => {
+            // Use grandTotal, or fall back to total, or subtotal
+            const amount = invoice.grandTotal || invoice.total || invoice.subtotal || 0;
+            
+            transactionsList.push(makeTransaction(
+              invoice.date || new Date().toISOString().split('T')[0],
+              invoice.customerName || invoice.billTo || 'Unknown',
+              amount,
+              `Invoice #${invoice.invoiceNumber || invoice.receiptNumber || 'N/A'} - ${invoice.items?.length || 0} items`,
+              'invoice',
+              invoice.id,
+              invoice.isCorrected || false,
+              invoice.isMistake || false,
+              invoice.originalId || null
+            ));
+          });
+        }
+
+        // Load Receipts
+        const receiptsResult = await getAllReceipts(branch.value);
+        if (receiptsResult.success && receiptsResult.data.length > 0) {
+          receiptsResult.data.forEach(receipt => {
+            transactionsList.push(makeTransaction(
+              receipt.date || new Date().toISOString().split('T')[0],
+              receipt.receivedFrom || 'Unknown',
+              receipt.grandTotal || receipt.naira || 0,
+              `Receipt #${receipt.receiptNumber || 'N/A'} - ${receipt.paymentFor || receipt.sumOf || 'Payment'}`,
+              'receipt',
+              receipt.id,
+              receipt.isCorrected || false,
+              receipt.isMistake || false,
+              receipt.originalId || null
+            ));
+          });
+        }
+
+        // Sort by date (newest first)
+        allTransactions.value = transactionsList.sort((a, b) => 
+          new Date(b.date) - new Date(a.date)
+        );
+
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+        alert('Failed to load transactions. Please try again.');
+      } finally {
+        loading.value = false;
+      }
+    };
 
     const transactions = computed(() => {
-      if (financeStore.allTransactions.length === 0) {
-        return fallbackTransactions.value;
+      if (allTransactions.value.length === 0) {
+        // Fallback data if no real data
+        return [
+          makeTransaction('2025-10-18', 'No Data', 0, 'No transactions found. Create invoices or receipts to see them here.', 'other', 'fallback-1'),
+        ];
       }
-      return financeStore.allTransactions.map((transaction) => ({
-        id: transaction.id,
-        date: transaction.date,
-        name: transaction.name,
-        amount: transaction.amount,
-        description: transaction.description || transaction.summary || `${transaction.type} entry`,
-        type: transaction.type,
-      }));
+      return allTransactions.value;
     });
 
     const searchTerm = ref('');
@@ -203,6 +507,64 @@ export default defineComponent({
       filters.type = 'all';
     };
 
+    // Mark transaction as mistake and redirect to correction page
+    const markAsMistake = async (transaction) => {
+      if (!confirm(`Mark "${transaction.name}" as a mistake?\n\nYou will be redirected to the ${transaction.type === 'invoice' ? 'Invoice' : 'Receipt'} page to redo the work.`)) {
+        return;
+      }
+
+      try {
+        // Store mistake information in localStorage for the target page to pick up
+        const mistakeData = {
+          id: transaction.id,
+          type: transaction.type,
+          originalData: transaction,
+          timestamp: Date.now(),
+          branch: branch.value
+        };
+        
+        localStorage.setItem('pendingCorrection', JSON.stringify(mistakeData));
+        
+        // Redirect to appropriate page based on transaction type
+        if (transaction.type === 'invoice') {
+          router.push({ 
+            name: 'Invoice', 
+            query: { 
+              branch: branch.value,
+              correction: transaction.id 
+            }
+          });
+        } else if (transaction.type === 'receipt') {
+          router.push({ 
+            name: 'Receipt', 
+            query: { 
+              branch: branch.value,
+              correction: transaction.id 
+            }
+          });
+        } else {
+          alert('Cannot correct this type of transaction.');
+        }
+      } catch (error) {
+        console.error('Error marking as mistake:', error);
+        alert('Failed to process correction. Please try again.');
+      }
+    };
+
+    // Open correction - now just redirects (kept for backward compatibility)
+    const openCorrectionModal = (transaction) => {
+      markAsMistake(transaction);
+    };
+
+    // Not used anymore but kept for compatibility
+    const closeCorrectionModal = () => {
+      showCorrectionModal.value = false;
+    };
+
+    const applyCorrection = () => {
+      // Not used anymore - corrections happen on Invoice/Receipt pages
+    };
+
     const formatCurrency = (value) =>
       new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(value || 0);
 
@@ -223,10 +585,19 @@ export default defineComponent({
       filters,
       filteredTransactions,
       totalAmount,
+      loading,
       resetFilters,
       formatCurrency,
       formatDate,
       handleBack,
+      // Correction functionality
+      showCorrectionModal,
+      mistakeEntry,
+      correctionForm,
+      markAsMistake,
+      openCorrectionModal,
+      closeCorrectionModal,
+      applyCorrection,
     };
   },
 });

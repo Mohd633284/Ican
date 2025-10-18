@@ -8,6 +8,17 @@
       @cancel="onPasswordCancel"
     />
 
+    <!-- Document History Modal -->
+    <DocumentHistoryModal
+      :is-open="showHistoryModal"
+      :documents="savedReceipts"
+      :loading="loadingReceipts"
+      document-type="Receipt"
+      @close="showHistoryModal = false"
+      @load="handleLoadReceipt"
+      @delete="handleDeleteReceipt"
+    />
+
     <div class="h-screen overflow-y-auto flex flex-col gap-8 items-center justify-start bg-slate-100 dark:bg-slate-900 pt-[80px] pb-[150px] px-4">
       <!-- Member Info Banner -->
       <div v-if="authenticatedMember" class="w-full max-w-4xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-lg shadow-md flex items-center justify-between">
@@ -30,7 +41,12 @@
 
     <section class="w-full max-w-4xl flex flex-wrap items-center justify-between gap-3">
       <div class="space-y-2">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Receipt Designer</h1>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+          Receipt Designer
+          <span v-if="currentReceiptId" class="text-sm px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full font-medium">
+            Editing #{{ receiptNumber }}
+          </span>
+        </h1>
         <p class="text-sm text-slate-600 dark:text-slate-300">
           Configure your receipt details then export as PDF or JPEG.
         </p>
@@ -47,6 +63,16 @@
 
         <!-- Primary Actions -->
         <div class="flex items-center gap-2">
+          <!-- Confirm Correction Button (only in correction mode) -->
+          <BaseButton 
+            v-if="isCorrectionMode" 
+            variant="success" 
+            @click="handleConfirmCorrection"
+            class="bg-amber-600 hover:bg-amber-700 text-white font-bold animate-pulse"
+          >
+            ✅ Confirm Correction
+          </BaseButton>
+
           <BaseButton variant="primary" @click="handleExportPDF">
             📄 Export PDF
           </BaseButton>
@@ -109,12 +135,27 @@
           <!-- The Sum of (Amount in Words) -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Amount in Words
+              Amount in Words (Line 1)
             </label>
             <input
               v-model="sumOf"
+              @input="handleSumOfOverflow"
               type="text"
               :placeholder="amountInWords.words || 'Amount in words'"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- The Sum of Line 2 -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Amount in Words (Line 2)
+            </label>
+            <input
+              v-model="sumOf2"
+              @input="handleSumOf2Input"
+              type="text"
+              placeholder="Overflow text appears here automatically"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
             />
           </div>
@@ -122,14 +163,103 @@
           <!-- Being Payment For -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Payment Description 
+              Payment Description (Line 1)
             </label>
             <input
               v-model="paymentFor"
+              @input="handlePaymentForOverflow"
               type="text"
               placeholder="Enter payment description"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
             />
+          </div>
+
+          <!-- Being Payment For Line 2 -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Payment Description (Line 2)
+            </label>
+            <input
+              v-model="paymentFor2"
+              @input="handlePaymentFor2Input"
+              type="text"
+              placeholder="Overflow text appears here automatically"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+            />
+          </div>
+
+          <!-- Signature Selection -->
+          <div class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700 md:col-span-2">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-purple-900 dark:text-purple-300 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                Digital Signatures
+              </h3>
+              <button
+                @click="handleCreateSignature"
+                class="text-xs px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition-colors flex items-center gap-1"
+              >
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Create New
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Signature 1 Selector -->
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Signature 1 (Left)
+                </label>
+                <select
+                  v-model="selectedSignature1"
+                  @change="handleSignature1Change"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                >
+                  <option value="">No signature</option>
+                  <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">
+                    {{ sig.name }}{{ sig.isPrimary ? ' (Primary)' : '' }}
+                  </option>
+                </select>
+                
+                <!-- Preview Signature 1 -->
+                <div v-if="signatureImage1" class="mt-2 p-2 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-gray-600">
+                  <img :src="signatureImage1" alt="Signature 1 Preview" class="h-12 w-full object-contain" />
+                </div>
+              </div>
+
+              <!-- Signature 2 Selector -->
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Signature 2 (Right)
+                </label>
+                <select
+                  v-model="selectedSignature2"
+                  @change="handleSignature2Change"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                >
+                  <option value="">No signature</option>
+                  <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">
+                    {{ sig.name }}{{ sig.isPrimary ? ' (Primary)' : '' }}
+                  </option>
+                </select>
+                
+                <!-- Preview Signature 2 -->
+                <div v-if="signatureImage2" class="mt-2 p-2 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-gray-600">
+                  <img :src="signatureImage2" alt="Signature 2 Preview" class="h-12 w-full object-contain" />
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-purple-700 dark:text-purple-300 mt-3 flex items-start gap-1">
+              <svg class="w-3 h-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Select signatures from your saved signatures or create new ones. Signatures will appear at the bottom of the receipt.</span>
+            </p>
           </div>
         </div>
         <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -174,26 +304,36 @@
       <div class="w-full flex items-center justify-center md:p-4">
       <div
       ref="receiptOuterRef"
-      class="bg-white shadow-lg border border-gray-300 p-5 flex justify-center items-center mx-auto"
-      :style="{ width: isMobile ? '100%' : '7.268in', height: '5.324in', backgroundColor: 'white', minWidth: isMobile ? '100%' : '7.268in' }"
+      class="bg-white mx-auto receipt-container"
+      :style="{ 
+        width: '7.268in', 
+        height: '5.324in', 
+        minWidth: '7.268in', 
+        padding: '0.412in',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        transform: isMobile ? `scale(${mobileScale})` : 'none',
+        transformOrigin: 'center center'
+      }"
       >
         <div
         id="receipt-canvas"
         ref="receiptRef"
-        style="width: 6in; height: 4.5in; overflow: hidden; background-color: white;"
+        style="width: 6in; height: 4.5in; overflow: visible; background-color: white; flex-shrink: 0; padding: 0.2in;"
       >
         <!-- Header -->
         <div class="text-center">
           <div class="flex items-start">
             <!-- Logo (Fixed - Developer Only) -->
             <div v-if="logoDataUrl" class="">
-              <img :src="logoDataUrl" alt="ICAN Logo" class="h-20 mt-[-25px] md:h-[150px] w-auto object-contain" />
+              <img :src="logoDataUrl" alt="ICAN Logo" class="h-16 md:h-20 w-auto object-contain" />
             </div>
             
             <!-- Organization Name (Fixed - Developer Only) -->
             <div>
               <div>
-                <h2 class="ml-4 text-blue-800 md:text-2xl text-md font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
+                <h2 class="ml-4 text-blue-800 md:text-2xl font-bold uppercase text-center" style="font-family: 'Arial Narrow', 'Roboto Condensed', 'Oswald', sans-serif; font-weight: 900; letter-spacing: -0.5px;">
               Institute of Chartered Accountants of Nigeria (ICAN) </h2>
               </div>
             
@@ -214,7 +354,7 @@
 
 
           <!-- Receipt Title -->
-          <p class="text-lg font-bold uppercase  bg-red-500 text-white inline-block px-3  rounded">
+          <p class="text-lg font-bold uppercase mt-2 bg-red-500 text-white inline-block px-3  rounded">
             CASH RECEIPT
           </p>
         </div>
@@ -277,7 +417,7 @@
             <span>Kobo</span>
           </div>
 
-          <div class="flex items-start gap-1">
+          <div class="flex items-center gap-1">
             <span>Being Payment for:</span>
             <input
               ref="paymentForInput1"
@@ -288,29 +428,29 @@
           </div>
 
           <!-- Additional line for payment description -->
-          <div class="flex">
+          <div class="flex items-center gap-2">
             <input
               ref="paymentForInput2"
               v-model="paymentFor2"
               @input="handlePaymentFor2Input"
-              class="w-full bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
+              class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none"
             />
           </div>
           
-          <div class="flex justify-between items-start mt-4">
+          <div class="flex justify-between items-start">
            
             <!-- Signature 1 -->
-            <div class="flex flex-col items-center gap-2">
+            <div class="flex flex-col items-center gap-2 mt-[-25px]">
               <!-- Signature 1 Image -->
                 <div v-if="signatureImage1">
-                <img :src="signatureImage1" alt="Signature 1" class="h-9 w-auto object-contain max-w-[120px] " />
+                <img :src="signatureImage1" alt="Signature 1" class="h-24 w-auto object-contain max-w-[240px] " />
               </div>
 
-              <div v-else class="mb-2 h-16 w-32 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+              <div v-else class="mb-2 h-24 w-32 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
                 No signature
               </div>
 
-             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+             <div class="w-full border-t border-gray-400 text-center mt-[-30px]">
                <p class="italic text-xs">Signature</p>
              </div> 
             </div>
@@ -318,25 +458,24 @@
             <!-- Amount in figures -->
             <div class="flex flex-col items-center mt-3">
               <div class="border-2 border-yellow-400 p-2 py-2 bg-yellow-50 min-w-[100px] md:min-w-[250px]">
-                <div class="flex justify-between gap-2">
+                <div class="flex justify-center gap-2">
                   <span class="font-bold text-lg">₦{{ naira || 0 }}</span>
-                  <span class="font-bold text-lg">.{{ String(kobo || 0).padStart(2, '0') }}</span>
                 </div>
               </div>
             </div>
 
           <!-- Signature 2 -->
-            <div class="flex flex-col items-center gap-2">
+            <div class="flex flex-col items-center gap-2 mt-[-25px]">
               <!-- Signature 2 Image -->
                 <div v-if="signatureImage2">
-                <img :src="signatureImage2" alt="Signature 1" class="h-9 w-auto object-contain max-w-[120px] " />
+                <img :src="signatureImage2" alt="Signature 2" class="h-24 w-auto object-contain max-w-[240px] " />
               </div>
 
-              <div v-else class="mb-2 h-16 w-32 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+              <div v-else class="mb-2 h-24 w-32 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
                 No signature
               </div>
 
-             <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
+             <div class="w-full border-t border-gray-400 text-center mt-[-30px]">
                <p class="italic text-xs">Signature</p>
              </div> 
             </div>
@@ -362,6 +501,7 @@
 import { defineComponent, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import PasswordVerificationModal from '@/components/PasswordVerificationModal.vue';
+import DocumentHistoryModal from '@/components/DocumentHistoryModal.vue';
 import { storeToRefs } from 'pinia';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
@@ -369,12 +509,22 @@ import BaseButton from '@/components/BaseButton.vue';
 import { useReceiptStore } from '@/stores/receiptStore';
 import { useFinanceStore } from '@/stores/finance';
 import { API_BASE } from '../api.js';
+import { 
+  saveReceipt, 
+  getAllReceipts, 
+  deleteReceipt,
+  updateReceipt,
+  saveMemberActivity,
+  getAllSignatures,
+  getPrimarySignature
+} from '@/firebase/database';
 
 export default defineComponent({
   name: 'ReceiptPage',
   components: {
     BaseButton,
-    PasswordVerificationModal
+    PasswordVerificationModal,
+    DocumentHistoryModal
   },
   setup() {
     const router = useRouter();
@@ -386,6 +536,17 @@ export default defineComponent({
     const authenticatedMember = ref(null);
     const showPasswordModal = ref(false);
     const passwordVerified = ref(false);
+
+    // Correction mode state
+    const isCorrectionMode = ref(false);
+    const originalTransactionData = ref(null);
+
+    // Document history state
+    const showHistoryModal = ref(false);
+    const savedReceipts = ref([]);
+    const loadingReceipts = ref(false);
+    const currentReceiptId = ref(null); // Track if we're editing an existing receipt
+    const isSaving = ref(false);
 
     // Load authenticated member info and check for password verification
     onMounted(() => {
@@ -406,9 +567,29 @@ export default defineComponent({
         }
       }
 
+      // Check for pending correction from Stats page
+      const pendingCorrection = localStorage.getItem('pendingCorrection');
+      if (pendingCorrection) {
+        const correctionData = JSON.parse(pendingCorrection);
+        
+        // Only load if it's a receipt correction
+        if (correctionData.type === 'receipt') {
+          // Show banner notification
+          alert(`📝 Correction Mode: You're correcting Receipt #${correctionData.receiptNumber}\n\nPlease redo the work and click "Confirm Correction" when done.`);
+          
+          // Store the original transaction ID for later
+          currentReceiptId.value = correctionData.id;
+          isCorrectionMode.value = true;
+          originalTransactionData.value = correctionData;
+        }
+      }
+
       // Setup mobile detection
       calculateMobileScale();
       window.addEventListener('resize', calculateMobileScale);
+
+      // Load saved signatures
+      loadSignatures();
     });
 
     // Cleanup on unmount
@@ -421,10 +602,11 @@ export default defineComponent({
       showPasswordModal.value = false;
       passwordVerified.value = true;
       
-      // Store authenticated member info
+      // Store authenticated member info with branch
       authenticatedMember.value = {
         id: memberInfo.memberId,
         name: memberInfo.memberName,
+        branch: memberInfo.branch || route.query.branch || 'Unknown',
         role: 'Member'
       };
       
@@ -451,6 +633,12 @@ export default defineComponent({
     // Signature images (Developer can set signature images here - PNG/JPEG)
     const signatureImage1 = ref('/images/signature1.png'); // Signature 1 image: ref('/images/signature1.png')
     const signatureImage2 = ref('/images/signature2.png'); // Signature 2 image: ref('/images/signature2.png')
+
+    // Signature management
+    const savedSignatures = ref([]);
+    const selectedSignature1 = ref('');
+    const selectedSignature2 = ref('');
+    const loadingSignatures = ref(false);
 
     // Additional fields for signatures and payment description
     const paymentFor2 = ref('');
@@ -481,6 +669,7 @@ export default defineComponent({
     const paymentForInput1 = ref(null);
     const paymentForInput2 = ref(null);
     const showPreview = ref(false); // Mobile preview toggle
+    const isExporting = ref(false); // Prevent double export
 
     // Mobile detection
     const isMobile = ref(false);
@@ -568,9 +757,269 @@ export default defineComponent({
       }
     };
 
+    // Save receipt to cloud
+    const handleSaveReceipt = async () => {
+      if (!authenticatedMember.value?.branch) {
+        alert('Branch information not found. Please login again.');
+        return;
+      }
+
+      // Validate required fields
+      if (!receivedFrom.value || !naira.value) {
+        alert('Please fill in payer name and amount before saving.');
+        return;
+      }
+
+      isSaving.value = true;
+      try {
+        const receiptData = {
+          receiptNumber: receiptNumber.value,
+          date: date.value,
+          receivedFrom: receivedFrom.value,
+          naira: naira.value,
+          kobo: kobo.value || 0,
+          sumOf: sumOf.value,
+          paymentFor: paymentFor.value,
+          grandTotal: parseFloat(naira.value || 0) + parseFloat((kobo.value || 0) / 100),
+          organizationName,
+          organizationAddress: organizationAddress.value,
+          organizationPhone: organizationPhone.value,
+          createdBy: authenticatedMember.value.name,
+          status: 'Active'
+        };
+
+        const result = await saveReceipt(
+          authenticatedMember.value.branch,
+          receiptData,
+          currentReceiptId.value
+        );
+
+        if (result.success) {
+          currentReceiptId.value = result.receiptId;
+          
+          // Log activity
+          await saveMemberActivity(authenticatedMember.value.branch, {
+            memberName: authenticatedMember.value.name,
+            action: result.isUpdate ? 'Updated receipt' : 'Created receipt',
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString(),
+            details: `Receipt #${receiptNumber.value} - ${receivedFrom.value}`
+          });
+
+          // Also log locally
+          const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+          activities.unshift({
+            id: Date.now(),
+            memberName: authenticatedMember.value.name,
+            action: result.isUpdate ? 'Updated receipt' : 'Created receipt',
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString()
+          });
+          localStorage.setItem('memberActivities', JSON.stringify(activities));
+          
+          alert(result.isUpdate ? '✅ Receipt updated successfully!' : '✅ Receipt saved to cloud successfully!');
+        } else {
+          alert('❌ Failed to save receipt: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error saving receipt:', error);
+        alert('❌ Error saving receipt. Please try again.');
+      } finally {
+        isSaving.value = false;
+      }
+    };
+
+    // Load saved receipts
+    const handleViewHistory = async () => {
+      if (!authenticatedMember.value?.branch) {
+        alert('Branch information not found. Please login again.');
+        return;
+      }
+
+      loadingReceipts.value = true;
+      showHistoryModal.value = true;
+      
+      try {
+        const result = await getAllReceipts(authenticatedMember.value.branch);
+        if (result.success) {
+          savedReceipts.value = result.data;
+        } else {
+          alert('Failed to load receipts: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error loading receipts:', error);
+        alert('Error loading receipts. Please try again.');
+      } finally {
+        loadingReceipts.value = false;
+      }
+    };
+
+    // Load selected receipt for editing
+    const handleLoadReceipt = (receipt) => {
+      // Populate form with receipt data
+      currentReceiptId.value = receipt.id;
+      receiptNumber.value = receipt.receiptNumber || 1;
+      date.value = receipt.date || new Date().toISOString().split('T')[0];
+      receivedFrom.value = receipt.receivedFrom || '';
+      naira.value = receipt.naira || 0;
+      kobo.value = receipt.kobo || 0;
+      sumOf.value = receipt.sumOf || '';
+      paymentFor.value = receipt.paymentFor || '';
+      
+      // Load organization info if available
+      if (receipt.organizationAddress) organizationAddress.value = receipt.organizationAddress;
+      if (receipt.organizationPhone) organizationPhone.value = receipt.organizationPhone;
+
+      showHistoryModal.value = false;
+      
+      // Log activity
+      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+      activities.unshift({
+        id: Date.now(),
+        memberName: authenticatedMember.value.name,
+        action: `Loaded receipt #${receipt.receiptNumber} for editing`,
+        branch: authenticatedMember.value.branch,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('memberActivities', JSON.stringify(activities));
+      
+      alert(`✅ Receipt #${receipt.receiptNumber} loaded! You can now edit and save it.`);
+    };
+
+    // Delete receipt from cloud
+    const handleDeleteReceipt = async (receipt) => {
+      if (!authenticatedMember.value?.branch) {
+        alert('Branch information not found.');
+        return;
+      }
+
+      try {
+        const result = await deleteReceipt(authenticatedMember.value.branch, receipt.id);
+        
+        if (result.success) {
+          // Remove from local list
+          savedReceipts.value = savedReceipts.value.filter(rcp => rcp.id !== receipt.id);
+          
+          // Log activity
+          await saveMemberActivity(authenticatedMember.value.branch, {
+            memberName: authenticatedMember.value.name,
+            action: 'Deleted receipt',
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString(),
+            details: `Receipt #${receipt.receiptNumber}`
+          });
+
+          // Also log locally
+          const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+          activities.unshift({
+            id: Date.now(),
+            memberName: authenticatedMember.value.name,
+            action: `Deleted receipt #${receipt.receiptNumber}`,
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString()
+          });
+          localStorage.setItem('memberActivities', JSON.stringify(activities));
+          
+          // If we're currently editing this receipt, clear the current ID
+          if (currentReceiptId.value === receipt.id) {
+            currentReceiptId.value = null;
+          }
+        } else {
+          alert('Failed to delete receipt: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error deleting receipt:', error);
+        alert('Error deleting receipt. Please try again.');
+      }
+    };
+
+    // Create new receipt (clear form)
+    const handleNewReceipt = () => {
+      if (currentReceiptId.value) {
+        if (!confirm('You are currently editing a receipt. Create a new one? Any unsaved changes will be lost.')) {
+          return;
+        }
+      }
+      
+      // Clear all fields
+      currentReceiptId.value = null;
+      receivedFrom.value = '';
+      naira.value = 0;
+      kobo.value = 0;
+      sumOf.value = '';
+      paymentFor.value = '';
+      
+      // Auto-increment receipt number if auto is enabled
+      if (autoReceiptNumber.value) {
+        incrementReceiptNumber();
+      }
+      
+      // Log activity
+      const activities = JSON.parse(localStorage.getItem('memberActivities') || '[]');
+      activities.unshift({
+        id: Date.now(),
+        memberName: authenticatedMember.value.name,
+        action: 'Started creating new receipt',
+        branch: authenticatedMember.value.branch,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('memberActivities', JSON.stringify(activities));
+    };
+
+    // Load signatures from Firebase
+    const loadSignatures = async () => {
+      if (!authenticatedMember.value?.branch) return;
+
+      loadingSignatures.value = true;
+      try {
+        const result = await getAllSignatures(authenticatedMember.value.branch);
+        if (result.success) {
+          savedSignatures.value = result.data;
+          
+          // Auto-select primary signatures
+          const primary = result.data.find(sig => sig.isPrimary);
+          if (primary) {
+            selectedSignature1.value = primary.id;
+            selectedSignature2.value = primary.id;
+            signatureImage1.value = primary.dataURL;
+            signatureImage2.value = primary.dataURL;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading signatures:', error);
+      } finally {
+        loadingSignatures.value = false;
+      }
+    };
+
+    // Handle signature 1 selection
+    const handleSignature1Change = () => {
+      const selected = savedSignatures.value.find(sig => sig.id === selectedSignature1.value);
+      if (selected) {
+        signatureImage1.value = selected.dataURL;
+      } else {
+        signatureImage1.value = null;
+      }
+    };
+
+    // Handle signature 2 selection
+    const handleSignature2Change = () => {
+      const selected = savedSignatures.value.find(sig => sig.id === selectedSignature2.value);
+      if (selected) {
+        signatureImage2.value = selected.dataURL;
+      } else {
+        signatureImage2.value = null;
+      }
+    };
+
+    // Navigate to signature page
+    const handleCreateSignature = () => {
+      router.push({ name: 'Signature', query: { branch: authenticatedMember.value?.branch || '' } });
+    };
+
     // Auto-overflow handlers for Sum of fields
     const handleSumOfOverflow = () => {
-      const maxLength = 65; // Extended character limit to fill the entire first line
+      const maxLength = 50; // Extended character limit to fill the entire first line
       if (sumOf.value.length > maxLength) {
         const overflow = sumOf.value.substring(maxLength);
         sumOf.value = sumOf.value.substring(0, maxLength);
@@ -594,7 +1043,7 @@ export default defineComponent({
 
     // Auto-overflow handlers for Payment For fields
     const handlePaymentForOverflow = () => {
-      const maxLength = 60; // Extended character limit to fill the entire first line (slightly less due to label)
+      const maxLength = 50; // Extended character limit to fill the entire first line
       if (paymentFor.value.length > maxLength) {
         const overflow = paymentFor.value.substring(maxLength);
         paymentFor.value = paymentFor.value.substring(0, maxLength);
@@ -616,8 +1065,60 @@ export default defineComponent({
       }
     };
 
+    // Confirm correction handler
+    const handleConfirmCorrection = async () => {
+      if (!isCorrectionMode.value || !originalTransactionData.value) {
+        alert('❌ Not in correction mode');
+        return;
+      }
+
+      try {
+        const branch = authenticatedMember.value?.branch || 'Unknown';
+        
+        // Calculate grand total
+        const grandTotal = parseFloat(naira.value || 0) + parseFloat((kobo.value || 0) / 100);
+        
+        // Prepare corrected data
+        const correctedReceipt = {
+          receiptNumber: receiptNumber.value,
+          date: date.value,
+          receivedFrom: receivedFrom.value,
+          paymentFor: paymentFor.value,
+          paymentFor2: paymentFor2.value,
+          sumOf: sumOf.value,
+          sumOf2: sumOf2.value,
+          naira: naira.value,
+          kobo: kobo.value || 0,
+          grandTotal: grandTotal,
+          amountInWords: amountInWords.value,
+          isCorrected: true,
+          isMistake: false,
+          correctedAt: new Date().toISOString(),
+          correctedBy: authenticatedMember.value?.name || 'Unknown',
+        };
+
+        // Update in Firebase
+        await updateReceipt(branch, originalTransactionData.value.id, correctedReceipt);
+
+        // Clear correction mode
+        localStorage.removeItem('pendingCorrection');
+        isCorrectionMode.value = false;
+        originalTransactionData.value = null;
+
+        alert('✅ Correction saved successfully!');
+        
+        // Redirect back to Stats page with refresh flag
+        router.push({ name: 'Stats', query: { corrected: 'true', t: Date.now() } });
+      } catch (error) {
+        console.error('Error saving correction:', error);
+        alert('❌ Failed to save correction: ' + error.message);
+      }
+    };
+
     const handleExportPDF = async () => {
-      if (!receiptOuterRef.value) return;
+      if (!receiptOuterRef.value || isExporting.value) return;
+      
+      isExporting.value = true;
       ensureRanges();
       
       // Save receipt to backend with branch information
@@ -653,20 +1154,65 @@ export default defineComponent({
         }
 
       const filename = `receipt-${receiptNumber.value}.pdf`;
+      
+      // Fixed dimensions for receipt export
+      const RECEIPT_WIDTH = 7.268; // inches
+      const RECEIPT_HEIGHT = 5.324; // inches
+      
       const options = {
         margin: 0,
         filename,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: 'in', format: [8.268, 5.824], orientation: 'landscape' },
+        html2canvas: { 
+          scale: 3, 
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          width: RECEIPT_WIDTH * 96, // Convert to pixels (96 DPI)
+          height: RECEIPT_HEIGHT * 96,
+          windowWidth: RECEIPT_WIDTH * 96,
+          windowHeight: RECEIPT_HEIGHT * 96
+        },
+        jsPDF: { unit: 'in', format: [RECEIPT_WIDTH, RECEIPT_HEIGHT], orientation: 'landscape' },
       };
 
       try {
-        // Add exporting class to temporarily restore original dimensions
+        // Store original styles
+        const originalWidth = receiptOuterRef.value.style.width;
+        const originalHeight = receiptOuterRef.value.style.height;
+        const originalMinWidth = receiptOuterRef.value.style.minWidth;
+        const originalMaxWidth = receiptOuterRef.value.style.maxWidth;
+        const originalTransform = receiptOuterRef.value.style.transform;
+        const originalBackground = receiptOuterRef.value.style.backgroundColor;
+        const originalBoxShadow = receiptOuterRef.value.style.boxShadow;
+        const originalBorder = receiptOuterRef.value.style.border;
+        const originalPadding = receiptOuterRef.value.style.padding;
+        const originalDisplay = receiptOuterRef.value.style.display;
+        const originalJustifyContent = receiptOuterRef.value.style.justifyContent;
+        const originalAlignItems = receiptOuterRef.value.style.alignItems;
+        const originalPosition = receiptOuterRef.value.style.position;
+        const originalMargin = receiptOuterRef.value.style.margin;
+        
+        // Force exact dimensions and white background for export (remove shadows)
+        // Use flexbox to center the 6" content within 7.268" container
+        receiptOuterRef.value.style.width = `${RECEIPT_WIDTH}in`;
+        receiptOuterRef.value.style.height = `${RECEIPT_HEIGHT}in`;
+        receiptOuterRef.value.style.minWidth = `${RECEIPT_WIDTH}in`;
+        receiptOuterRef.value.style.maxWidth = `${RECEIPT_WIDTH}in`;
+        receiptOuterRef.value.style.transform = 'none';
+        receiptOuterRef.value.style.transformOrigin = 'center center';
+        receiptOuterRef.value.style.backgroundColor = '#ffffff';
+        receiptOuterRef.value.style.boxShadow = 'none';
+        receiptOuterRef.value.style.border = 'none';
+        receiptOuterRef.value.style.padding = '0';
+        receiptOuterRef.value.style.margin = '0';
+        receiptOuterRef.value.style.display = 'flex';
+        receiptOuterRef.value.style.justifyContent = 'center';
+        receiptOuterRef.value.style.alignItems = 'center';
+        receiptOuterRef.value.style.position = 'relative';
         receiptOuterRef.value.classList.add('exporting');
         
         // Wait for styles to be applied
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         await html2pdf().set(options).from(receiptOuterRef.value).save();
         
@@ -674,14 +1220,39 @@ export default defineComponent({
         logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
         
         incrementReceiptNumber();
+        
+        // Restore original styles
+        receiptOuterRef.value.style.width = originalWidth;
+        receiptOuterRef.value.style.height = originalHeight;
+        receiptOuterRef.value.style.minWidth = originalMinWidth;
+        receiptOuterRef.value.style.maxWidth = originalMaxWidth;
+        receiptOuterRef.value.style.transform = originalTransform;
+        receiptOuterRef.value.style.backgroundColor = originalBackground;
+        receiptOuterRef.value.style.boxShadow = originalBoxShadow;
+        receiptOuterRef.value.style.border = originalBorder;
+        receiptOuterRef.value.style.padding = originalPadding;
+        receiptOuterRef.value.style.display = originalDisplay;
+        receiptOuterRef.value.style.justifyContent = originalJustifyContent;
+        receiptOuterRef.value.style.alignItems = originalAlignItems;
+        receiptOuterRef.value.style.position = originalPosition;
+        receiptOuterRef.value.style.margin = originalMargin;
+        
+        receiptOuterRef.value.classList.remove('exporting');
+      } catch (error) {
+        console.error('Export failed:', error);
+        // Always restore on error
+        if (receiptOuterRef.value) {
+          receiptOuterRef.value.classList.remove('exporting');
+        }
       } finally {
-        // Always remove exporting class
-        receiptOuterRef.value?.classList.remove('exporting');
+        isExporting.value = false;
       }
     };
 
     const handleExportJPEG = async () => {
-      if (!receiptOuterRef.value) return;
+      if (!receiptOuterRef.value || isExporting.value) return;
+      
+      isExporting.value = true;
       ensureRanges();
       
       // Save receipt to backend with branch information
@@ -716,16 +1287,55 @@ export default defineComponent({
           console.error('Failed to save receipt:', error);
         }
 
+      // Fixed dimensions for receipt export
+      const RECEIPT_WIDTH = 7.268; // inches
+      const RECEIPT_HEIGHT = 5.324; // inches
+
       try {
-        // Add exporting class to temporarily restore original dimensions
+        // Store original styles
+        const originalWidth = receiptOuterRef.value.style.width;
+        const originalHeight = receiptOuterRef.value.style.height;
+        const originalMinWidth = receiptOuterRef.value.style.minWidth;
+        const originalMaxWidth = receiptOuterRef.value.style.maxWidth;
+        const originalTransform = receiptOuterRef.value.style.transform;
+        const originalBackground = receiptOuterRef.value.style.backgroundColor;
+        const originalBoxShadow = receiptOuterRef.value.style.boxShadow;
+        const originalBorder = receiptOuterRef.value.style.border;
+        const originalPadding = receiptOuterRef.value.style.padding;
+        const originalDisplay = receiptOuterRef.value.style.display;
+        const originalJustifyContent = receiptOuterRef.value.style.justifyContent;
+        const originalAlignItems = receiptOuterRef.value.style.alignItems;
+        const originalPosition = receiptOuterRef.value.style.position;
+        const originalMargin = receiptOuterRef.value.style.margin;
+        
+        // Force exact dimensions and white background for export (remove shadows)
+        // Use flexbox to center the 6" content within 7.268" container
+        receiptOuterRef.value.style.width = `${RECEIPT_WIDTH}in`;
+        receiptOuterRef.value.style.height = `${RECEIPT_HEIGHT}in`;
+        receiptOuterRef.value.style.minWidth = `${RECEIPT_WIDTH}in`;
+        receiptOuterRef.value.style.maxWidth = `${RECEIPT_WIDTH}in`;
+        receiptOuterRef.value.style.transform = 'none';
+        receiptOuterRef.value.style.transformOrigin = 'center center';
+        receiptOuterRef.value.style.backgroundColor = '#ffffff';
+        receiptOuterRef.value.style.boxShadow = 'none';
+        receiptOuterRef.value.style.border = 'none';
+        receiptOuterRef.value.style.padding = '0';
+        receiptOuterRef.value.style.margin = '0';
+        receiptOuterRef.value.style.display = 'flex';
+        receiptOuterRef.value.style.justifyContent = 'center';
+        receiptOuterRef.value.style.alignItems = 'center';
+        receiptOuterRef.value.style.position = 'relative';
         receiptOuterRef.value.classList.add('exporting');
         
         // Wait for styles to be applied
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         const dataUrl = await htmlToImage.toJpeg(receiptOuterRef.value, {
-          quality: 0.95,
-          pixelRatio: 3,
+          quality: 0.98,
+          pixelRatio: 5, // Increased from 3 to 5 for higher resolution
+          backgroundColor: '#ffffff',
+          width: RECEIPT_WIDTH * 96, // Convert to pixels (96 DPI)
+          height: RECEIPT_HEIGHT * 96,
         });
         const link = document.createElement('a');
         link.href = dataUrl;
@@ -736,9 +1346,31 @@ export default defineComponent({
         logActivity(`Created Receipt #${receiptNumber.value || 'N/A'}`);
         
         incrementReceiptNumber();
+        
+        // Restore original styles
+        receiptOuterRef.value.style.width = originalWidth;
+        receiptOuterRef.value.style.height = originalHeight;
+        receiptOuterRef.value.style.minWidth = originalMinWidth;
+        receiptOuterRef.value.style.maxWidth = originalMaxWidth;
+        receiptOuterRef.value.style.transform = originalTransform;
+        receiptOuterRef.value.style.backgroundColor = originalBackground;
+        receiptOuterRef.value.style.boxShadow = originalBoxShadow;
+        receiptOuterRef.value.style.border = originalBorder;
+        receiptOuterRef.value.style.padding = originalPadding;
+        receiptOuterRef.value.style.display = originalDisplay;
+        receiptOuterRef.value.style.justifyContent = originalJustifyContent;
+        receiptOuterRef.value.style.alignItems = originalAlignItems;
+        receiptOuterRef.value.style.position = originalPosition;
+        receiptOuterRef.value.style.margin = originalMargin;
+        receiptOuterRef.value.classList.remove('exporting');
+      } catch (error) {
+        console.error('Export failed:', error);
+        // Always restore on error
+        if (receiptOuterRef.value) {
+          receiptOuterRef.value.classList.remove('exporting');
+        }
       } finally {
-        // Always remove exporting class
-        receiptOuterRef.value?.classList.remove('exporting');
+        isExporting.value = false;
       }
     };
 
@@ -810,6 +1442,29 @@ export default defineComponent({
       handleExportPDF,
       handleExportJPEG,
       syncDate,
+      // Correction mode
+      isCorrectionMode,
+      handleConfirmCorrection,
+      // Document history
+      showHistoryModal,
+      savedReceipts,
+      loadingReceipts,
+      currentReceiptId,
+      isSaving,
+      handleSaveReceipt,
+      handleViewHistory,
+      handleLoadReceipt,
+      handleDeleteReceipt,
+      handleNewReceipt,
+      // Signature management
+      savedSignatures,
+      selectedSignature1,
+      selectedSignature2,
+      loadingSignatures,
+      loadSignatures,
+      handleSignature1Change,
+      handleSignature2Change,
+      handleCreateSignature,
     };
   },
 });
@@ -855,18 +1510,123 @@ Option 4 - Modern Cursive
 font-family: 'Satisfy', cursive;
 */
 
-/* Export mode - forces original dimensions */
+/* Receipt container - shadow only in preview mode */
+.receipt-container {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border: 1px solid #d1d5db;
+}
+
+/* Export mode - forces original dimensions and removes shadows */
 .exporting {
   width: 7.268in !important;
   height: 5.324in !important;
   min-width: 7.268in !important;
+  max-width: 7.268in !important;
   transform: none !important;
+  background-color: white !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  box-shadow: none !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
 }
 
-/* Mobile receipt preview styles - only apply when NOT exporting */
-@media (max-width: 768px) {
-  /* Base font size reduction for all text in receipt */
-  div[ref="receiptOuterRef"]:not(.exporting),
+/* Inner content centering during export - ensure it's centered within flex container */
+.exporting #receipt-canvas {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.exporting .receipt-container {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* IMPORTANT: When exporting, preserve desktop font sizes regardless of screen size */
+/* Override ALL mobile font scaling - this takes precedence over @media queries */
+.exporting * {
+  font-size: revert !important;
+}
+
+/* Force desktop font sizes during export - even on mobile screens */
+.exporting .text-xl,
+.exporting h2,
+.exporting .md\:text-2xl {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+.exporting .text-2xl {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+.exporting .text-lg {
+  font-size: 1.125rem !important;
+  line-height: 1.75rem !important;
+}
+
+.exporting .text-sm {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+.exporting .text-xs {
+  font-size: 0.75rem !important;
+  line-height: 1rem !important;
+}
+
+/* Override mobile input and paragraph styles during export */
+.exporting input {
+  font-size: 0.875rem !important;
+}
+
+.exporting p,
+.exporting span {
+  font-size: inherit !important;
+}
+
+/* Logo sizing during export - always desktop size (150px) */
+.exporting img[alt*="Logo"] {
+  height: 150px !important;
+  width: auto !important;
+  margin-top: -25px !important;
+}
+
+/* Signature images during export - always desktop size */
+.exporting img[alt*="Signature"] {
+  height: 96px !important;
+  max-width: 240px !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+
+/* Ensure all responsive classes are overridden during export */
+.exporting .h-20,
+.exporting .md\:h-\[150px\] {
+  height: 150px !important;
+}
+
+.exporting .h-24 {
+  height: 96px !important;
+}
+
+/* Amount box sizing during export */
+.exporting .min-w-\[100px\],
+.exporting .md\:min-w-\[250px\] {
+  min-width: 250px !important;
+}
+
+/* Mobile receipt preview styles - only apply when NOT exporting AND on small screens */
+/* This allows mobile preview to be small, but export to be full size */
+@media (max-width: 767px) {
+  /* Base font size reduction for all text in receipt preview only */
+  /* The transform scale will handle the visual sizing */
   div[ref="receiptOuterRef"]:not(.exporting) * {
     font-size: 0.55rem !important;
   }
@@ -906,7 +1666,7 @@ font-family: 'Satisfy', cursive;
     font-size: 0.75rem !important;
   }
 
-  /* Logo sizing - make bigger on mobile */
+  /* Logo sizing */
   div[ref="receiptOuterRef"]:not(.exporting) img[alt*="Logo"] {
     height: 150px !important;
     width: auto !important;

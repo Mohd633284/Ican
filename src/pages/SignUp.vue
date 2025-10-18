@@ -11,159 +11,99 @@
       <div class="w-full max-w-md">
         <!-- Header -->
         <div class="text-center mb-8">
-          <div class="inline-flex items-center gap-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-4 py-2 text-emerald-700 dark:text-emerald-300 text-sm font-semibold uppercase tracking-wide mb-4">
-            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Join ICAN
+          <div class="inline-flex items-center gap-3 rounded-full bg-amber-100 dark:bg-amber-900/30 px-4 py-2 text-amber-700 dark:text-amber-300 text-sm font-semibold uppercase tracking-wide mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Registration Closed
           </div>
           <h1 class="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Sign Up for {{ selectedBranch || 'Branch' }}
+            Sign Up Currently Unavailable
           </h1>
           <p class="text-sm text-slate-600 dark:text-slate-400">
-            Create your account to access the branch dashboard
+            New account registration is temporarily disabled
           </p>
         </div>
 
-        <!-- Sign Up Form -->
+        <!-- Locked Notice -->
         <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 p-8">
-          <form class="space-y-6" @submit.prevent="handleSubmit">
-            <!-- Full Name -->
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="full-name">
-                Full Name
-              </label>
-              <input
-                id="full-name"
-                v-model="formData.name"
-                type="text"
-                autocomplete="name"
-                placeholder="Enter your full name"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                required
-              />
+          <!-- Lock Icon -->
+          <div class="flex justify-center mb-6">
+            <div class="w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
+          </div>
 
-            <!-- Email -->
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="email">
-                Email Address
-              </label>
-              <input
-                id="email"
-                v-model="formData.email"
-                type="email"
-                autocomplete="email"
-                placeholder="Enter your email address"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                required
-              />
-            </div>
-
-            <!-- Phone -->
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="phone">
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                v-model="formData.phone"
-                type="tel"
-                autocomplete="tel"
-                placeholder="Enter your phone number"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                required
-              />
-            </div>
-
-            <!-- ICAN Membership Number (Optional) -->
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="membership-number">
-                ICAN Membership Number <span class="text-xs text-slate-500">(Optional)</span>
-              </label>
-              <input
-                id="membership-number"
-                v-model="formData.membershipNumber"
-                type="text"
-                placeholder="Enter your membership number"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-              />
-            </div>
-
-            <!-- Password -->
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="password">
-                Create Password
-              </label>
-              <input
-                id="password"
-                v-model="formData.password"
-                type="password"
-                autocomplete="new-password"
-                placeholder="Create a strong password"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                required
-                minlength="6"
-              />
-              <p class="text-xs text-slate-500 dark:text-slate-400">Password must be at least 6 characters long</p>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200" for="confirm-password">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                v-model="formData.confirmPassword"
-                type="password"
-                autocomplete="new-password"
-                placeholder="Confirm your password"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
-                required
-              />
-            </div>
-
-            <!-- Messages -->
-            <div class="min-h-[2rem] flex flex-col justify-center">
-              <p v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2 border border-red-200 dark:border-red-800">
-                {{ errorMessage }}
-              </p>
-              <p v-if="successMessage" class="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-2 border border-green-200 dark:border-green-800">
-                {{ successMessage }}
+          <!-- Notice Message -->
+          <div class="space-y-6 text-center">
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                Registration is Currently Closed
+              </h2>
+              <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                New account registration is temporarily disabled at this time. 
+                We apologize for any inconvenience this may cause.
               </p>
             </div>
 
-            <!-- Submit Button -->
-            <div class="space-y-3">
-              <BaseButton
-                type="submit"
-                :disabled="isSubmitting"
-                class="w-full py-3 text-base font-semibold"
-                :class="{ 'opacity-50 cursor-not-allowed': isSubmitting }"
-              >
-                <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
-                  <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Creating Account...
-                </span>
-                <span v-else>Create Account</span>
-              </BaseButton>
+            <!-- Contact Admin Box -->
+            <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-6 border border-emerald-200 dark:border-emerald-700">
+              <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="text-left">
+                  <h3 class="font-semibold text-emerald-900 dark:text-emerald-300 mb-2">
+                    Need Access?
+                  </h3>
+                  <p class="text-sm text-emerald-800 dark:text-emerald-400 mb-3">
+                    If you need to create an account or have questions about registration, 
+                    please contact your branch administrator.
+                  </p>
+                  <div class="flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-medium text-emerald-900 dark:text-emerald-300">
+                      Contact your administrator for assistance
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <!-- Additional Info -->
+            <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 text-sm text-slate-600 dark:text-slate-400">
+              <p class="flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Already have an account? You can still
+                <router-link 
+                  :to="{ name: 'Home', query: { branch: selectedBranch } }" 
+                  class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+                >
+                  sign in
+                </router-link>
+              </p>
+            </div>
+
+            <!-- Back Button -->
+            <div class="pt-2">
               <BaseButton
                 variant="outline"
                 type="button"
                 class="w-full py-3 text-base"
                 @click="goBack"
               >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
                 Back to Home
               </BaseButton>
             </div>
-          </form>
-
-          <!-- Terms -->
-          <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-            <p>By signing up, you agree to ICAN's terms of service and privacy policy.</p>
           </div>
         </div>
       </div>
@@ -172,11 +112,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default defineComponent({
   name: 'SignUp',
@@ -188,102 +126,13 @@ export default defineComponent({
     const route = useRoute();
 
     const selectedBranch = ref(route.query.branch || '');
-    const isSubmitting = ref(false);
-    const errorMessage = ref('');
-    const successMessage = ref('');
-
-    const formData = ref({
-      name: '',
-      email: '',
-      phone: '',
-      membershipNumber: '',
-      password: '',
-      confirmPassword: ''
-    });
-
-    const isFormValid = computed(() => {
-      return formData.value.name.trim() &&
-             formData.value.email.trim() &&
-             formData.value.phone.trim() &&
-             formData.value.password.length >= 6 &&
-             formData.value.password === formData.value.confirmPassword;
-    });
-
-    const handleSubmit = async () => {
-      if (!isFormValid.value) {
-        errorMessage.value = 'Please fill in all required fields correctly.';
-        return;
-      }
-
-      if (!selectedBranch.value) {
-        errorMessage.value = 'No branch selected. Please go back and select a branch.';
-        return;
-      }
-
-      errorMessage.value = '';
-      successMessage.value = '';
-      isSubmitting.value = true;
-
-      try {
-        const response = await fetch(`${API_BASE}/auth/signup`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...formData.value,
-            branch: selectedBranch.value
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to create account.');
-        }
-
-        const data = await response.json();
-        successMessage.value = 'Account created successfully! Redirecting to login...';
-
-        // Store user info temporarily
-        localStorage.setItem('signupSuccess', JSON.stringify({
-          branch: selectedBranch.value,
-          email: formData.value.email
-        }));
-
-        // Redirect to home page after a short delay
-        setTimeout(() => {
-          router.push({
-            name: 'Home',
-            query: { branch: selectedBranch.value }
-          });
-        }, 2000);
-
-      } catch (error) {
-        console.error(error);
-        errorMessage.value = error.message || 'Failed to create account. Please try again.';
-      } finally {
-        isSubmitting.value = false;
-      }
-    };
 
     const goBack = () => {
       router.push({ name: 'Home' });
     };
 
-    onMounted(() => {
-      if (!selectedBranch.value) {
-        errorMessage.value = 'No branch selected. Please select a branch first.';
-      }
-    });
-
     return {
       selectedBranch,
-      formData,
-      isSubmitting,
-      errorMessage,
-      successMessage,
-      isFormValid,
-      handleSubmit,
       goBack,
     };
   },

@@ -8,6 +8,17 @@
       @cancel="onPasswordCancel"
     />
 
+    <!-- Document History Modal -->
+    <DocumentHistoryModal
+      :is-open="showHistoryModal"
+      :documents="savedInvoices"
+      :loading="loadingInvoices"
+      document-type="Invoice"
+      @close="showHistoryModal = false"
+      @load="handleLoadInvoice"
+      @delete="handleDeleteInvoice"
+    />
+
     <div class="h-screen overflow-y-auto flex flex-col gap-6 items-center bg-slate-100 dark:bg-slate-900 pt-8 pb-24 px-4">
       <!-- Member Info Banner -->
       <div class="w-full max-w-4xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-3 rounded-lg shadow-md flex items-center justify-between">
@@ -44,13 +55,28 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Invoice</h1>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+              Invoice
+              <span v-if="currentInvoiceId" class="text-sm px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full font-medium">
+                Editing #{{ receiptNumber }}
+              </span>
+            </h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">Create and manage your invoices</p>
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex gap-3 flex-wrap items-center">
+          <!-- Confirm Correction Button (only in correction mode) -->
+          <BaseButton 
+            v-if="isCorrectionMode" 
+            variant="success" 
+            @click="handleConfirmCorrection"
+            class="bg-amber-600 hover:bg-amber-700 text-white font-bold animate-pulse"
+          >
+            ✅ Confirm Correction
+          </BaseButton>
+
           <BaseButton variant="primary" @click="handleExportPDF" :disabled="isExporting">
             📄 Export PDF
           </BaseButton>
@@ -346,6 +372,80 @@
                 Automatically filled based on total amount
               </p>
             </div>
+
+            <!-- Signature Selection -->
+            <div class="md:col-span-2 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-semibold text-purple-900 dark:text-purple-300 flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  Digital Signatures
+                </h3>
+                <button
+                  @click="handleCreateSignature"
+                  class="text-xs px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition-colors flex items-center gap-1"
+                >
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create New
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Signature 1 Selector -->
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Signature 1 (Left)
+                  </label>
+                  <select
+                    v-model="selectedSignature1"
+                    @change="handleSignature1Change"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                  >
+                    <option value="">No signature</option>
+                    <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">
+                      {{ sig.name }}{{ sig.isPrimary ? ' (Primary)' : '' }}
+                    </option>
+                  </select>
+                  
+                  <!-- Preview Signature 1 -->
+                  <div v-if="signatureImage1" class="mt-2 p-2 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-gray-600">
+                    <img :src="signatureImage1" alt="Signature 1 Preview" class="h-12 w-full object-contain" />
+                  </div>
+                </div>
+
+                <!-- Signature 2 Selector -->
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Signature 2 (Right)
+                  </label>
+                  <select
+                    v-model="selectedSignature2"
+                    @change="handleSignature2Change"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+                  >
+                    <option value="">No signature</option>
+                    <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">
+                      {{ sig.name }}{{ sig.isPrimary ? ' (Primary)' : '' }}
+                    </option>
+                  </select>
+                  
+                  <!-- Preview Signature 2 -->
+                  <div v-if="signatureImage2" class="mt-2 p-2 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-gray-600">
+                    <img :src="signatureImage2" alt="Signature 2 Preview" class="h-12 w-full object-contain" />
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-xs text-purple-700 dark:text-purple-300 mt-3 flex items-start gap-1">
+                <svg class="w-3 h-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Select signatures from your saved signatures or create new ones. Signatures will appear at the bottom of the invoice.</span>
+              </p>
+            </div>
           </div>
   
           <!-- Summary -->
@@ -381,20 +481,19 @@
   
       <!-- Invoice Preview Section - Hidden on mobile unless showPreview is true -->
       <section 
-        class="w-full max-w-5xl flex items-center justify-center"
+        class="w-full max-w-5xl flex items-center justify-center md:ml-4"
         :class="{ 'hidden md:flex': !showPreview }"
       >
         <!-- Mobile wrapper - scales down on mobile, full size on desktop -->
-        <div class="w-full flex items-center justify-center md:p-4">
+        <div class="w-full flex items-center justify-center p-4">
           <div
             ref="invoiceRef"
             id="meblink-invoice"
-            class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col w-full md:w-auto"
-            style="height: 8.268in;"
+            class="relative bg-white shadow-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col mx-auto"
             :style="{ 
               width: isMobile ? '100%' : '5.827in',
-              transform: isMobile ? 'scale(1)' : 'scale(1)', 
-              transformOrigin: 'top center' 
+              height: '8.268in',
+              minWidth: isMobile ? '100%' : '5.827in'
             }"
           >
            <!-- Header -->
@@ -438,12 +537,13 @@
               <div></div>
               <div class="flex items-center gap-1">
                    <span>No.:</span>
+                <div class="print-only w-16 text-center">{{ receiptNumber || '-' }}</div>
                 <input
                   v-model.number="receiptNumber"
                   :disabled="autoReceiptNumber"
                   type="number"
                   min="1"
-                  class="w-16 bg-transparent border-none focus:outline-none text-center"
+                  class="no-print w-16 bg-transparent border-none focus:outline-none text-center"
                 />
                 </div>
             </div>
@@ -454,19 +554,21 @@
             <div class="border-[1.5px] col-span-2 rounded-xl p-1.5">
               <div class="flex items-center gap-1">
               <span class="text-[10px] text-slate-400 font-medium">Name:</span>
+              <div class="print-only flex-1 text-[11px]">{{ customerName || '-' }}</div>
               <input
                 v-model="customerName"
                 placeholder=" "
-                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+                class="no-print flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
               />
             </div>
   
             <div class="flex items-center gap-1">
               <span class="text-[10px] text-slate-400 font-medium">Address:</span>
+              <div class="print-only flex-1 text-[11px]">{{ customerAddress || '-' }}</div>
               <input
                 v-model="customerAddress"
                 placeholder=" "
-                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+                class="no-print flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
               />
             </div>
             </div>
@@ -474,20 +576,22 @@
             <div class="border-[1.5px] rounded-xl p-1.5">
               <div class="flex items-center gap-1">
              <span class="text-[10px] text-slate-400 font-medium">Date:</span>
+             <div class="print-only text-[11px]">{{ date || '-' }}</div>
                   <input
                     v-model="date"
                     type="date"
                     :disabled="autoDate"
-                    class="bg-transparent border-none focus:outline-none text-[11px]"
+                    class="no-print bg-transparent border-none focus:outline-none text-[11px]"
                   />
             </div>
   
             <div class="flex items-center gap-1">
               <span class="text-[10px] text-slate-400 font-medium whitespace-nowrap">L.P.O No.:</span>
+              <div class="print-only w-full text-[11px]">{{ lpo || '-' }}</div>
               <input
                 v-model="lpo"
                 placeholder=" "
-                class="w-full bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
+                class="no-print w-full bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[11px]"
               />
             </div>
             </div>
@@ -511,22 +615,28 @@
               <tbody>
                 <tr v-for="(item, index) in items" :key="item.id" class="border-t hover:bg-slate-50 transition-colors group">
                   <td class="px-1.5 py-0.5 text-center align-top">
+                    <div class="print-only text-[11px]">
+                      {{ item.quantity && item.quantity !== 0 ? item.quantity : '-' }}
+                    </div>
                     <textarea 
                       v-model.number="item.quantity" 
                       rows="1"
                       placeholder=""
-                      class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                      class="no-print w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
                       style="overflow: hidden; min-height: 20px;"
                       @input="autoResize"
                     ></textarea>
                   </td>
                   <td class="px-1.5 py-0.5 align-top">
                     <div class="w-full">
+                      <div class="print-only text-[11px]">
+                        {{ item.description || '-' }}
+                      </div>
                       <textarea 
                         v-model="item.description" 
                         placeholder="Description" 
                         rows="1"
-                        class="w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                        class="no-print w-full bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
                         style="overflow: hidden; min-height: 20px;"
                         @keydown.enter.prevent="addItemAfter(index)"
                         @input="autoResize"
@@ -534,27 +644,33 @@
                     </div>
                   </td>
                   <td class="px-1.5 py-0.5 text-right align-top">
+                    <div class="print-only text-[11px]">
+                      {{ item.price && item.price !== 0 ? item.price.toFixed(2) : '-' }}
+                    </div>
                     <textarea 
                       v-model.number="item.price" 
                       rows="1"
                       placeholder=""
-                      class="w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                      class="no-print w-full text-right bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
                       style="overflow: hidden; min-height: 20px;"
                       @input="autoResize"
                     ></textarea>
                   </td>
                   <td class="px-1.5 py-0.5 text-center align-top">
+                    <div class="print-only text-[11px]">
+                      {{ item.tax && item.tax !== 0 ? item.tax : '-' }}
+                    </div>
                     <textarea 
                       v-model.number="item.tax" 
                       rows="1"
                       placeholder="0"
-                      class="w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
+                      class="no-print w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-1 py-0.5 text-[11px] resize-none leading-tight" 
                       style="overflow: hidden; min-height: 20px;"
                       @input="autoResize"
                     ></textarea>
                   </td>
                   <td class="px-1.5 py-0.5 text-right font-semibold align-top relative overflow-visible text-[11px]">
-                    {{ toCurrency(getItemAmount(item)) }}
+                    {{ item.description && item.description.trim() ? toCurrency(getItemAmount(item)) : '-' }}
                     <!-- Delete button absolutely positioned on right edge -->
                     <button 
                       v-if="items.length > 1"
@@ -592,21 +708,23 @@
             <div>
               <div class="flex items-center gap-1">
               <span class="flex whitespace-nowrap">Amount in words:</span>
+              <div class="print-only flex-1 text-[10px]">{{ sumOf || '-' }}</div>
               <input
                 ref="sumOfInput1"
                 v-model="sumOf"
                 @input="handleSumOfOverflow"
-                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
+                class="no-print flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
               />
             </div>
   
             <div class="flex items-center h-7 gap-2">
+              <div class="print-only flex-1 text-[10px]">{{ sumOf2 || '-' }}</div>
               <input
                 ref="sumOfInput2"
                 v-model="sumOf2"
                 type="text"
                 @input="handleSumOf2Input"
-                class="flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
+                class="no-print flex-1 bg-transparent border-b border-dotted border-gray-400 focus:outline-none text-[10px]"
               />
               <span>Naira</span>
               <div class="w-14 bg-transparent border-b border-dotted border-gray-400 flex items-center justify-center text-center">
@@ -620,18 +738,18 @@
              <div class="flex justify-between items-start mt-1">
              
               <!-- Signature 1 -->
-              <div class="flex flex-col items-center gap-1">
+              <div class="flex flex-col items-center gap-1 mt-[-20px]">
                 <!-- Signature 1 Image -->
-                  <div v-if="signatureImage1">
-                  <img :src="signatureImage1" alt="Signature 1" class="h-5 w-auto object-contain max-w-[80px] " />
+                <div v-if="signatureImage1" class="h-20 flex items-center">
+                  <img :src="signatureImage1" alt="Signature 1" class="h-full w-auto object-contain max-w-[180px]" />
                 </div>
   
-                <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
+                <div v-else class="h-20 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
                   No signature
                 </div>
   
-               <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
-                 <p class="italic">Signature</p>
+               <div class="w-full border-t border-gray-400 text-center mt-[-28px]">
+                 <p class="italic text-[10px]">Signature</p>
                </div> 
               </div>
   
@@ -639,18 +757,18 @@
                <div class="mt-2 text-emerald-600 text-center font-medium text-[10px]">Thanks for your patronage</div>
   
             <!-- Signature 2 -->
-              <div class="flex flex-col items-center gap-1">
+              <div class="flex flex-col items-center gap-1 mt-[-20px]">
                 <!-- Signature 2 Image -->
-                  <div v-if="signatureImage2">
-                  <img :src="signatureImage2" alt="Signature 1" class="h-7 w-auto object-contain max-w-[100px] " />
+                <div v-if="signatureImage2" class="h-20 flex items-center">
+                  <img :src="signatureImage2" alt="Signature 2" class="h-full w-auto object-contain max-w-[180px]" />
                 </div>
   
-                <div v-else class="mb-1 h-7 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
+                <div v-else class="h-20 w-28 border border-dashed border-gray-300 flex items-center justify-center text-[9px] text-gray-400">
                   No signature
                 </div>
   
-               <div class="w-full border-t border-gray-400 text-center mt-[-2px]">
-                 <p class="italic">Signature</p>
+               <div class="w-full border-t border-gray-400 text-center mt-[-28px]">
+                 <p class="italic text-[10px]">Signature</p>
                </div> 
               </div>
             </div>
@@ -671,16 +789,27 @@
 import { defineComponent, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import BaseButton from '@/components/BaseButton.vue';
 import PasswordVerificationModal from '@/components/PasswordVerificationModal.vue';
+import DocumentHistoryModal from '@/components/DocumentHistoryModal.vue';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
 import { API_BASE } from '../api.js';
 import { useRouter } from 'vue-router';
+import { 
+  saveInvoice, 
+  getAllInvoices, 
+  deleteInvoice,
+  updateInvoice,
+  saveMemberActivity,
+  getAllSignatures,
+  getPrimarySignature
+} from '@/firebase/database';
 
 export default defineComponent({
   name: 'MeblinkInvoice',
   components: { 
     BaseButton,
-    PasswordVerificationModal 
+    PasswordVerificationModal,
+    DocumentHistoryModal
   },
   setup() {
     const router = useRouter();
@@ -690,6 +819,17 @@ export default defineComponent({
     const authenticatedMember = ref(null);
     const showPasswordModal = ref(false);
     const passwordVerified = ref(false);
+    
+    // Correction mode state
+    const isCorrectionMode = ref(false);
+    const originalTransactionData = ref(null);
+    
+    // Document history state
+    const showHistoryModal = ref(false);
+    const savedInvoices = ref([]);
+    const loadingInvoices = ref(false);
+    const currentInvoiceId = ref(null); // Track if we're editing an existing invoice
+    const isSaving = ref(false);
 
     // Load authenticated member info and check for password verification
     onMounted(() => {
@@ -710,11 +850,31 @@ export default defineComponent({
         }
       }
 
+      // Check for pending correction from Stats page
+      const pendingCorrection = localStorage.getItem('pendingCorrection');
+      if (pendingCorrection) {
+        const correctionData = JSON.parse(pendingCorrection);
+        
+        // Only load if it's an invoice correction
+        if (correctionData.type === 'invoice') {
+          // Show banner notification
+          alert(`📝 Correction Mode: You're correcting Invoice #${correctionData.receiptNumber}\n\nPlease redo the work and click "Confirm Correction" when done.`);
+          
+          // Store the original transaction ID for later
+          currentInvoiceId.value = correctionData.id;
+          isCorrectionMode.value = true;
+          originalTransactionData.value = correctionData;
+        }
+      }
+
       // Calculate mobile scale
       calculateMobileScale();
       
       // Add resize listener for responsive scaling
       window.addEventListener('resize', calculateMobileScale);
+
+      // Load saved signatures
+      loadSignatures();
 
       // Initialize all textareas to auto-resize
       setTimeout(() => {
@@ -736,10 +896,11 @@ export default defineComponent({
       showPasswordModal.value = false;
       passwordVerified.value = true;
       
-      // Store authenticated member info
+      // Store authenticated member info with branch
       authenticatedMember.value = {
         id: memberInfo.memberId,
         name: memberInfo.memberName,
+        branch: memberInfo.branch || route.query.branch || 'Unknown',
         role: 'Member'
       };
       
@@ -808,6 +969,12 @@ export default defineComponent({
     // Signature images (Developer can set signature images here - PNG/JPEG)
     const signatureImage1 = ref('/images/signature1.png'); // Signature 1 image path
     const signatureImage2 = ref('/images/signature2.png'); // Signature 2 image path
+    
+    // Signature management
+    const savedSignatures = ref([]);
+    const selectedSignature1 = ref('');
+    const selectedSignature2 = ref('');
+    const loadingSignatures = ref(false);
     
     // Amount in words input refs
     const sumOfInput1 = ref(null);
@@ -997,6 +1164,60 @@ export default defineComponent({
       }
     });
 
+    // Confirm correction handler
+    const handleConfirmCorrection = async () => {
+      if (!isCorrectionMode.value || !originalTransactionData.value) {
+        alert('❌ Not in correction mode');
+        return;
+      }
+
+      try {
+        const branch = authenticatedMember.value?.branch || 'Unknown';
+        
+        // Prepare corrected data (use same field names as original save)
+        const correctedInvoice = {
+          receiptNumber: receiptNumber.value,
+          invoiceNumber: receiptNumber.value, // For backwards compatibility
+          organizationName: organizationName.value,
+          address: address.value,
+          date: date.value,
+          lpo: lpo.value,
+          receivedFrom: receivedFrom.value,
+          customerName: customerName.value,
+          customerAddress: customerAddress.value,
+          billTo: customerName.value, // For backwards compatibility
+          items: items.value,
+          subtotal: subtotal.value,
+          taxAmount: taxAmount.value,
+          grandTotal: grandTotal.value, // Use grandTotal not total
+          total: grandTotal.value, // Keep both for compatibility
+          amountInWords: amountInWords.value,
+          taxEnabled: taxEnabled.value,
+          taxRate: taxRate.value,
+          isCorrected: true,
+          isMistake: false,
+          correctedAt: new Date().toISOString(),
+          correctedBy: authenticatedMember.value?.name || 'Unknown',
+        };
+
+        // Update in Firebase
+        await updateInvoice(branch, originalTransactionData.value.id, correctedInvoice);
+
+        // Clear correction mode
+        localStorage.removeItem('pendingCorrection');
+        isCorrectionMode.value = false;
+        originalTransactionData.value = null;
+
+        alert('✅ Correction saved successfully!');
+        
+        // Redirect back to Stats page with refresh flag
+        router.push({ name: 'Stats', query: { corrected: 'true', t: Date.now() } });
+      } catch (error) {
+        console.error('Error saving correction:', error);
+        alert('❌ Failed to save correction: ' + error.message);
+      }
+    };
+
     // Export handlers
     const handleExportPDF = async () => {
       if (!invoiceRef.value || isExporting.value) return;
@@ -1005,11 +1226,25 @@ export default defineComponent({
         isExporting.value = true;
         exportType.value = 'pdf';
         
-        // Add exporting class to restore original dimensions
+        // Fixed dimensions for invoice export
+        const INVOICE_WIDTH = 5.827; // inches
+        const INVOICE_HEIGHT = 8.268; // inches
+        
+        // Store original styles
+        const originalWidth = invoiceRef.value.style.width;
+        const originalHeight = invoiceRef.value.style.height;
+        const originalTransform = invoiceRef.value.style.transform;
+        const originalBackground = invoiceRef.value.style.backgroundColor;
+        
+        // Force exact dimensions and white background for export
+        invoiceRef.value.style.width = `${INVOICE_WIDTH}in`;
+        invoiceRef.value.style.height = `${INVOICE_HEIGHT}in`;
+        invoiceRef.value.style.transform = 'none';
+        invoiceRef.value.style.backgroundColor = '#ffffff';
         invoiceRef.value.classList.add('exporting');
         
         // Wait a moment for styles to apply
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 150));
         
         // Export the invoice
         console.log('Starting PDF export...');
@@ -1019,8 +1254,17 @@ export default defineComponent({
           margin: 0,
           filename,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 3, useCORS: true, logging: false },
-          jsPDF: { unit: 'in', format: [5.827, 8.268], orientation: 'portrait' },
+          html2canvas: { 
+            scale: 3, 
+            useCORS: true, 
+            logging: false,
+            backgroundColor: '#ffffff',
+            width: INVOICE_WIDTH * 96, // Convert to pixels (96 DPI)
+            height: INVOICE_HEIGHT * 96,
+            windowWidth: INVOICE_WIDTH * 96,
+            windowHeight: INVOICE_HEIGHT * 96
+          },
+          jsPDF: { unit: 'in', format: [INVOICE_WIDTH, INVOICE_HEIGHT], orientation: 'portrait' },
         };
         
         await html2pdf().set(options).from(element).save();
@@ -1029,6 +1273,13 @@ export default defineComponent({
         logActivity(`Created Invoice #${receiptNumber.value || 'N/A'}`);
         
         alert('✅ Invoice exported as PDF successfully!');
+        
+        // Restore original styles
+        invoiceRef.value.style.width = originalWidth;
+        invoiceRef.value.style.height = originalHeight;
+        invoiceRef.value.style.transform = originalTransform;
+        invoiceRef.value.style.backgroundColor = originalBackground;
+        invoiceRef.value.classList.remove('exporting');
       } catch (error) {
         console.error('Error exporting PDF:', error);
         alert(`❌ Failed to export PDF: ${error.message}`);
@@ -1049,18 +1300,35 @@ export default defineComponent({
         isExporting.value = true;
         exportType.value = 'jpeg';
         
-        // Add exporting class to restore original dimensions
+        // Fixed dimensions for invoice export
+        const INVOICE_WIDTH = 5.827; // inches
+        const INVOICE_HEIGHT = 8.268; // inches
+        
+        // Store original styles
+        const originalWidth = invoiceRef.value.style.width;
+        const originalHeight = invoiceRef.value.style.height;
+        const originalTransform = invoiceRef.value.style.transform;
+        const originalBackground = invoiceRef.value.style.backgroundColor;
+        
+        // Force exact dimensions and white background for export
+        invoiceRef.value.style.width = `${INVOICE_WIDTH}in`;
+        invoiceRef.value.style.height = `${INVOICE_HEIGHT}in`;
+        invoiceRef.value.style.transform = 'none';
+        invoiceRef.value.style.backgroundColor = '#ffffff';
         invoiceRef.value.classList.add('exporting');
         
         // Wait a moment for styles to apply
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 150));
         
         // Export the invoice
         console.log('Starting JPEG export...');
         const dataUrl = await htmlToImage.toJpeg(invoiceRef.value, { 
-          quality: 0.95, 
-          pixelRatio: 3,
-          cacheBust: true
+          quality: 0.98, 
+          pixelRatio: 5, // Increased from 3 to 5 for higher resolution
+          cacheBust: true,
+          backgroundColor: '#ffffff',
+          width: INVOICE_WIDTH * 96, // Convert to pixels (96 DPI)
+          height: INVOICE_HEIGHT * 96,
         });
         const link = document.createElement('a');
         link.href = dataUrl;
@@ -1071,6 +1339,13 @@ export default defineComponent({
         logActivity(`Created Invoice #${receiptNumber.value || 'N/A'}`);
         
         alert('✅ Invoice exported as JPEG successfully!');
+        
+        // Restore original styles
+        invoiceRef.value.style.width = originalWidth;
+        invoiceRef.value.style.height = originalHeight;
+        invoiceRef.value.style.transform = originalTransform;
+        invoiceRef.value.style.backgroundColor = originalBackground;
+        invoiceRef.value.classList.remove('exporting');
       } catch (error) {
         console.error('Error exporting JPEG:', error);
         alert(`❌ Failed to export JPEG: ${error.message}`);
@@ -1133,6 +1408,249 @@ export default defineComponent({
       }
     };
 
+    // Save invoice to cloud
+    const handleSaveInvoice = async () => {
+      if (!authenticatedMember.value?.branch) {
+        alert('Branch information not found. Please login again.');
+        return;
+      }
+
+      // Validate required fields
+      if (!customerName.value || items.value.every(item => !item.description)) {
+        alert('Please fill in customer name and at least one item before saving.');
+        return;
+      }
+
+      isSaving.value = true;
+      try {
+        const invoiceData = {
+          receiptNumber: receiptNumber.value,
+          date: date.value,
+          customerName: customerName.value,
+          customerAddress: customerAddress.value,
+          lpo: lpo.value,
+          items: items.value.filter(item => item.description || item.quantity || item.price),
+          subtotal: subtotal.value,
+          taxEnabled: taxEnabled.value,
+          taxRate: taxRate.value,
+          taxAmount: taxAmount.value,
+          grandTotal: grandTotal.value,
+          organizationName: organizationName.value,
+          organizationAddress: organizationAddress.value,
+          organizationPhone: organizationPhone.value,
+          createdBy: authenticatedMember.value.name,
+          status: 'Draft'
+        };
+
+        const result = await saveInvoice(
+          authenticatedMember.value.branch,
+          invoiceData,
+          currentInvoiceId.value
+        );
+
+        if (result.success) {
+          currentInvoiceId.value = result.invoiceId;
+          
+          // Log activity
+          await saveMemberActivity(authenticatedMember.value.branch, {
+            memberName: authenticatedMember.value.name,
+            action: result.isUpdate ? 'Updated invoice' : 'Created invoice',
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString(),
+            details: `Invoice #${receiptNumber.value} - ${customerName.value}`
+          });
+
+          logActivity(result.isUpdate ? 'Updated invoice' : 'Created invoice');
+          
+          alert(result.isUpdate ? '✅ Invoice updated successfully!' : '✅ Invoice saved to cloud successfully!');
+        } else {
+          alert('❌ Failed to save invoice: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error saving invoice:', error);
+        alert('❌ Error saving invoice. Please try again.');
+      } finally {
+        isSaving.value = false;
+      }
+    };
+
+    // Load saved invoices
+    const handleViewHistory = async () => {
+      if (!authenticatedMember.value?.branch) {
+        alert('Branch information not found. Please login again.');
+        return;
+      }
+
+      loadingInvoices.value = true;
+      showHistoryModal.value = true;
+      
+      try {
+        const result = await getAllInvoices(authenticatedMember.value.branch);
+        if (result.success) {
+          savedInvoices.value = result.data;
+        } else {
+          alert('Failed to load invoices: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error loading invoices:', error);
+        alert('Error loading invoices. Please try again.');
+      } finally {
+        loadingInvoices.value = false;
+      }
+    };
+
+    // Load selected invoice for editing
+    const handleLoadInvoice = (invoice) => {
+      // Populate form with invoice data
+      currentInvoiceId.value = invoice.id;
+      receiptNumber.value = invoice.receiptNumber || 1;
+      date.value = invoice.date || new Date().toISOString().split('T')[0];
+      customerName.value = invoice.customerName || '';
+      customerAddress.value = invoice.customerAddress || '';
+      lpo.value = invoice.lpo || '';
+      taxEnabled.value = invoice.taxEnabled || false;
+      taxRate.value = invoice.taxRate || 7.5;
+      
+      // Load items
+      if (invoice.items && invoice.items.length > 0) {
+        items.value = invoice.items.map((item, index) => ({
+          id: item.id || Date.now() + index,
+          description: item.description || '',
+          quantity: item.quantity || '',
+          price: item.price || 0,
+          tax: item.tax || 0
+        }));
+      }
+
+      // Load organization info if available
+      if (invoice.organizationName) organizationName.value = invoice.organizationName;
+      if (invoice.organizationAddress) organizationAddress.value = invoice.organizationAddress;
+      if (invoice.organizationPhone) organizationPhone.value = invoice.organizationPhone;
+
+      showHistoryModal.value = false;
+      
+      // Log activity
+      logActivity(`Loaded invoice #${invoice.receiptNumber} for editing`);
+      
+      alert(`✅ Invoice #${invoice.receiptNumber} loaded! You can now edit and save it.`);
+    };
+
+    // Delete invoice from cloud
+    const handleDeleteInvoice = async (invoice) => {
+      if (!authenticatedMember.value?.branch) {
+        alert('Branch information not found.');
+        return;
+      }
+
+      try {
+        const result = await deleteInvoice(authenticatedMember.value.branch, invoice.id);
+        
+        if (result.success) {
+          // Remove from local list
+          savedInvoices.value = savedInvoices.value.filter(inv => inv.id !== invoice.id);
+          
+          // Log activity
+          await saveMemberActivity(authenticatedMember.value.branch, {
+            memberName: authenticatedMember.value.name,
+            action: 'Deleted invoice',
+            branch: authenticatedMember.value.branch,
+            timestamp: new Date().toISOString(),
+            details: `Invoice #${invoice.receiptNumber}`
+          });
+
+          logActivity(`Deleted invoice #${invoice.receiptNumber}`);
+          
+          // If we're currently editing this invoice, clear the current ID
+          if (currentInvoiceId.value === invoice.id) {
+            currentInvoiceId.value = null;
+          }
+        } else {
+          alert('Failed to delete invoice: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error deleting invoice:', error);
+        alert('Error deleting invoice. Please try again.');
+      }
+    };
+
+    // Create new invoice (clear form)
+    const handleNewInvoice = () => {
+      if (currentInvoiceId.value) {
+        if (!confirm('You are currently editing an invoice. Create a new one? Any unsaved changes will be lost.')) {
+          return;
+        }
+      }
+      
+      // Clear all fields
+      currentInvoiceId.value = null;
+      customerName.value = '';
+      customerAddress.value = '';
+      lpo.value = '';
+      items.value = [
+        { id: 1, description: '', quantity: '', price: 0.0, tax: 0.0 },
+        { id: 2, description: '', quantity: '', price: 0.0, tax: 0.0 },
+        { id: 3, description: '', quantity: '', price: 0.0, tax: 0.0 },
+      ];
+      
+      // Auto-increment receipt number if auto is enabled
+      if (autoReceiptNumber.value) {
+        receiptNumber.value += 1;
+      }
+      
+      logActivity('Started creating new invoice');
+    };
+
+    // Load signatures from Firebase
+    const loadSignatures = async () => {
+      if (!authenticatedMember.value?.branch) return;
+
+      loadingSignatures.value = true;
+      try {
+        const result = await getAllSignatures(authenticatedMember.value.branch);
+        if (result.success) {
+          savedSignatures.value = result.data;
+          
+          // Auto-select primary signatures
+          const primary = result.data.find(sig => sig.isPrimary);
+          if (primary) {
+            selectedSignature1.value = primary.id;
+            selectedSignature2.value = primary.id;
+            signatureImage1.value = primary.dataURL;
+            signatureImage2.value = primary.dataURL;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading signatures:', error);
+      } finally {
+        loadingSignatures.value = false;
+      }
+    };
+
+    // Handle signature 1 selection
+    const handleSignature1Change = () => {
+      const selected = savedSignatures.value.find(sig => sig.id === selectedSignature1.value);
+      if (selected) {
+        signatureImage1.value = selected.dataURL;
+      } else {
+        signatureImage1.value = null;
+      }
+    };
+
+    // Handle signature 2 selection
+    const handleSignature2Change = () => {
+      const selected = savedSignatures.value.find(sig => sig.id === selectedSignature2.value);
+      if (selected) {
+        signatureImage2.value = selected.dataURL;
+      } else {
+        signatureImage2.value = null;
+      }
+    };
+
+    // Navigate to signature page
+    const handleCreateSignature = () => {
+      router.push({ name: 'Signature', query: { branch: authenticatedMember.value?.branch || '' } });
+    };
+
     return {
       invoiceRef,
       isExporting,
@@ -1188,6 +1706,29 @@ export default defineComponent({
       handleExportJPEG,
       handleBack,
       handleLogout,
+      // Correction mode
+      isCorrectionMode,
+      handleConfirmCorrection,
+      // Document history
+      showHistoryModal,
+      savedInvoices,
+      loadingInvoices,
+      currentInvoiceId,
+      isSaving,
+      handleSaveInvoice,
+      handleViewHistory,
+      handleLoadInvoice,
+      handleDeleteInvoice,
+      handleNewInvoice,
+      // Signature management
+      savedSignatures,
+      selectedSignature1,
+      selectedSignature2,
+      loadingSignatures,
+      loadSignatures,
+      handleSignature1Change,
+      handleSignature2Change,
+      handleCreateSignature,
     };
   },
 });
@@ -1468,9 +2009,114 @@ tbody tr {
   transform: none !important;
 }
 
+/* Export mode - forces exact dimensions and removes shadows */
+#meblink-invoice.exporting {
+  width: 5.827in !important;
+  height: 8.268in !important;
+  min-width: 5.827in !important;
+  max-width: 5.827in !important;
+  transform: none !important;
+  background-color: white !important;
+  box-shadow: none !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 1.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+}
+
+/* Ensure all content stays within bounds during export */
+#meblink-invoice.exporting * {
+  box-sizing: border-box !important;
+}
+
+/* Override any mobile styles during export */
+#meblink-invoice.exporting {
+  font-size: revert !important;
+}
+
+/* Logo sizing during export - always desktop size */
 #meblink-invoice.exporting img[alt="ICAN Logo"] {
   height: 120px !important;
   max-height: 120px !important;
+  width: auto !important;
+}
+
+/* Signature images during export - larger size */
+#meblink-invoice.exporting img[alt*="Signature"] {
+  height: 80px !important;
+  max-width: 180px !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+
+/* Hide textareas and inputs when exporting, show static text with borders */
+#meblink-invoice.exporting .no-print {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+#meblink-invoice.exporting .print-only {
+  display: block !important;
+  border-bottom: 1px dotted #9ca3af !important; /* Add dotted border like inputs */
+  padding-bottom: 1px !important; /* Match input padding */
+  min-height: 16px !important; /* Ensure consistent height */
+}
+
+/* Special styling for table cell print-only divs - ensure borders show on mobile */
+#meblink-invoice.exporting td .print-only {
+  border-bottom: 1px solid #e5e7eb !important; /* Solid border for table cells */
+  padding-bottom: 2px !important;
+  min-height: 18px !important; /* Ensure consistent height */
+}
+
+/* Ensure table borders are visible during export (mobile and desktop) */
+#meblink-invoice.exporting table {
+  border-collapse: collapse !important;
+}
+
+#meblink-invoice.exporting table td,
+#meblink-invoice.exporting table th {
+  border: 1px solid #d1d5db !important; /* Gray-300 border for all cells */
+}
+
+#meblink-invoice.exporting thead {
+  background-color: #1e40af !important; /* Blue-800 background */
+  color: white !important;
+}
+
+/* Remove focus rings and outlines from inputs/textareas during normal view */
+#meblink-invoice:not(.exporting) input:focus,
+#meblink-invoice:not(.exporting) textarea:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important; /* Emerald ring */
+  border-color: #10b981 !important;
+}
+
+/* Show textareas in normal view, hide static text */
+#meblink-invoice:not(.exporting) .print-only {
+  display: none !important;
+}
+
+#meblink-invoice:not(.exporting) .no-print {
+  display: block !important;
+}
+
+/* Responsive scaling for large screens */
+@media (min-width: 1280px) {
+  #meblink-invoice:not(.exporting) {
+    transform: scale(1.2);
+    transform-origin: top center;
+  }
+}
+
+@media (min-width: 1536px) {
+  #meblink-invoice:not(.exporting) {
+    transform: scale(1.4);
+    transform-origin: top center;
+  }
 }
 </style>
 

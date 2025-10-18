@@ -1,6 +1,6 @@
 <template>
   <div v-if="showExpiredScreen" class="fixed inset-0 z-[9999] bg-gradient-to-br from-red-900 to-red-950 flex items-center justify-center p-4">
-    <div class="max-w-2xl w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+    <div class="max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 md:p-12 text-center">
       <!-- Lock Icon -->
       <div class="mb-6 flex justify-center">
         <div class="w-24 h-24 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
@@ -57,7 +57,7 @@
             <div>
               <p class="text-xs text-slate-500 dark:text-slate-400">Email</p>
               <a :href="`mailto:${licenseStatus.contact?.email}`" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                {{ licenseStatus.contact?.email || 'your-email@example.com' }}
+                {{ licenseStatus.contact?.email || 'mohmmedabdulsalam058@gmail.com' }}
               </a>
             </div>
           </div>
@@ -69,9 +69,9 @@
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Phone</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Contact admin or called this Phone No.</p>
               <a :href="`tel:${licenseStatus.contact?.phone}`" class="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline">
-                {{ licenseStatus.contact?.phone || '+234-XXX-XXX-XXXX' }}
+                {{ licenseStatus.contact?.phone || '+234-806-332-8439' }}
               </a>
             </div>
           </div>

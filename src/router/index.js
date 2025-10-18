@@ -10,6 +10,7 @@ import MemberLoginPage from '../pages/MemberLoginPage.vue';
 import SplashScreen from '../pages/SplashScreen.vue';
 import MemberManagementPage from '../pages/MemberManagementPage.vue';
 import ReportsAnalyticsPage from '../pages/ReportsAnalyticsPage.vue';
+import SignaturePage from '../pages/SignaturePage.vue';
 
 const routes = [
   {
@@ -70,6 +71,12 @@ const routes = [
     name: 'Reports',
     component: ReportsAnalyticsPage,
   },
+  {
+    path: '/signature',
+    name: 'Signature',
+    component: SignaturePage,
+    meta: { requiresMemberAuth: true }
+  },
 ];
 
 const router = createRouter({
@@ -77,7 +84,7 @@ const router = createRouter({
   routes,
 });
 
-const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports'];
+const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports', 'Signature'];
 
 router.beforeEach((to, from, next) => {
   // Check if route requires member authentication (for Invoice and Receipt)
