@@ -19,18 +19,19 @@
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Select Member
         </label>
-        <select
-          v-model="selectedMemberId"
-          @change="onMemberChange"
-          :disabled="isLoadingMembers"
-          class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-          style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
-        >
-          <option value="" disabled>{{ isLoadingMembers ? 'Loading members...' : '-- Choose a member --' }}</option>
-          <option v-for="member in availableMembers" :key="member.id" :value="member.id">
-            {{ member.name }} ({{ member.role }})
-          </option>
-        </select>
+        <div class="w-full max-w-full overflow-hidden">
+          <select
+            v-model="selectedMemberId"
+            @change="onMemberChange"
+            :disabled="isLoadingMembers"
+            class="w-full px-2 py-2 sm:px-4 sm:py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-xs sm:text-base truncate"
+          >
+            <option value="" disabled>{{ isLoadingMembers ? 'Loading...' : '-- Choose member --' }}</option>
+            <option v-for="member in availableMembers" :key="member.id" :value="member.id" :title="`${member.name} (${member.role})`">
+              {{ truncateMemberName(member.name, member.role) }}
+            </option>
+          </select>
+        </div>
         <p v-if="availableMembers.length === 0 && !isLoadingMembers" class="text-xs text-amber-600 dark:text-amber-400 mt-1">
           No members found. Please create a member account first.
         </p>
@@ -358,6 +359,27 @@ export default {
       });
     };
 
+    // Truncate member name for mobile display
+    const truncateMemberName = (name, role) => {
+      const maxLength = window.innerWidth < 640 ? 20 : 35; // Shorter on mobile
+      const fullText = `${name} (${role})`;
+      
+      if (fullText.length <= maxLength) {
+        return fullText;
+      }
+      
+      // If name is too long, truncate it and add ellipsis
+      const roleLength = role.length + 3; // +3 for " ()"
+      const availableNameLength = maxLength - roleLength - 3; // -3 for "..."
+      
+      if (availableNameLength > 0) {
+        return `${name.substring(0, availableNameLength)}... (${role})`;
+      } else {
+        // If still too long, show just truncated name
+        return fullText.substring(0, maxLength - 3) + '...';
+      }
+    };
+
     return {
       password,
       showPassword,
@@ -372,6 +394,7 @@ export default {
       cancel,
       signUpAsMember,
       forgotPassword,
+      truncateMemberName,
     };
   },
 };
@@ -393,17 +416,52 @@ export default {
   animation: fadeIn 0.2s ease-out;
 }
 
-/* Force text truncation on select and option elements */
+/* Improved dropdown styling for all devices */
 select {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  cursor: pointer;
 }
 
+/* Mobile-specific dropdown improvements */
+@media (max-width: 640px) {
+  select {
+    font-size: 14px;
+    max-width: 100%;
+  }
+  
+  select option {
+    font-size: 14px;
+    padding: 8px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Desktop dropdown styling */
+@media (min-width: 641px) {
+  select option {
+    padding: 10px;
+  }
+}
+
+/* Force proper text display in options */
 select option {
   text-overflow: ellipsis;
-  white-space: nowrap;
   overflow: hidden;
+  display: block;
   max-width: 100%;
+}
+
+/* Dark mode dropdown arrow */
+.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%9CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div v-if="showExpiredScreen" class="fixed inset-0 z-[9999] bg-gradient-to-br from-red-900 to-red-950 flex items-center justify-center p-4">
-    <div class="max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 md:p-12 text-center">
       <!-- Lock Icon -->
       <div class="mb-6 flex justify-center">
         <div class="w-24 h-24 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
