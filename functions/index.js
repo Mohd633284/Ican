@@ -1,10 +1,53 @@
+const express = require('express');
+const cors = require('cors');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
+const app = express();
+
+// Import middleware
+const { authenticateUser, requireAdmin } = require('./middleware/auth');
+
+// Middleware
+app.use(cors({ origin: true }));
+app.use(express.json());
+
+// Initialize Firebase Admin
 admin.initializeApp();
+
+// Rate limiting middleware
+const rateLimit = {
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+};
+
+app.use((req, res, next) => {
+  const ip = req.ip;
+  if (!rateLimit[ip]) {
+    rateLimit[ip] = {
+      count: 0,
+      resetTime: Date.now() + rateLimit.windowMs
+    };
+  }
+
+  if (Date.now() > rateLimit[ip].resetTime) {
+    rateLimit[ip].count = 0;
+    rateLimit[ip].resetTime = Date.now() + rateLimit.windowMs;
+  }
+
+  if (rateLimit[ip].count >= rateLimit.max) {
+    return res.status(429).json({
+      success: false,
+      error: 'Too many requests, please try again later'
+    });
+  }
+
+  rateLimit[ip].count++;
+  next();
+});
 const db = admin.firestore();
 
-// Config: collection and counter doc path
+// Config
 const MEMBERS_COLLECTION = 'members';
 const COUNTER_DOC = 'metadata/member_count';
 
@@ -15,9 +58,6 @@ async function getMemberCount(tx) {
   if (!doc.exists) return 0;
   return doc.data().count || 0;
 }
-
-// HTTP function to create a member (developer-only)
-exports.createMember = functions.https.onRequest(async (req, res) => {
   // Allow CORS for your frontend domain during development (restrict in prod)
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST');

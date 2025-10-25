@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "firestore": {
+      "rules": {
+        "yourCollection": {
+          "$docId": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            "syncStatus": {
+              ".validate": "newData.val() === 'pending' || newData.val() === 'synced'"
+            }
+          }
+        }
+      }
+    },
+    "storage": {
+      "rules": {
+        "files": {
+          "$userId": {
+            ".read": "$userId === auth.uid",
+            ".write": "$userId === auth.uid"
+          }
+        }
+      }
+    }
+  }
+}
