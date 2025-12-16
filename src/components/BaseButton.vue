@@ -26,6 +26,7 @@ export default defineComponent({
     size: {
       type: String,
       default: 'medium',
+      validator: (value) => ['small', 'medium', 'large', 'lg'].includes(value),
     },
     disabled: {
       type: Boolean,
@@ -66,6 +67,10 @@ export default defineComponent({
 
 .btn-small {
   @apply text-sm;
+}
+
+.btn-lg {
+  @apply text-lg px-6 py-3;
 }
 
 .btn-disabled {

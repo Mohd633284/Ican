@@ -6,7 +6,7 @@
 
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
-import { getAllMembers, saveMember } from '@/firebase'; // Import Firebase functions
+import { getAllMembers, saveMember } from './src/api-service'; // Import API functions
 
 export default {
   name: 'PasswordVerificationModal',

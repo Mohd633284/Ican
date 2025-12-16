@@ -82,7 +82,7 @@
                 </svg>
                 Already have an account? You can still
                 <router-link 
-                  :to="{ name: 'Home', query: { branch: selectedBranch } }" 
+                  :to="{ name: 'ican-app-home', query: { branch: selectedBranch } }" 
                   class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
                 >
                   sign in
@@ -128,7 +128,7 @@ export default defineComponent({
     const selectedBranch = ref(route.query.branch || '');
 
     const goBack = () => {
-      router.push({ name: 'Home' });
+      router.push({ name: 'ican-app-home' });
     };
 
     return {

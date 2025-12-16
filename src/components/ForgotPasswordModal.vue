@@ -281,7 +281,7 @@
 
 <script>
 import { ref, watch, computed, onMounted } from 'vue';
-import { getAllMembers, updateMember, saveMemberActivity } from '@/firebase';
+import { getAllMembers, updateMember, saveMemberActivity } from '../api-service';
 
 export default {
   name: 'ForgotPasswordModal',

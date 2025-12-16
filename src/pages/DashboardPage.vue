@@ -10,7 +10,7 @@
     <div class="relative min-h-full py-8 px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="max-w-7xl mx-auto mb-8">
-        <div class="text-center mb-8">
+        <div class="text-center mb-8 relative">
           <div class="inline-flex items-center gap-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-4 py-2 text-emerald-700 dark:text-emerald-300 text-sm font-semibold uppercase tracking-wide mb-4">
             <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
             {{ branchTitle }} Branch Dashboard
@@ -19,7 +19,7 @@
             Welcome to ICAN
           </h1>
           <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Institute of Chartered Accountants of Nigeria - {{ branchTitle }} Branch Management Portal
+            The Institute of Chartered Accountants of Nigeria - {{ branchTitle }} Branch Management Portal
           </p>
         </div>
       </div>
@@ -41,32 +41,7 @@
         </div>
 
         <!-- Stats Grid -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Total Members -->
-          <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleMemberLogin">
-            <div class="flex flex-col gap-4">
-              <!-- Top Row: Icon -->
-              <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Members</p>
-                <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">{{ totalMembers }}</p>
-              </div>
-
-                <div class="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                  <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
-                </div>
-              </div>
-              
-              
-              <!-- Bottom: Action Text -->
-              <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
-                <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400">→ Register New Member</p>
-              </div>
-            </div>
-          </div>
-
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Active Invoices -->
           <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl transition-all duration-300">
             <div class="flex items-center justify-between">
@@ -77,6 +52,21 @@
               <div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Receipts -->
+          <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Active Receipts</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ activeReceipts }}</p>
+              </div>
+              <div class="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <svg class="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
             </div>
@@ -117,13 +107,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Create Invoice -->
           <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer relative" @click="handleCreateInvoice">
-            <!-- Member Auth Required Badge -->
-            <div class="absolute top-3 right-3 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span>Login Required</span>
-            </div>
             <div class="flex items-center space-x-4">
               <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,13 +122,6 @@
 
           <!-- Create Receipt -->
           <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer relative" @click="handleCreateReceipt">
-            <!-- Member Auth Required Badge -->
-            <div class="absolute top-3 right-3 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span>Login Required</span>
-            </div>
             <div class="flex items-center space-x-4">
               <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,37 +135,6 @@
             </div>
           </div>
 
-          <!-- View Statistics -->
-          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleViewStats">
-            <div class="flex items-center space-x-4">
-              <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">View Statistics</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Analyze branch performance</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Member Management -->
-          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleMemberManagement">
-            <div class="flex items-center space-x-4">
-              <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Member Directory</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Manage branch members</p>
-              </div>
-            </div>
-          </div>
-
-      
           <!-- Reports & Analytics -->
           <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleReports">
             <div class="flex items-center space-x-4">
@@ -219,6 +164,36 @@
               </div>
             </div>
           </div>
+
+          <!-- Saved Invoices -->
+          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleSavedInvoices">
+            <div class="flex items-center space-x-4">
+              <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Saved Invoices</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">View & manage your invoices</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saved Receipts -->
+          <div class="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer" @click="handleSavedReceipts">
+            <div class="flex items-center space-x-4">
+              <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Saved Receipts</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">View & manage your receipts</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -227,11 +202,13 @@
         <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Recent Activity</h3>
-            <button @click="refreshActivities" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-2">
+              <button @click="refreshDashboard" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" title="Refresh dashboard data">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           <div v-if="recentActivities.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
@@ -246,6 +223,7 @@
               <div :class="getActivityIconClass(activity.action)">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path v-if="activity.action.includes('Login')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path v-else-if="activity.action.includes('Export')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   <path v-else-if="activity.action.includes('Invoice')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   <path v-else-if="activity.action.includes('Receipt')" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                   <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -286,7 +264,7 @@
 
       <!-- Footer Actions -->
       <div class="max-w-7xl mx-auto text-center">
-        <BaseButton variant="outline" size="lg" @click="handleGoBack" class="px-8 py-3">
+        <BaseButton variant="outline" size="large" @click="handleGoBack" class="px-8 py-3">
           <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
@@ -298,11 +276,10 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { defineComponent, computed, ref, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
-import { API_BASE } from '../api.js';
-import { getAllMembers, getMemberActivities } from '@/firebase';
+import { getDashboardData, getAllMembers, getActivities, getAllInvoices, getAllReceipts } from '../api-service';
 
 export default defineComponent({
   name: 'DashboardPage',
@@ -316,6 +293,7 @@ export default defineComponent({
     // Branch-specific data
     const totalMembers = ref(0);
     const activeInvoices = ref(0);
+    const activeReceipts = ref(0);
     const monthlyRevenue = ref('0');
     const pendingTasks = ref(0);
     const loading = ref(true);
@@ -347,65 +325,210 @@ export default defineComponent({
         loading.value = true;
         error.value = null;
 
-        // Get member count from Firebase (updated to use Firebase instead of localStorage)
-        console.log('🔥 Loading member count from Firebase...');
-        const membersResult = await getAllMembers(branchName.value);
-        if (membersResult.success) {
-          totalMembers.value = membersResult.data.length;
-          console.log(`✅ Loaded ${totalMembers.value} members from Firebase`);
-        } else {
-          console.warn('⚠️ Failed to load members from Firebase:', membersResult.error);
-          totalMembers.value = 0;
-        }
-
-        // Get other stats from backend
-        const response = await fetch(`${API_BASE}/dashboard/${branchName.value}`);
+        console.log('🔥 Loading dashboard data from localStorage and SmartDesignPro Firebase...');
+        console.log(`🔍 Loading dashboard data for branch: "${branchName.value}" (ID: ${branchName.value})`);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch branch statistics');
+        // Initialize counters with safe defaults
+        let totalInvoiceCount = 0;
+        let totalReceiptCount = 0;
+        let totalRevenue = 0;
+        let totalUsers = 0;
+        let pendingTasksCount = 0;
+        
+        // Get data from localStorage (where preview pages store invoice/receipt data) in parallel with error handling
+        const [icanResult, localStorageInvoices, localStorageReceipts] = await Promise.all([
+          getDashboardData(branchName.value).catch(err => ({ success: false, error: err.message })),
+          getAllInvoices(branchName.value).catch(err => ({ success: false, message: err.message, data: [] })),
+          getAllReceipts(branchName.value).catch(err => ({ success: false, message: err.message, data: [] }))
+        ]);
+        
+        // Process ICAN dashboard data
+        if (icanResult.success && icanResult.data) {
+          const dashboardData = icanResult.data;
+          totalUsers = parseInt(dashboardData.totalUsers) || 0;
+          pendingTasksCount = parseInt(dashboardData.pendingTasks) || 0;
+        } else {
+          console.warn('⚠️ ICAN dashboard data not available:', icanResult.error || 'Unknown error');
         }
-
-        const result = await response.json();
-        const stats = result.data;
-
-        activeInvoices.value = stats.activeInvoices;
-        monthlyRevenue.value = stats.monthlyRevenue.toLocaleString('en-NG');
-        pendingTasks.value = stats.pendingTasks;
+          
+        // Add data from localStorage invoices (exported/created in PreviewIcanInvoice.vue)
+        if (localStorageInvoices.success && Array.isArray(localStorageInvoices.data)) {
+          const validInvoices = localStorageInvoices.data.filter(inv => inv && typeof inv === 'object');
+          totalInvoiceCount += validInvoices.length;
+          
+          // Calculate revenue from invoices
+          const invoiceRevenue = validInvoices.reduce((sum, inv) => {
+            const amount = parseFloat(inv.grandTotal || inv.totalAmount || inv.amount) || 0;
+            return sum + amount;
+          }, 0);
+          totalRevenue += invoiceRevenue;
+          
+          console.log(`📄 Added ${validInvoices.length} invoices with revenue: ₦${invoiceRevenue.toLocaleString('en-NG')}`);
+        } else {
+          console.log('📄 No localStorage invoices found or error:', localStorageInvoices.message);
+        }
+        
+        // Add data from localStorage receipts (exported/created in PreviewIcanReceipt.vue)
+        if (localStorageReceipts.success && Array.isArray(localStorageReceipts.data)) {
+          const validReceipts = localStorageReceipts.data.filter(rec => rec && typeof rec === 'object');
+          totalReceiptCount += validReceipts.length;
+          
+          // Calculate revenue from receipts
+          const receiptRevenue = validReceipts.reduce((sum, rec) => {
+            const amount = parseFloat(rec.grandTotal || rec.totalAmount || rec.amount || rec.naira) || 0;
+            return sum + amount;
+          }, 0);
+          totalRevenue += receiptRevenue;
+          
+          console.log(`🧾 Added ${validReceipts.length} receipts with revenue: ₦${receiptRevenue.toLocaleString('en-NG')}`);
+        } else {
+          console.log('🧾 No localStorage receipts found or error:', localStorageReceipts.message);
+        }
+          
+        // Set all dashboard values with validation
+        totalMembers.value = Math.max(0, totalUsers);
+        activeInvoices.value = Math.max(0, totalInvoiceCount);
+        activeReceipts.value = Math.max(0, totalReceiptCount);
+        monthlyRevenue.value = Math.max(0, totalRevenue).toLocaleString('en-NG');
+        pendingTasks.value = Math.max(0, pendingTasksCount);
+        
+        console.log(`✅ Dashboard data loaded - Invoices: ${activeInvoices.value}, Receipts: ${activeReceipts.value}, Revenue: ${totalRevenue}`);
 
       } catch (err) {
         console.error('Error fetching branch statistics:', err);
-        error.value = err.message;
+        error.value = err?.message || 'Failed to load dashboard data';
+        
+        // Set safe default values
+        activeInvoices.value = 0;
+        activeReceipts.value = 0;
+        monthlyRevenue.value = '0';
+        pendingTasks.value = 0;
+        totalMembers.value = 0;
       } finally {
         loading.value = false;
       }
     };
 
-    onMounted(() => {
-      fetchBranchStats();
+    onMounted(async () => {
+      // Load stats first, then activities to avoid simultaneous Firebase calls
+      await fetchBranchStats();
       loadActivities();
     });
 
     const loadActivities = async () => {
-      // Load activities from Firebase (updated to use Firebase instead of localStorage)
-      console.log('🔥 Loading activities from Firebase...');
+      // Load activities from main SmartDesignPro Firebase (localStorage)
+      console.log('🔥 Loading activities from SmartDesignPro Firebase...');
+      console.log(`🔍 Branch: "${branchName.value}"`);
+      
       try {
-        const result = await getMemberActivities(branchName.value, 10);
-        if (result.success) {
-          recentActivities.value = result.data;
-          console.log(`✅ Loaded ${result.data.length} activities from Firebase`);
-        } else {
-          console.warn('⚠️ Failed to load activities from Firebase:', result.error);
-          recentActivities.value = [];
+        const activities = [];
+        let exportActivitiesCount = 0;
+        let invoiceActivitiesCount = 0;
+        let receiptActivitiesCount = 0;
+        
+        // Get export activities from localStorage (logged by preview pages)
+        try {
+          const exportActivitiesResult = await getActivities(branchName.value, 50);
+          if (exportActivitiesResult.success && Array.isArray(exportActivitiesResult.activities)) {
+            exportActivitiesResult.activities.forEach(activity => {
+              if (activity && activity.id && activity.action && activity.timestamp) {
+                activities.push({
+                  id: activity.id || `export_${Date.now()}_${Math.random()}`,
+                  action: activity.action || 'Export Activity',
+                  memberName: activity.memberName || 'Unknown Member',
+                  branch: activity.branch || branchName.value,
+                  timestamp: activity.timestamp || new Date().toISOString(),
+                  type: activity.type || 'export'
+                });
+                exportActivitiesCount++;
+              }
+            });
+          }
+          console.log(`📤 Loaded ${exportActivitiesCount} export activities`);
+        } catch (exportErr) {
+          console.warn('⚠️ Error loading export activities:', exportErr.message);
         }
+        
+        // Get invoices from main Firebase
+        try {
+          const invoicesResult = await getAllInvoices(branchName.value);
+          console.log(`📄 Invoice Result:`, invoicesResult);
+          if (invoicesResult.success && Array.isArray(invoicesResult.data)) {
+            invoicesResult.data.forEach(invoice => {
+              if (invoice && invoice.id) {
+                activities.push({
+                  id: `invoice_${invoice.id}`,
+                  action: `Invoice Created - ${invoice.invoiceNumber || invoice.organizationName || invoice.id}`,
+                  memberName: invoice.createdBy || invoice.memberName || 'System User',
+                  branch: branchName.value,
+                  timestamp: invoice.createdAt || invoice.updatedAt || new Date().toISOString(),
+                  type: 'invoice'
+                });
+                invoiceActivitiesCount++;
+              }
+            });
+          }
+          console.log(`📄 Loaded ${invoiceActivitiesCount} invoice creation activities`);
+        } catch (invoiceErr) {
+          console.warn('⚠️ Error loading invoice activities:', invoiceErr.message);
+        }
+        
+        // Get receipts from main Firebase
+        try {
+          const receiptsResult = await getAllReceipts(branchName.value);
+          console.log(`🧾 Receipt Result:`, receiptsResult);
+          if (receiptsResult.success && Array.isArray(receiptsResult.data)) {
+            receiptsResult.data.forEach(receipt => {
+              if (receipt && receipt.id) {
+                activities.push({
+                  id: `receipt_${receipt.id}`,
+                  action: `Receipt Created - ${receipt.receiptNumber || receipt.organizationName || receipt.id}`,
+                  memberName: receipt.createdBy || receipt.memberName || 'System User',
+                  branch: branchName.value,
+                  timestamp: receipt.createdAt || receipt.updatedAt || new Date().toISOString(),
+                  type: 'receipt'
+                });
+                receiptActivitiesCount++;
+              }
+            });
+          }
+          console.log(`🧾 Loaded ${receiptActivitiesCount} receipt creation activities`);
+        } catch (receiptErr) {
+          console.warn('⚠️ Error loading receipt activities:', receiptErr.message);
+        }
+        
+        // Debug: Show all localStorage keys related to invoices/receipts
+        console.log('🔍 Available localStorage keys:', Object.keys(localStorage).filter(key => 
+          key.includes('invoices_') || key.includes('receipts_') || key.includes('ican_activities_')
+        ));
+        
+        // Sort by timestamp (newest first) and limit to 10
+        const validActivities = activities.filter(activity => 
+          activity && activity.id && activity.timestamp
+        );
+        
+        validActivities.sort((a, b) => {
+          const timeA = new Date(a.timestamp).getTime();
+          const timeB = new Date(b.timestamp).getTime();
+          return timeB - timeA; // Newest first
+        });
+        
+        recentActivities.value = validActivities.slice(0, 10);
+        
+        console.log(`✅ Loaded ${recentActivities.value.length} total activities from SmartDesignPro Firebase`);
       } catch (err) {
         console.error('❌ Error loading activities:', err);
         recentActivities.value = [];
       }
     };
 
-    const refreshActivities = () => {
+    const refreshDashboard = async () => {
+      console.log('🔄 Refreshing dashboard...');
+      await fetchBranchStats();
       loadActivities();
     };
+
+
 
     const formatTimeAgo = (timestamp) => {
       const now = new Date();
@@ -425,6 +548,8 @@ export default defineComponent({
       const baseClass = 'h-8 w-8 rounded-full flex items-center justify-center';
       if (action.includes('Login')) {
         return `${baseClass} bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400`;
+      } else if (action.includes('Export')) {
+        return `${baseClass} bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400`;
       } else if (action.includes('Invoice')) {
         return `${baseClass} bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400`;
       } else if (action.includes('Receipt')) {
@@ -439,35 +564,63 @@ export default defineComponent({
     };
 
     const handleCreateInvoice = () => {
-      router.push({ name: 'Invoice', query: { branch: branchName.value } });
+      router.push({ name: 'ican-app-invoice-ican', query: { branch: branchName.value } });
     };
 
     const handleCreateReceipt = () => {
-      router.push({ name: 'Receipt', query: { branch: branchName.value } });
+      router.push({ name: 'ican-app-receipt', query: { branch: branchName.value } });
     };
 
     const handleViewStats = () => {
+      // Navigate to Stats page
       router.push({ name: 'Stats', query: { branch: branchName.value } });
     };
 
-    const handleMemberManagement = () => {
-      router.push({ name: 'MemberManagement', query: { branch: branchName.value } });
-    };
-
-    const handleMemberLogin = () => {
-      router.push({ name: 'MemberLogin', query: { branch: branchName.value } });
-    };
-
     const handleBranchSettings = () => {
-      router.push({ name: 'Settings', query: { branch: branchName.value } });
+      try {
+        router.push({ name: 'ican-app-settings', query: { branch: branchName.value } });
+      } catch (error) {
+        console.error('Error navigating to Settings:', error);
+        router.push('/ican-app/settings');
+      }
     };
 
     const handleReports = () => {
-      router.push({ name: 'Reports', query: { branch: branchName.value } });
+      try {
+        router.push({ name: 'ican-app-reports', query: { branch: branchName.value } });
+      } catch (error) {
+        console.error('Error navigating to Reports:', error);
+        router.push('/ican-app/reports');
+      }
     };
 
     const handleSignature = () => {
-      router.push({ name: 'Signature', query: { branch: branchName.value } });
+      try {
+        router.push('/ican-app/signature');
+      } catch (error) {
+        console.error('Error navigating to Signature:', error);
+        router.push('/ican-app/signature');
+      }
+    };
+
+    const handleSavedInvoices = () => {
+      try {
+        router.push({ name: 'ican-app-saved-invoices', query: { branch: branchName.value } });
+      } catch (error) {
+        console.error('Error navigating to Saved Invoices:', error);
+        // Fallback: try direct path navigation
+        router.push('/ican-app/saved-invoices');
+      }
+    };
+
+    const handleSavedReceipts = () => {
+      try {
+        router.push({ name: 'ican-app-saved-receipts', query: { branch: branchName.value } });
+      } catch (error) {
+        console.error('Error navigating to Saved Receipts:', error);
+        // Fallback: try direct path navigation
+        router.push('/ican-app/saved-receipts');
+      }
     };
 
     return {
@@ -475,6 +628,7 @@ export default defineComponent({
       branchName,
       totalMembers,
       activeInvoices,
+      activeReceipts,
       monthlyRevenue,
       pendingTasks,
       loading,
@@ -486,12 +640,12 @@ export default defineComponent({
       handleCreateInvoice,
       handleCreateReceipt,
       handleViewStats,
-      handleMemberManagement,
-      handleMemberLogin,
       handleBranchSettings,
       handleReports,
       handleSignature,
-      refreshActivities,
+      handleSavedInvoices,
+      handleSavedReceipts,
+      refreshDashboard,
       formatTimeAgo,
       getActivityIconClass,
     };

@@ -33,11 +33,17 @@
 <script>
 import { defineComponent, ref } from 'vue';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { getBranches, createBranch } from '../api-service';
 
 export default defineComponent({
   name: 'SettingsPage',
-  setup() {
+  props: {
+    branch: {
+      type: String,
+      default: 'ICAN'
+    }
+  },
+  setup(props) {
     const name = ref('');
     const password = ref('');
     const confirm = ref('');
@@ -57,16 +63,11 @@ export default defineComponent({
       }
 
       try {
-        const res = await fetch(`${API_BASE}/branches`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name.value, password: password.value }),
-        });
-        const payload = await res.json();
-        if (!res.ok) {
-          throw new Error(payload.error || 'Failed to create branch');
+        const result = await createBranch({ name: name.value, password: password.value });
+        if (!result.success) {
+          throw new Error(result.message || 'Failed to create branch');
         }
-        success.value = `Branch ${payload.data.name} created.`;
+        success.value = `Branch ${name.value} created.`;
         name.value = '';
         password.value = '';
         confirm.value = '';

@@ -1,2 +1,17 @@
-// src/api.js
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Legacy API compatibility
+// This file now exports Firebase-based services instead of localhost API
+export { 
+  getBranches,
+  authenticateUser,
+  getDashboardData,
+  createInvoice,
+  getNextInvoiceNumber,
+  createReceipt,
+  getNextReceiptNumber,
+  getInvoices,
+  getReceipts,
+  verifyPassword,
+  getCurrentUser,
+  getBranchIdByName,
+  API_BASE
+} from './api-service'

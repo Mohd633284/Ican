@@ -1,17 +1,29 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950 relative overflow-auto md:overflow-hidden">
-    <!-- Animated Background Pattern -->
-    <div class="fixed inset-0 opacity-25 pointer-events-none">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(59,130,246,0.5),_transparent_50%)] animate-pulse-slow"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(14,165,233,0.4),_transparent_50%)] animate-pulse-slow" style="animation-delay: 1s"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(99,102,241,0.35),_transparent_50%)] animate-pulse-slow" style="animation-delay: 2s"></div>
+  <div class="min-h-screen relative overflow-x-hidden">
+    <!-- Background Image Carousel -->
+    <div class="background-carousel">
+      <transition-group name="fade" tag="div">
+        <div
+          v-for="(image, index) in backgroundImages"
+          :key="image"
+          v-show="index === currentImageIndex"
+          class="background-image"
+          :style="{ backgroundImage: `url(${image})` }"
+        ></div>
+      </transition-group>
+      <!-- Light overlay to maintain light color scheme -->
+      <div class="overlay"></div>
     </div>
 
-    <!-- Floating Particles -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <!-- Floating Particles (Bubbles) - Reduced on mobile -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-10">
       <div v-for="i in 25" :key="i" 
-           class="absolute w-2 h-2 rounded-full opacity-30 animate-float"
-           :class="i % 3 === 0 ? 'bg-blue-400 dark:bg-blue-300' : i % 3 === 1 ? 'bg-sky-400 dark:bg-sky-300' : 'bg-indigo-400 dark:bg-indigo-300'"
+           class="absolute rounded-full opacity-20 sm:opacity-30 animate-float"
+           :class="[
+             i % 3 === 0 ? 'bg-blue-400 dark:bg-blue-300' : i % 3 === 1 ? 'bg-sky-400 dark:bg-sky-300' : 'bg-indigo-400 dark:bg-indigo-300',
+             i > 15 ? 'hidden sm:block' : '',
+             'w-1.5 h-1.5 sm:w-2 sm:h-2'
+           ]"
            :style="{
              left: `${Math.random() * 100}%`,
              top: `${Math.random() * 100}%`,
@@ -22,44 +34,42 @@
     </div>
 
     <!-- Main Content Container -->
-    <div class="relative z-10 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 py-6 sm:py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
       <div class="w-full max-w-7xl mx-auto">
         <!-- Main Content Grid -->
-        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh]">
+        <div class="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-center min-h-[90vh] sm:min-h-[80vh]">
 
-        
-          
           <!-- Left Column: Enhanced Header -->
           <div class="order-1 lg:order-1 relative">
             <!-- Background Card with Gradient -->
-            <div class="relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-800 dark:from-blue-900 dark:via-slate-900 dark:to-indigo-950 rounded-2xl p-4 lg:p-8 shadow-xl overflow-hidden">
+            <div class="relative bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-800 dark:from-blue-900 dark:via-slate-900 dark:to-indigo-950 rounded-xl sm:rounded-2xl p-6 sm:p-6 lg:p-8 shadow-xl overflow-hidden">
               <!-- Decorative Elements -->
-              <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-              <div class="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
+              <div class="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full -translate-y-8 translate-x-8 sm:-translate-y-10 sm:translate-x-10"></div>
+              <div class="absolute bottom-0 left-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/5 rounded-full translate-y-6 -translate-x-6 sm:translate-y-8 sm:-translate-x-8"></div>
 
               <!-- Content -->
               <div class="relative z-10 text-center">
-                <div class="flex justify-center mb-4">
-                  <img src="/images/ican-web-logo.png" alt="ICAN logo" class="h-10 w-auto drop-shadow-lg" />
+                <div class="flex justify-center mb-3 sm:mb-4">
+                  <img src="/images/ican-web-logo.png" alt="ICAN logo" class="h-8 sm:h-10 w-auto drop-shadow-lg" />
                 </div>
                 <!-- Badge -->
-                <div class="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-2 text-white text-xs font-semibold uppercase tracking-wider mb-4 shadow-md">
-                  <div class="w-2 h-2 bg-white rounded-full animate-pulse shadow-sm"></div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3 py-1.5 sm:px-4 sm:py-2 text-white text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-3 sm:mb-4 shadow-md">
+                  <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse shadow-sm"></div>
                   Chartered Confidence
-                  <div class="w-2 h-2 bg-white rounded-full animate-pulse shadow-sm"></div>
+                  <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse shadow-sm"></div>
                 </div>
 
                 <!-- Main Title -->
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-4 tracking-tight">
-                  Institute of
-                  <span class="block bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                <h1 class="text-xl sm:text-2xl lg:text-4xl font-black text-white leading-tight mb-3 sm:mb-4 tracking-tight px-2">
+                  The Institute of
+                  <span class="block bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent mt-1">
                     Chartered Accountants of Nigeria
                   </span>
                 
                 </h1>
 
                 <!-- Description -->
-                <p class="text-sm sm:text-base text-blue-100 max-w-xl mx-auto leading-relaxed mb-4 font-medium">
+                <p class="text-xs sm:text-sm lg:text-base text-blue-100 max-w-xl mx-auto leading-relaxed mb-3 sm:mb-4 font-medium px-2">
                   A comprehensive workspace for managing branch receipts, invoices, and member services with export-ready documentation and complete audit trails.
                 </p>
               </div>
@@ -70,7 +80,7 @@
 
           <!-- Right Column: Enhanced Login Form -->
           <div class="order-2 lg:order-2">
-            <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 p-5 lg:p-7 relative overflow-hidden">
+            <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 p-5 sm:p-5 lg:p-6 relative overflow-hidden">
               <!-- Form Background Pattern -->
               <div class="absolute inset-0 opacity-5">
                 <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500 rounded-full -translate-y-10 translate-x-10"></div>
@@ -79,22 +89,22 @@
 
               <div class="relative z-10">
                 <!-- Header -->
-                <div class="text-center mb-6">
-                  <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl mb-4 shadow-md">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="text-center mb-5">
+                  <div class="inline-flex items-center justify-center w-12 h-12 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl mb-3 sm:mb-2 shadow-md">
+                    <svg class="w-6 h-6 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
                   </div>
-                  <h2 class="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mb-2">Access Your Branch</h2>
-                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
-                    Sign in with your branch credentials provided by the national secretariat
+                  <h2 class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-1.5 sm:mb-1">Access Your Branch</h2>
+                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-xs sm:text-xs">
+                    Sign in with your branch credentials
                   </p>
                 </div>
 
                 <!-- Form -->
-                <form class="space-y-4" @submit.prevent="handleSubmit">
+                <form class="space-y-3" @submit.prevent="handleSubmit">
                   <!-- Branch Selection Button -->
-                  <div class="space-y-2">
+                  <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200">
                       Select Branch
                     </label>
@@ -127,9 +137,9 @@
                   </div>
 
                   <!-- Password Field -->
-                  <div v-if="isPasswordStepVisible" class="space-y-3">
+                  <div v-if="isPasswordStepVisible" class="space-y-2">
                     <div>
-                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="branch-email">
+                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1" for="branch-email">
                         Email Address
                       </label>
                       <input
@@ -143,7 +153,7 @@
                     </div>
 
                     <div>
-                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="branch-password">
+                      <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1" for="branch-password">
                         Password
                       </label>
                       <div class="relative">
@@ -183,7 +193,7 @@
                   </div>
 
                   <!-- Action Buttons -->
-                  <div v-if="isPasswordStepVisible" class="space-y-2.5">
+                  <div v-if="isPasswordStepVisible" class="space-y-2">
                     <BaseButton
                       type="submit"
                       :disabled="isSubmitDisabled"
@@ -227,12 +237,12 @@
 
     <!-- Branch Selection Modal -->
     <Transition name="modal">
-      <div v-if="showBranchModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showBranchModal = false" @keydown.enter="handleModalEnterKey" @keydown.esc="showBranchModal = false">
+      <div v-if="showBranchModal" class="fixed inset-0 z-[9999] overflow-y-auto" style="display: flex !important; align-items: center !important; justify-content: center !important; padding: 1rem; min-height: 100vh; min-height: 100dvh;" @click.self="showBranchModal = false" @keydown.enter="handleModalEnterKey" @keydown.esc="showBranchModal = false">
         <!-- Backdrop with Blur -->
-        <div class="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md"></div>
+        <div class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md" style="z-index: 1; min-height: 100vh; min-height: 100dvh;"></div>
         
         <!-- Modal Content -->
-        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden animate-modal-in">
+        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full overflow-hidden animate-modal-in" style="max-width: 28rem; max-height: 85vh; margin: auto; z-index: 10;">
           <!-- Modal Header -->
           <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-5">
             <div class="flex items-center justify-between">
@@ -274,7 +284,7 @@
           </div>
 
           <!-- Branch List -->
-          <div class="overflow-y-auto max-h-96 p-4">
+          <div class="overflow-y-auto max-h-80 p-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200">
             <div v-if="filteredBranches.length === 0" class="text-center py-12">
               <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -283,19 +293,18 @@
               <p class="text-slate-400 dark:text-slate-500 text-sm mt-1">Try a different search term</p>
             </div>
             
-            <div v-else class="space-y-2">
+            <div v-else class="space-y-2 pr-2">
               <button
                 v-for="branch in filteredBranches"
                 :key="branch"
                 @click="selectBranch(branch)"
                 @keydown.enter="handleBranchKeyDown(branch, $event)"
                 :disabled="!isBranchAccessible(branch)"
-                class="w-full text-left px-4 py-3.5 rounded-xl transition-all duration-200 group"
+                class="w-full text-left px-4 py-3.5 rounded-xl transition-all duration-200 group transform"
                 :class="[
-                  selectedBranch === branch 
-                    ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500 dark:border-blue-400' 
-                    : 'bg-slate-50 dark:bg-slate-700/50 border-2 border-transparent hover:border-slate-300 dark:hover:border-slate-600',
-                  !isBranchAccessible(branch) ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'
+                  isBranchAccessible(branch) 
+                    ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer hover:shadow-lg hover:scale-[1.02] animate-pulse-slow' 
+                    : 'bg-slate-50 dark:bg-slate-700/50 border-2 border-slate-200 dark:border-slate-600 opacity-60 cursor-not-allowed'
                 ]"
               >
                 <div class="flex items-center justify-between">
@@ -335,21 +344,21 @@
                       </p>
                       <p 
                         v-if="!isBranchAccessible(branch)"
-                        class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-0.5"
+                        class="text-xs text-red-500 dark:text-red-400 flex items-center gap-1 mt-0.5 font-medium"
                       >
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
-                        Locked
+                        🔒 Locked
                       </p>
                       <p 
-                        v-else-if="selectedBranch === branch"
-                        class="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-0.5"
+                        v-else
+                        class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5 font-medium"
                       >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                         </svg>
-                        Selected
+                        ✅ Available - Click to access
                       </p>
                     </div>
                   </div>
@@ -369,33 +378,34 @@
           </div>
 
           <!-- Modal Footer -->
-          <div class="border-t border-slate-200 dark:border-slate-700 px-6 py-2 bg-slate-50 dark:bg-slate-800/50">
-            <div class="flex gap-3">
+          <div class="border-t border-slate-200 dark:border-slate-700 px-6 py-4 bg-slate-50 dark:bg-slate-800/50">
+            <div class="text-center">
               <button
                 @click="showBranchModal = false"
-                class="flex-1 px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium text-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                Cancel
+                Close
               </button>
-              <button
-                @click="confirmBranchSelection"
-                :disabled="!selectedBranch"
-                class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Confirm Selection
-              </button>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">
+                💡 Click any accessible state to select automatically
+              </p>
             </div>
           </div>
         </div>
       </div>
     </Transition>
   </div>
-</template><script>
+</template>
+
+<script>
 import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { 
+  ICANBranchService, 
+  ICANUserService, 
+  ICANSeedService
+} from '@/services/ican-firebase.service';
 
 export default defineComponent({
   name: 'HomePage',
@@ -415,20 +425,73 @@ export default defineComponent({
     const isLoadingBranches = ref(false);
     const showBranchModal = ref(false);
     const branchSearchQuery = ref('');
+    
+    // Background images carousel
+    const backgroundImages = [
+      // Students studying accounting
+      "https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2940&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2940&auto=format&fit=crop",
+      
+      // Professional bankers and accountants
+      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2940&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1664575602276-acd073f104c1?q=80&w=2940&auto=format&fit=crop",
+      
+      // Business and finance professionals
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2940&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=2940&auto=format&fit=crop",
+      
+      // Office and workspace
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2940&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop"
+    ];
+    
+    const currentImageIndex = ref(0);
+    let imageIntervalId;
 
     // ====== DEVELOPER CONFIGURATION ======
     // Configure which branches are accessible here
     // Set to true to enable a branch, false to disable
     const branchAccessConfig = {
-      'Minna': true,           // Always accessible
-      'Abuja': false,          // Disabled - shows popup
-      'Lagos': false,          // Disabled - shows popup
-      'Kano': false,           // Disabled - shows popup
-      'Port Harcourt': false,  // Disabled - shows popup
-      'Ibadan': false,         // Disabled - shows popup
-      'Enugu': false,          // Disabled - shows popup
-      'Kaduna': false,         // Disabled - shows popup
-      // Add more branches here as needed
+      // Only Niger State (Minna) is accessible
+      'Niger State': true,           // Only accessible branch
+      
+      // All other Nigerian states and FCT are locked
+      'FCT Abuja State': false,
+      'Abia State': false,
+      'Adamawa State': false,
+      'Akwa Ibom State': false,
+      'Anambra State': false,
+      'Bauchi State': false,
+      'Bayelsa State': false,
+      'Benue State': false,
+      'Borno State': false,
+      'Cross River State': false,
+      'Delta State': false,
+      'Ebonyi State': false,
+      'Edo State': false,
+      'Ekiti State': false,
+      'Enugu State': false,
+      'Gombe State': false,
+      'Imo State': false,
+      'Jigawa State': false,
+      'Kaduna State': false,
+      'Kano State': false,
+      'Katsina State': false,
+      'Kebbi State': false,
+      'Kogi State': false,
+      'Kwara State': false,
+      'Lagos State': false,
+      'Nasarawa State': false,
+      'Ogun State': false,
+      'Ondo State': false,
+      'Osun State': false,
+      'Oyo State': false,
+      'Plateau State': false,
+      'Rivers State': false,
+      'Sokoto State': false,
+      'Taraba State': false,
+      'Yobe State': false,
+      'Zamfara State': false
     };
     // ====================================
 
@@ -449,6 +512,9 @@ export default defineComponent({
     const selectBranch = (branch) => {
       if (isBranchAccessible(branch)) {
         selectedBranch.value = branch;
+        // Auto-confirm selection and close modal
+        showBranchModal.value = false;
+        branchSearchQuery.value = '';
       }
     };
 
@@ -456,6 +522,30 @@ export default defineComponent({
       showBranchModal.value = false;
       branchSearchQuery.value = '';
     };
+
+    // Disable body scroll when modal is open
+    watch(showBranchModal, (isOpen) => {
+      if (isOpen) {
+        // Store current scroll position
+        const scrollY = window.scrollY;
+        // Disable scroll and fix position to prevent background scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.top = `-${scrollY}px`;
+      } else {
+        // Restore scroll and position
+        const scrollY = document.body.style.top;
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+        // Restore scroll position
+        if (scrollY) {
+          window.scrollTo(0, parseInt(scrollY.replace('px', '').replace('-', '')) || 0);
+        }
+      }
+    });
 
     watch(selectedBranch, (newBranch) => {
       email.value = '';
@@ -490,18 +580,26 @@ export default defineComponent({
       errorMessage.value = '';
       statusMessage.value = 'Loading branches...';
       try {
-        const response = await fetch(`${API_BASE}/branches`);
-        if (!response.ok) {
-          throw new Error('Failed to load branches');
+        // Load all branches from Firebase
+        const branchList = await ICANBranchService.getAllBranches();
+        
+        // Only seed if no branches exist (first-time setup)
+        if (branchList.length === 0) {
+          statusMessage.value = 'Initializing branches...';
+          await ICANSeedService.forceReseedAllNigerianStates();
+          const newBranchList = await ICANBranchService.getAllBranches();
+          branches.value = newBranchList.map(branch => branch.name);
+        } else {
+          branches.value = branchList.map(branch => branch.name);
         }
-        const payload = await response.json();
-        branches.value = Array.isArray(payload.data) ? payload.data : [];
+        
         statusMessage.value = '';
+        
         if (branches.value.length === 0) {
           statusMessage.value = 'No branches configured. Contact an administrator.';
         }
       } catch (error) {
-        console.error(error);
+        console.error('Error loading branches:', error);
         errorMessage.value = 'Unable to load branch list. Please try again later.';
         statusMessage.value = '';
       } finally {
@@ -511,6 +609,11 @@ export default defineComponent({
 
     onMounted(() => {
       loadBranches();
+      
+      // Start background image carousel
+      imageIntervalId = window.setInterval(() => {
+        currentImageIndex.value = (currentImageIndex.value + 1) % backgroundImages.length;
+      }, 5000); // Change image every 5 seconds
       
       // Override Ionic's body styles to enable scrolling on all screen sizes
       const body = document.body;
@@ -534,6 +637,14 @@ export default defineComponent({
     });
 
     onUnmounted(() => {
+      // Clear image carousel interval
+      if (imageIntervalId) {
+        clearInterval(imageIntervalId);
+      }
+      
+      // Restore scroll if modal was open when unmounting
+      document.body.style.overflow = '';
+      
       // Restore original Ionic styles when leaving the page
       const body = document.body;
       const html = document.documentElement;
@@ -571,51 +682,87 @@ export default defineComponent({
       isSubmitting.value = true;
 
       try {
-        const response = await fetch(`${API_BASE}/auth/user`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: email.value,
-            password: password.value,
-            branch: selectedBranch.value
-          }),
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error('Incorrect email or password. Please try again.');
-          }
-          throw new Error('Authentication failed. Please try again later.');
+        statusMessage.value = 'Verifying branch access...';
+        
+        // Step 1: Verify branch credentials (branch password)
+        const branch = await ICANBranchService.verifyBranchCredentials(selectedBranch.value, password.value);
+        if (!branch) {
+          throw new Error('Incorrect branch password. Please check with your branch administrator.');
         }
 
-        const data = await response.json();
+        statusMessage.value = 'Checking member registration...';
         
-        // Verify user belongs to selected branch
-        if (data.branch !== selectedBranch.value) {
-          throw new Error(`This account is registered to ${data.branch} branch. Please select the correct branch.`);
+        // Step 2: Check if user exists in this branch
+        let user = await ICANUserService.findUser(email.value, branch.id);
+        
+        if (!user) {
+          // User doesn't exist - this is NOT member registration, just branch access tracking
+          statusMessage.value = 'Setting up branch access...';
+          
+          // Create a basic user record for branch access tracking (NOT a member account)
+          const userId = await ICANUserService.createUser({
+            email: email.value,
+            name: email.value.split('@')[0], // Use email prefix as default name
+            branchId: branch.id,
+            branch: branch.name,
+            role: 'guest', // Use 'guest' role to distinguish from actual members
+            isActive: true,
+            isBranchUser: true, // Flag to indicate this is branch access, not member account
+            isMember: false // Explicitly mark as not a member
+          });
+          
+          user = {
+            id: userId,
+            email: email.value,
+            name: email.value.split('@')[0],
+            branchId: branch.id,
+            branch: branch.name,
+            role: 'guest', // Changed from 'user' to 'guest'
+            createdAt: new Date(),
+            lastLogin: new Date(),
+            isActive: true,
+            isBranchUser: true,
+            isMember: false
+          };
+          
+          statusMessage.value = 'Branch access granted.';
+        } else {
+          // User exists - allow branch access (member status doesn't prevent branch login)
+          statusMessage.value = 'Welcome back!';
+          
+          // Update last login
+          await ICANUserService.updateUser(user.id, {
+            lastLogin: new Date()
+          });
         }
         
         errorMessage.value = '';
         statusMessage.value = '';
 
-        // Store user info in localStorage
+        // Update user's current branch context in Firebase
+        await ICANUserService.updateUser(user.id, {
+          currentBranch: branch.name,
+          currentBranchId: branch.id,
+          lastBranchAccess: new Date()
+        });
+
+        // Store minimal info in localStorage for offline access (branch name stays in Firebase)
         localStorage.setItem('user', JSON.stringify({
-          branch: data.branch,
-          userId: data.userId,
-          name: data.name,
-          email: data.email
+          branch: user.branch || branch.name,
+          userId: user.id,
+          name: user.name,
+          email: user.email,
+          branchId: branch.id
         }));
 
         router.push({
-          name: 'Dashboard',
+          name: 'ican-app-dashboard',
           query: {
-            branch: data.branch,
+            branch: branch.name,
           },
         });
       } catch (error) {
-        console.error(error);
+        console.error('Authentication error:', error);
         errorMessage.value = error.message || 'Authentication failed.';
         statusMessage.value = '';
       } finally {
@@ -625,7 +772,7 @@ export default defineComponent({
 
     const handleSignUp = () => {
       router.push({
-        name: 'SignUp',
+        name: 'ican-app-signup',
         query: {
           branch: selectedBranch.value || ''
         }
@@ -671,15 +818,141 @@ export default defineComponent({
       handleModalEnterKey,
       handleSubmit,
       handleSignUp,
+      backgroundImages,
+      currentImageIndex,
     };
   },
 });
 </script>
 
 <style scoped>
-/* Ensure smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Background Carousel */
+.background-carousel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100dvh;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Mobile: Ensure background covers full viewport */
+@media (max-width: 640px) {
+  .background-carousel {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+  
+  .background-image {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+}
+
+/* Mobile: Disable zoom animation for better performance */
+@media (min-width: 640px) {
+  .background-image {
+    animation: zoom 20s infinite;
+  }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  /* Mobile: Stronger overlay for better text readability */
+  background: linear-gradient(135deg, 
+    rgba(239, 246, 255, 0.88) 0%,
+    rgba(224, 242, 254, 0.85) 25%,
+    rgba(238, 242, 255, 0.88) 50%,
+    rgba(224, 242, 254, 0.85) 75%,
+    rgba(239, 246, 255, 0.88) 100%
+  );
+  z-index: 1;
+}
+
+/* Mobile: Ensure overlay covers full viewport */
+@media (max-width: 640px) {
+  .overlay {
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+  }
+}
+
+/* Desktop: Lighter overlay */
+@media (min-width: 640px) {
+  .overlay {
+    background: linear-gradient(135deg, 
+      rgba(239, 246, 255, 0.75) 0%,
+      rgba(224, 242, 254, 0.70) 25%,
+      rgba(238, 242, 255, 0.75) 50%,
+      rgba(224, 242, 254, 0.70) 75%,
+      rgba(239, 246, 255, 0.75) 100%
+    );
+  }
+}
+
+/* Dark mode overlay */
+.dark .overlay {
+  background: linear-gradient(135deg, 
+    rgba(2, 6, 23, 0.90) 0%,
+    rgba(15, 23, 42, 0.92) 50%,
+    rgba(30, 58, 138, 0.90) 100%
+  );
+}
+
+@media (min-width: 640px) {
+  .dark .overlay {
+    background: linear-gradient(135deg, 
+      rgba(2, 6, 23, 0.85) 0%,
+      rgba(15, 23, 42, 0.88) 50%,
+      rgba(30, 58, 138, 0.85) 100%
+    );
+  }
+}
+
+/* Zoom Animation for background images (Desktop only) */
+@keyframes zoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Fade Transition for image carousel */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* Modal Transitions */

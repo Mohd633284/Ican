@@ -275,8 +275,8 @@
 <script>
 import { defineComponent, computed, ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getMemberActivities } from '@/firebase';
-import { API_BASE } from '../api.js';
+import { getMemberActivities } from '../api-service';
+import { getDashboardData } from '../api-service';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -351,7 +351,13 @@ const TrendCard = defineComponent({
 export default defineComponent({
   name: 'ReportsAnalyticsPage',
   components: { KpiCard, TrendCard, Bar, Line, Doughnut },
-  setup() {
+  props: {
+    branch: {
+      type: String,
+      default: 'ICAN'
+    }
+  },
+  setup(props) {
     const route = useRoute();
     const router = useRouter();
 
@@ -699,9 +705,9 @@ export default defineComponent({
       if (!branchName.value) return;
       loading.value = true;
       try {
-        const response = await fetch(`${API_BASE}/dashboard/${branchName.value}`);
-        if (response.ok) {
-          const { data } = await response.json();
+        const result = await getDashboardData(branchName.value);
+        if (result.success) {
+          const { data } = result;
           activeInvoices.value = data.activeInvoices ?? 0;
           monthlyRevenue.value = (data.monthlyRevenue ?? 0).toLocaleString('en-NG');
           revenueChange.value = data.revenueChange ?? 0;
@@ -777,7 +783,7 @@ export default defineComponent({
     };
 
     const goToDashboard = () => {
-      router.push({ name: 'Dashboard', query: { branch: branchName.value } });
+      router.push({ name: 'ican-app-dashboard', query: { branch: branchName.value } });
     };
 
     const viewRawData = () => {

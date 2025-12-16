@@ -334,7 +334,7 @@ import { computed, defineComponent, reactive, ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 import { useFinanceStore } from '@/stores/finance';
-import { getAllInvoices, getAllReceipts } from '@/firebase/database';
+import { getAllInvoices, getAllReceipts } from '../api-service';
 
 const makeTransaction = (date, name, amount, description, type, id, isCorrected = false, isMistake = false, originalId = null) => ({
   id: id || `${date}-${name}-${amount}-${type}`,
@@ -576,7 +576,7 @@ export default defineComponent({
       }).format(new Date(value));
 
     const handleBack = () => {
-      router.push({ name: 'Dashboard' });
+      router.push({ name: 'ican-app-dashboard' });
     };
 
     return {

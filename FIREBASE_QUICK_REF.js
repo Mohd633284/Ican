@@ -11,7 +11,7 @@
 
 // 📦 NEW IMPORTS ADDED
 // ───────────────────────────────────────────────────────────────
-import { getAllMembers, saveMemberActivity } from '@/firebase';
+import { getAllMembers, saveMemberActivity } from './src/api-service';
 
 
 // 🔧 NEW FUNCTIONS AVAILABLE

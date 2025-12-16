@@ -4,13 +4,18 @@ import SignUp from '../pages/SignUp.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
 import DashboardPage from '../pages/DashboardPage.vue';
 import InvoicePage from '../pages/InvoicePage.vue';
-import ReceiptPage from '../pages/ReceiptPage.vue';
 import StatsPage from '../pages/StatsPage.vue';
-import MemberLoginPage from '../pages/MemberLoginPage.vue';
+
 import SplashScreen from '../pages/SplashScreen.vue';
 import MemberManagementPage from '../pages/MemberManagementPage.vue';
 import ReportsAnalyticsPage from '../pages/ReportsAnalyticsPage.vue';
 import SignaturePage from '../pages/SignaturePage.vue';
+
+// Import saved pages with correct paths - updated paths for InvoiceIcan and ReceiptIcan subdirectories
+// Use lazy loading for saved pages to avoid module resolution issues
+// import SavedIcanInvoicesPage from '../pages/InvoiceIcan/SavedIcanInvoicesPage.vue';
+// import SavedIcanReceiptsPage from '../pages/ReceiptIcan/SavedIcanReceiptsPage.vue';
+import IcanReceipt from '../pages/ReceiptIcan/IcanReceipt.vue';
 
 const routes = [
   {
@@ -32,17 +37,13 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: SettingsPage,
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardPage,
     props: (route) => ({ branch: route.query.branch || '' }),
   },
   {
-    path: '/member-login',
-    name: 'MemberLogin',
-    component: MemberLoginPage,
+    path: '/ican-app/dashboard',
+    name: 'Dashboard',
+    component: DashboardPage,
+    props: (route) => ({ branch: route.query.branch || '' }),
   },
   {
     path: '/invoice',
@@ -53,13 +54,25 @@ const routes = [
   {
     path: '/receipt',
     name: 'Receipt',
-    component: ReceiptPage,
+    component: IcanReceipt,
     meta: { requiresMemberAuth: true }
   },
   {
     path: '/stats',
     name: 'Stats',
     component: StatsPage,
+  },
+  {
+    path: '/ican-app/saved-invoices',
+    name: 'SavedInvoices',
+    component: () => import(/* webpackChunkName: "saved-invoices" */ '../pages/InvoiceIcan/SavedIcanInvoicesPage.vue'),
+    props: (route) => ({ branch: route.query.branch || '' }),
+  },
+  {
+    path: '/ican-app/saved-receipts',
+    name: 'SavedReceipts', 
+    component: () => import(/* webpackChunkName: "saved-receipts" */ '../pages/ReceiptIcan/SavedIcanReceiptsPage.vue'),
+    props: (route) => ({ branch: route.query.branch || '' }),
   },
   {
     path: '/member-management',
@@ -70,13 +83,21 @@ const routes = [
     path: '/reports',
     name: 'Reports',
     component: ReportsAnalyticsPage,
+    props: (route) => ({ branch: route.query.branch || '' }),
   },
   {
     path: '/signature',
     name: 'Signature',
     component: SignaturePage,
-    meta: { requiresMemberAuth: true }
+    meta: { requiresMemberAuth: true },
+    props: (route) => ({ branch: route.query.branch || '' }),
   },
+  // Catch-all route for handling 404s and unknown routes
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: { name: 'Home' }
+  }
 ];
 
 const router = createRouter({
@@ -84,55 +105,9 @@ const router = createRouter({
   routes,
 });
 
-const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports', 'Signature'];
+const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports', 'Signature', 'SavedInvoices', 'SavedReceipts'];
 
 router.beforeEach((to, from, next) => {
-  // Check if route requires member authentication (for Invoice and Receipt)
-  if (to.meta.requiresMemberAuth) {
-    const authenticatedMember = localStorage.getItem('authenticatedMember');
-    if (!authenticatedMember) {
-      // Redirect to member login with target page info
-      next({ 
-        name: 'MemberLogin', 
-        query: { 
-          branch: to.query.branch || from.query.branch || '',
-          page: to.name,
-          returnUrl: to.fullPath
-        } 
-      });
-      return;
-    }
-    // Verify member is authenticated before allowing access
-    try {
-      const memberData = JSON.parse(authenticatedMember);
-      if (!memberData || !memberData.id || !memberData.name) {
-        // Invalid member data, clear and redirect
-        localStorage.removeItem('authenticatedMember');
-        next({ 
-          name: 'MemberLogin', 
-          query: { 
-            branch: to.query.branch || from.query.branch || '',
-            page: to.name,
-            returnUrl: to.fullPath
-          } 
-        });
-        return;
-      }
-    } catch (error) {
-      // Invalid JSON, clear and redirect
-      localStorage.removeItem('authenticatedMember');
-      next({ 
-        name: 'MemberLogin', 
-        query: { 
-          branch: to.query.branch || from.query.branch || '',
-          page: to.name,
-          returnUrl: to.fullPath
-        } 
-      });
-      return;
-    }
-  }
-
   // Check if route requires basic branch access
   if (protectedRoutes.includes(to.name)) {
     const user = localStorage.getItem('user');
@@ -144,6 +119,5 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
-});
 
 export default router;
