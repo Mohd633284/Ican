@@ -98,7 +98,7 @@
         <!-- Back to Dashboard -->
         <div class="mt-8 text-center">
           <button 
-            @click="$router.push({ name: 'ican-app-dashboard', query: { branch: branch } })"
+            @click="$router.push({ name: 'Dashboard', query: { branch: branch } })"
             class="inline-flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

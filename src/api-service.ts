@@ -6,16 +6,13 @@
 import { 
   ICANBranchService, 
   ICANUserService, 
-  ICANInvoiceService, 
-  ICANReceiptService, 
-  ICANStatsService,
-  ICANCounterService,
   ICANSeedService,
+  ICANCounterService,
+  ICANInvoiceService,
+  ICANReceiptService,
   type ICANBranch, 
-  type ICANUser,
-  type ICANInvoice,
-  type ICANReceipt 
-} from '@/services/ican-firebase.service'
+  type ICANUser
+} from './services/ican-service.js'
 
 // ============================================================================
 // LEGACY API COMPATIBILITY LAYER

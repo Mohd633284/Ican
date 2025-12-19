@@ -57,10 +57,10 @@ export default defineComponent({
     const router = useRouter();
 
     onMounted(() => {
-      // Show splash screen for 3 seconds, then redirect to HomePage
+      // Show splash for 2.5 seconds before redirecting
       setTimeout(() => {
-        router.replace({ name: 'ican-app-home' });
-      }, 3000);
+        router.replace({ name: 'Home' });
+      }, 2500);
     });
 
     return {};
@@ -94,6 +94,6 @@ export default defineComponent({
 }
 
 .animate-loading-bar {
-  animation: loadingBar 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: loadingBar 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* Faster animation */
 }
 </style>

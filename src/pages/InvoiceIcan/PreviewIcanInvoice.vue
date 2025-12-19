@@ -975,14 +975,20 @@
           <div class="flex gap-3 items-start">
             <!-- Logo on left side -->
             <div class="flex-shrink-0 flex items-center justify-center">
+              <!-- Debug: Show if logo path is set -->
+              <div v-if="!logoDataUrl" class="text-xs text-red-500 border border-red-300 p-1">
+                No Logo
+              </div>
               <img 
-                :src="logoDataUrl || '/images/ican-logo.png'" 
+                v-if="logoDataUrl"
+                :src="logoDataUrl" 
                 alt="Logo" 
                 class="object-contain" 
                 :style="{ 
                   height: `${logoHeight}px`
                 }"
-                @error="console.warn('Logo failed to load')" 
+                @load="console.log('Logo loaded successfully:', logoDataUrl)"
+                @error="console.error('Logo failed to load:', logoDataUrl); logoDataUrl = null" 
               />
             </div>
             
@@ -1505,8 +1511,8 @@ import jsPDF from 'jspdf';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
 import { getAllSignatures, logActivity } from '../../api-service';
-import { safeLocalStorage } from '@/utils/storage.utils.ts';
-import { withFirebaseErrorHandling } from '@/utils/firebase-error-handler';
+import { safeLocalStorage } from '@/utils/storage.utils.js';
+import { withFirebaseErrorHandling } from '@/utils/firebase-error-handler.js';
 
 export default defineComponent({
   name: 'InvoicePreviewPage',
@@ -2537,7 +2543,7 @@ export default defineComponent({
     const pageData = ref({});
     
     // Global/shared fields (same for all pages)
-    const logoDataUrl = ref('/src/views/micro-apps/Ican/public/images/ican-logo.png');
+    const logoDataUrl = ref('/images/ican-logo.png');
     const organizationName = ref('The Institute of Chartered Accountants of Nigeria (ICAN)');
     const organizationSubName = ref('Established by Act of Parliament No. 15 of (1965)');
     const organizationReceiptSubName = ref('Minna and District Society');
@@ -6315,8 +6321,9 @@ export default defineComponent({
               pixelRatio: 3,
               cacheBust: true,
               backgroundColor: cmykToRgbCss(cmykColors.white.c, cmykColors.white.m, cmykColors.white.y, cmykColors.white.k),
-              skipFonts: false,
-              fontEmbedCSS: null
+              skipFonts: true, // Skip font embedding to avoid CORS issues
+              fontEmbedCSS: '',
+              allowTaint: true
             });
             
             // Store download info
@@ -6354,8 +6361,9 @@ export default defineComponent({
             pixelRatio: 3,
             cacheBust: true,
             backgroundColor: cmykToRgbCss(cmykColors.white.c, cmykColors.white.m, cmykColors.white.y, cmykColors.white.k),
-            skipFonts: false,
-            fontEmbedCSS: null
+            skipFonts: true, // Skip font embedding to avoid CORS issues
+            fontEmbedCSS: '',
+            allowTaint: true
           });
           
           // Create download link with custom filename

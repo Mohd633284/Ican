@@ -3,7 +3,7 @@ import HomePage from '../pages/HomePage.vue';
 import SignUp from '../pages/SignUp.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
 import DashboardPage from '../pages/DashboardPage.vue';
-import InvoicePage from '../pages/InvoicePage.vue';
+import IcanInvoice from '../pages/InvoiceIcan/IcanInvoice.vue';
 import StatsPage from '../pages/StatsPage.vue';
 
 import SplashScreen from '../pages/SplashScreen.vue';
@@ -16,11 +16,17 @@ import SignaturePage from '../pages/SignaturePage.vue';
 // import SavedIcanInvoicesPage from '../pages/InvoiceIcan/SavedIcanInvoicesPage.vue';
 // import SavedIcanReceiptsPage from '../pages/ReceiptIcan/SavedIcanReceiptsPage.vue';
 import IcanReceipt from '../pages/ReceiptIcan/IcanReceipt.vue';
+import PreviewIcanInvoice from '../pages/InvoiceIcan/PreviewIcanInvoice.vue';
+import PreviewIcanReceipt from '../pages/ReceiptIcan/PreviewIcanReceipt.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'Splash',
+    redirect: '/splash', // Redirect to splash screen on initial load
+  },
+  {
+    path: '/splash',
+    name: 'Splash', 
     component: SplashScreen,
   },
   {
@@ -48,14 +54,42 @@ const routes = [
   {
     path: '/invoice',
     name: 'Invoice',
-    component: InvoicePage,
+    component: IcanInvoice,
     meta: { requiresMemberAuth: true }
+  },
+  {
+    path: '/ican-app/invoice-quickfill',
+    name: 'ican-app-invoice-quickfill',
+    component: IcanInvoice,
+    meta: { requiresMemberAuth: true },
+    props: (route) => ({ branch: route.query.branch || '' }),
+  },
+  {
+    path: '/ican-app/invoice-preview',
+    name: 'ican-app-invoice-preview',
+    component: PreviewIcanInvoice,
+    meta: { requiresMemberAuth: true },
+    props: (route) => ({ branch: route.query.branch || '' }),
   },
   {
     path: '/receipt',
     name: 'Receipt',
     component: IcanReceipt,
     meta: { requiresMemberAuth: true }
+  },
+  {
+    path: '/ican-app/receipt-quickfill',
+    name: 'ican-app-receipt-quickfill',
+    component: IcanReceipt,
+    meta: { requiresMemberAuth: true },
+    props: (route) => ({ branch: route.query.branch || '' }),
+  },
+  {
+    path: '/ican-app/receipt-preview',
+    name: 'ican-app-receipt-preview',
+    component: PreviewIcanReceipt,
+    meta: { requiresMemberAuth: true },
+    props: (route) => ({ branch: route.query.branch || '' }),
   },
   {
     path: '/stats',
@@ -92,6 +126,13 @@ const routes = [
     meta: { requiresMemberAuth: true },
     props: (route) => ({ branch: route.query.branch || '' }),
   },
+  {
+    path: '/ican-app/signature',
+    name: 'ican-app-signature',
+    component: SignaturePage,
+    meta: { requiresMemberAuth: true },
+    props: (route) => ({ branch: route.query.branch || '' }),
+  },
   // Catch-all route for handling 404s and unknown routes
   {
     path: '/:pathMatch(.*)*',
@@ -105,7 +146,7 @@ const router = createRouter({
   routes,
 });
 
-const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports', 'Signature', 'SavedInvoices', 'SavedReceipts'];
+const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports', 'Signature', 'SavedInvoices', 'SavedReceipts', 'ican-app-invoice-preview', 'ican-app-receipt-preview', 'ican-app-signature'];
 
 router.beforeEach((to, from, next) => {
   // Check if route requires basic branch access
@@ -119,5 +160,6 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
+});
 
 export default router;

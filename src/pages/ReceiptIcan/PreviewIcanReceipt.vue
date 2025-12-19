@@ -854,17 +854,23 @@
          <!-- Header -->
         <div class="text-center flex-shrink-0" :style="{ marginBottom: '0.02in' }">
           <!-- Layout with Logo -->
-          <div v-if="logoDataUrl" class="flex ml-3 gap-3 items-start">
+          <div class="flex ml-3 gap-3 items-start">
             <!-- Logo on left side -->
             <div class="flex-shrink-0 flex items-center justify-center">
+              <!-- Debug: Show if logo path is set -->
+              <div v-if="!logoDataUrl" class="text-xs text-red-500 border border-red-300 p-1">
+                No Logo
+              </div>
               <img 
+                v-if="logoDataUrl"
                 :src="logoDataUrl" 
                 alt="Logo" 
                 class="object-contain" 
                 :style="{ 
                   height: `${logoHeight}px`
                 }"
-                @error="logoDataUrl = null" 
+                @load="console.log('Logo loaded successfully:', logoDataUrl)"
+                @error="console.error('Logo failed to load:', logoDataUrl); logoDataUrl = null" 
               />
             </div>
             
@@ -1064,11 +1070,13 @@
               class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
               style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
             />
-            <span class="font-medium" style="font-size: 14px;">Naira</span>
-            <div class="w-14 bg-transparent border-b-2 border-solid border-black flex items-center justify-center text-center">
-              <span class="font-medium" style="font-size: 14px;">Only</span>
+            <div class="flex items-center gap-1 pt-3">
+              <span class="font-medium" style="font-size: 14px;">Naira</span>
+            <div class="w-14 bg-transparent  border-b-2 border-solid border-black flex items-center justify-center text-center">
+              <span class="font-medium " style="font-size: 14px;"></span>
             </div>
             <span class="font-medium" style="font-size: 14px;">Kobo</span>
+            </div>
           </div>
 
           <div class="flex items-center gap-1 mt-2">
@@ -1159,8 +1167,8 @@ import jsPDF from 'jspdf';
 import html2pdf from 'html2pdf.js';
 import * as htmlToImage from 'html-to-image';
 import { getAllSignatures, logActivity } from '../../api-service';
-import { safeLocalStorage } from '@/utils/storage.utils.ts';
-import { withFirebaseErrorHandling } from '@/utils/firebase-error-handler';
+import { safeLocalStorage } from '@/utils/storage.utils.js';
+import { withFirebaseErrorHandling } from '@/utils/firebase-error-handler.js';
 
 export default defineComponent({
   name: 'InvoicePreviewPage',
@@ -2244,7 +2252,13 @@ export default defineComponent({
     const pageData = ref({});
     
     // Global/shared fields (same for all pages)
-    const logoDataUrl = ref('/src/views/micro-apps/Ican/public/images/ican-logo.png');
+    const logoDataUrl = ref('/images/ican-logo.png');
+    const fallbackLogoPaths = ref([
+      '/images/ican-logo.png',
+      '/public/images/ican-logo.png',
+      './images/ican-logo.png',
+      'images/ican-logo.png'
+    ]);
     const organizationName = ref('The Institute of Chartered Accountants of Nigeria (ICAN)');
     const organizationSubName = ref('Established by Act of Parliament No. 15 of (1965)');
     const organizationReceiptSubName = ref('Minna and District Society');
@@ -3169,6 +3183,31 @@ export default defineComponent({
         
         // Add visibility change event listener
         document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Verify logo loads correctly with fallback paths
+        const tryLoadLogo = async () => {
+          for (const path of fallbackLogoPaths.value) {
+            try {
+              await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                  console.log('✅ Logo loaded successfully:', path);
+                  logoDataUrl.value = path;
+                  resolve();
+                };
+                img.onerror = () => {
+                  console.warn('⚠️ Logo failed to load:', path);
+                  reject();
+                };
+                img.src = path;
+              });
+              break; // If we get here, the logo loaded successfully
+            } catch (error) {
+              continue; // Try next path
+            }
+          }
+        };
+        tryLoadLogo();
         
         // Auto-fit zoom when component is mounted
         setTimeout(autoFitZoom, 500);
@@ -6043,8 +6082,9 @@ export default defineComponent({
               pixelRatio: 3,
               cacheBust: true,
               backgroundColor: cmykToRgbCss(cmykColors.white.c, cmykColors.white.m, cmykColors.white.y, cmykColors.white.k),
-              skipFonts: false,
-              fontEmbedCSS: null
+              skipFonts: true, // Skip font embedding to avoid CORS issues
+              fontEmbedCSS: '',
+              allowTaint: true
             });
             
             // Store download info
@@ -6082,8 +6122,9 @@ export default defineComponent({
             pixelRatio: 3,
             cacheBust: true,
             backgroundColor: cmykToRgbCss(cmykColors.white.c, cmykColors.white.m, cmykColors.white.y, cmykColors.white.k),
-            skipFonts: false,
-            fontEmbedCSS: null
+            skipFonts: true, // Skip font embedding to avoid CORS issues
+            fontEmbedCSS: '',
+            allowTaint: true
           });
           
           // Create download link with custom filename

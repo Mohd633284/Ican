@@ -576,7 +576,7 @@ export default defineComponent({
       }).format(new Date(value));
 
     const handleBack = () => {
-      router.push({ name: 'ican-app-dashboard' });
+      router.push({ name: 'Dashboard' });
     };
 
     return {

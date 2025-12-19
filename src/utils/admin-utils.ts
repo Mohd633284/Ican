@@ -3,7 +3,7 @@
  * These functions should only be used by administrators
  */
 
-import { ICANUserService } from '@/services/ican-firebase.service'
+import { ICANUserService } from '../services/ican-service.js'
 
 /**
  * Delete all members from all branches

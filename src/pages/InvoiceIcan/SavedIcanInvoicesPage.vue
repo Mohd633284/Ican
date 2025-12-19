@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <button
-              @click="$router.push({ name: 'ican-app-dashboard', query: { branch: currentBranch } })"
+              @click="$router.push({ name: 'Dashboard', query: { branch: currentBranch } })"
               class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors"
               title="Go Back"
             >
@@ -406,10 +406,10 @@ const loadInvoices = async () => {
 
     // Load from Firebase first
     try {
-      const { getAllInvoices } = await import('@/firebase/database')
-      const result = await getAllInvoices(member.branch)
+      const { getInvoices } = await import('@/firebase/database')
+      const result = await getInvoices(member.branch)
       if (result.success) {
-        invoices.value = result.invoices || []
+        invoices.value = result.invoices || result.data || []
       } else {
         console.error('Firebase error:', result.error)
         // Fallback to localStorage

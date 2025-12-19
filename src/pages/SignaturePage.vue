@@ -266,11 +266,11 @@ onMounted(() => {
       console.log('Authenticated member:', authenticatedMember.value);
     } catch (error) {
       console.error('Error parsing authenticated member:', error);
-      alert('⚠️ Authentication error. Please log in again.');
+      // Only show alert if parsing fails, not on successful load
     }
   } else {
     console.warn('No authenticated member found in localStorage');
-    alert('⚠️ Please log in to use signature features.');
+    // Silently continue - the component will handle missing auth gracefully
   }
 
   if (canvas.value) {
@@ -524,7 +524,13 @@ function handleBack() {
     localStorage.removeItem('signatureReturnType');
     router.push(returnPath);
   } else {
-    router.push('/ican-app');
+    // Use browser history to go back to actual previous page
+    if (window.history.length > 1) {
+      router.go(-1);
+    } else {
+      // Fallback if no history available
+      router.push('/ican-app');
+    }
   }
 }
 </script>

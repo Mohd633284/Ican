@@ -1,12 +1,15 @@
 <template>
-  <MainLayout>
-    <router-view />
-  </MainLayout>
+  <div id="app" class="min-h-screen">
+    <MainLayout>
+      <router-view />
+    </MainLayout>
+  </div>
 </template>
 
 <script>
 import { defineComponent, onMounted } from 'vue';
 import MainLayout from './layouts/MainLayout.vue';
+import { SplashScreen } from '@capacitor/splash-screen';
 
 export default defineComponent({
   name: 'App',
@@ -14,11 +17,18 @@ export default defineComponent({
     MainLayout,
   },
   setup() {
-    // Initialize Firebase when app mounts
-    onMounted(() => {
-      console.log('🚀 App initialized');
-      console.log('🔥 Firebase is ready (No authentication required for testing)');
-      console.log('� Using Firestore with open rules for development');
+    onMounted(async () => {
+      console.log('🚀 App component mounted');
+      
+      // Ensure splash screen is hidden
+      setTimeout(async () => {
+        try {
+          await SplashScreen.hide();
+          console.log('✅ Splash screen hidden from App component');
+        } catch (err) {
+          console.log('ℹ️ Splash screen already hidden or not available');
+        }
+      }, 200);
     });
 
     return {};

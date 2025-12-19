@@ -3,6 +3,8 @@ import { createPinia } from 'pinia';
 import { IonicVue } from '@ionic/vue';
 import App from './App.vue';
 import router from './router';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -33,6 +35,28 @@ app.use(IonicVue);
 app.use(router);
 app.use(pinia);
 
-router.isReady().then(() => {
-  app.mount('#app');
-});
+// Simple and direct app initialization
+console.log('🚀 Starting ICAN app...');
+
+const initApp = async () => {
+  try {
+    // Don't show Capacitor splash - let Vue handle it
+    try {
+      await SplashScreen.hide();
+      console.log('✅ Capacitor splash hidden - Vue splash will show');
+    } catch (error) {
+      console.log('ℹ️ Capacitor splash not available');
+    }
+    
+    app.mount('#app');
+    console.log('✅ App mounted successfully');
+    
+  } catch (error) {
+    console.error('❌ App failed to mount:', error);
+    try {
+      await SplashScreen.hide();
+    } catch (e) {}
+  }
+};
+
+initApp();

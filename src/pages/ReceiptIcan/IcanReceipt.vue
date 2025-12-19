@@ -38,6 +38,46 @@
             </div>
           </div>
           
+           <!-- Receipts Dropdown Button -->
+            <div ref="invoiceMenuRef" class="relative">
+                        <button
+                          class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-600 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-800/50 transition-colors"
+                          title="Save or view receipts"
+                          @click="toggleInvoiceMenu"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span>Receipts</span>
+                          <svg class="w-3 h-3 transition-transform" :class="{ 'rotate-180': showInvoiceMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div v-if="showInvoiceMenu" class="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
+                          <button
+                            @click="handleSaveReceipt"
+                            class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-t-lg flex items-center gap-2"
+                          >
+                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Save Current Receipt
+                          </button>
+                          <button
+                            @click="handleViewSavedReceipts"
+                            class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-b-lg flex items-center gap-2"
+                          >
+                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View Saved Receipts
+                          </button>
+                        </div>
+             </div>
+
           <!-- Navigation Buttons -->
           <div class="flex gap-2">
             <button
@@ -51,76 +91,11 @@
               New Receipt
             </button>
           </div>
-        </div>
 
-        <!-- Settings Row -->
-        <div class="mt-2.5 flex justify-between items-center flex-wrap gap-2.5 pt-2.5 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex gap-2.5 flex-wrap">
-            <!-- Receipts Dropdown Button -->
-            <div class="relative">
-              <button
-                class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-600 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-800/50 transition-colors"
-                title="Save or view receipts"
-                @click="toggleInvoiceMenu"
-              >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Receipts</span>
-                <svg class="w-3 h-3 transition-transform" :class="{ 'rotate-180': showInvoiceMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              
-              <!-- Dropdown Menu -->
-              <div v-if="showInvoiceMenu" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
-                <button
-                  @click="handleSaveReceipt"
-                  class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-t-lg flex items-center gap-2"
-                >
-                  <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                  </svg>
-                  Save Current Receipt
-                </button>
-                <button
-                  @click="handleViewSavedReceipts"
-                  class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-b-lg flex items-center gap-2"
-                >
-                  <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  View Saved Receipts
-                </button>
-              </div>
-            </div>
-
-            <!-- Auto Receipt Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Auto Receipt #</span>
-            </label>
-
-            <!-- Auto Date Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="autoDate" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Auto Date</span>
-            </label>
-
-          
-            <!-- Show Page Numbers Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="showPageNumbers" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Show Page #</span>
-              <span v-if="showPageNumbers" class="text-[8px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 py-0.5 rounded">{{ displayPageNumber }}</span>
-            </label>
-          </div>
-          
-          <!-- Multiple Copies Controls -->
+         <!-- Multiple Copies Controls -->
           <div class="flex items-center gap-2.5">
             <!-- Copies Input -->
-            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 rounded p-0.5">
+            <div class="flex items-center gap-1 bg-sla be able te-100 dark:bg-slate-700 rounded p-0.5">
               <span class="text-[10px] font-medium text-slate-700 dark:text-slate-300 px-1">Copies:</span>
               <input
                 v-model.number="totalCopies"
@@ -158,10 +133,59 @@
                   @click="goToNextPage"
                 >
                   <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
               </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <!-- Settings Dropdown Toggle -->
+        <div class="mt-2.5 pt-2.5 border-t border-gray-200 dark:border-gray-700">
+          <button
+            @click="toggleSettingsPanel"
+            class="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          >
+            <svg
+              class="w-4 h-4 transition-transform duration-200"
+              :class="{ 'rotate-180': showSettingsPanel }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <span>{{ showSettingsPanel ? 'Hide Settings' : 'Show Settings' }}</span>
+          </button>
+
+          <!-- Collapsible Settings Panel -->
+          <div
+            v-if="showSettingsPanel"
+            class="mt-2.5 flex justify-between items-center flex-wrap gap-2.5"
+          >
+            <div class="flex gap-2.5 flex-wrap">
+              <!-- Auto Receipt Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Auto Receipt #</span>
+              </label>
+
+              <!-- Auto Date Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="autoDate" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Auto Date</span>
+              </label>
+
+              <!-- Show Page Numbers Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="showPageNumbers" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Show Page #</span>
+                <span v-if="showPageNumbers" class="text-[8px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 py-0.5 rounded">{{ displayPageNumber }}</span>
+              </label>
             </div>
           </div>
         </div>
@@ -175,8 +199,8 @@
             <div>
             <!-- Receipt Details Section -->
             <div class="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 p-3 rounded-lg border border-emerald-200 dark:border-emerald-700">
-              <h3 class="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-3 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 class="text-base font-semibold text-emerald-700 dark:text-emerald-300 mb-3 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 Receipt Information
@@ -185,27 +209,27 @@
               <div class="space-y-2">
                 <!-- Received From -->
                 <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Received From
                   </label>
                   <input
                     v-model="receivedFrom"
                     type="text"
                     placeholder="Enter name of payer"
-                    class="w-full px-2 py-1.5 text-xs border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                   />
                 </div>
 
                  <!-- Amount in Naira -->
                 <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Amount (₦)
                   </label>
                   <input
                     v-model.number="naira"
                     type="number"
                     placeholder="0.00"
-                    class="w-full px-2 py-1.5 text-xs border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     step="0.01"
                     min="0"
                   />
@@ -213,7 +237,7 @@
 
                 <!-- Being Payment for (Line 1) -->
                 <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Being Payment for
                   </label>
                   <input
@@ -221,14 +245,14 @@
                     v-model="paymentFor"
                     type="text"
                     placeholder="Description of payment purpose"
-                    class="w-full px-2 py-1.5 text-xs border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     @input="handlePaymentForOverflow"
                   />
                 </div>
 
                 <!-- Being Payment for (Line 2) -->
                 <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Payment Description - Line 2 (if needed)
                   </label>
                   <input
@@ -236,14 +260,14 @@
                     v-model="paymentFor2"
                     type="text"
                     placeholder="Additional payment details"
-                    class="w-full px-2 py-1.5 text-xs border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     @input="handlePaymentFor2Input"
                   />
                 </div>
 
                 <!-- The Sum of (Line 1) -->
                 <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     The Sum of (Amount in Words - Line 1)
                   </label>
                   <input
@@ -251,14 +275,14 @@
                     v-model="sumOf"
                     type="text"
                     placeholder="e.g., Twenty thousand naira"
-                    class="w-full px-2 py-1.5 text-xs border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     @input="handleSumOfOverflow"
                   />
                 </div>
 
                 <!-- The Sum of (Line 2) -->
                 <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Amount in Words - Line 2 (if needed)
                   </label>
                   <input
@@ -266,7 +290,7 @@
                     v-model="sumOf2"
                     type="text"
                     placeholder="Continuation of amount in words"
-                    class="w-full px-2 py-1.5 text-xs border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                     @input="handleSumOf2Input"
                   />
                 </div>
@@ -276,50 +300,25 @@
             <!-- Divider -->
             <div class="border-t border-gray-300 dark:border-gray-600 my-3"></div>
 
-            <!-- Signatures Section -->
-            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
-              <h3 class="text-sm font-semibold text-purple-700 dark:text-purple-300 flex items-center gap-2 mb-3">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-                Signatures
-              </h3>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-                <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Signature 1</label>
-                  <select
-                    v-model="selectedSignature1"
-                    class="w-full px-2 py-1.5 text-xs border border-purple-300 dark:border-purple-600 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-                    @change="handleSignature1Change"
-                  >
-                    <option value="">None</option>
-                    <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">{{ sig.name }}</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Signature 2</label>
-                  <select
-                    v-model="selectedSignature2"
-                    class="w-full px-2 py-1.5 text-xs border border-purple-300 dark:border-purple-600 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-                    @change="handleSignature2Change"
-                  >
-                    <option value="">None</option>
-                    <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">{{ sig.name }}</option>
-                  </select>
-                </div>
-              </div>
-              
-              <button
-                class="w-full px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors flex items-center justify-center gap-1"
-                @click="handleCreateSignature"
+            <!-- Signatures Section Removed -->
+            <div v-if="false" class="hidden">
+              <select
+                v-model="selectedSignature1"
+                class="hidden"
+                @change="handleSignature1Change"
               >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Create New Signature
-              </button>
+                <option value="">None</option>
+                <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">{{ sig.name }}</option>
+              </select>
+              
+              <select
+                v-model="selectedSignature2"
+                class="hidden"
+                @change="handleSignature2Change"
+              >
+                <option value="">None</option>
+                <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">{{ sig.name }}</option>
+              </select>
             </div>
          
           </div>
@@ -442,6 +441,8 @@ export default defineComponent({
     const invoiceName = ref('');
     const isSaving = ref(false);
     const showInvoiceMenu = ref(false);
+    const showSettingsPanel = ref(false);
+    const invoiceMenuRef = ref(null);
     
     // Form fields
     const organizationName = ref('');
@@ -1235,7 +1236,7 @@ export default defineComponent({
       };
       
       // Use safe localStorage with automatic cleanup and fallback
-      const success = safeLocalStorage.setItem('generateInvoiceFormData', JSON.stringify(formData), { 
+      const success = safeLocalStorage.setItem('generateReceiptFormData', JSON.stringify(formData), { 
         fallbackToMemory: true,
         maxSize: 1 // Limit to 1MB to prevent huge form data
       });
@@ -1247,7 +1248,7 @@ export default defineComponent({
 
     const loadFormData = () => {
       try {
-        const savedData = safeLocalStorage.getItem('generateInvoiceFormData');
+        const savedData = safeLocalStorage.getItem('generateReceiptFormData');
         if (savedData) {
           const formData = JSON.parse(savedData);
           
@@ -1310,6 +1311,8 @@ export default defineComponent({
 
     const handlePreviewClick = async () => {
       try {
+        console.log('🔍 Starting receipt preview preparation...');
+        
         // Force immediate save before navigation
         debouncedSaveFormData(true);
         
@@ -1342,17 +1345,38 @@ export default defineComponent({
           timestamp: Date.now()
         };
         
+        console.log('📦 Receipt preview data prepared');
+        
         // Clear any existing corrupted data first
-        safeLocalStorage.removeItem('invoicePreviewData');
+        try {
+          localStorage.removeItem('invoicePreviewData');
+        } catch (clearError) {
+          console.warn('⚠️ Could not clear old preview data:', clearError);
+        }
         
-        // Save with error handling
-        const serializedData = JSON.stringify(previewData);
-        safeLocalStorage.setItem('invoicePreviewData', serializedData, { fallbackToMemory: true });
-        
-        // Preview data saved successfully
+        // Save with error handling - try multiple methods
+        try {
+          const serializedData = JSON.stringify(previewData);
+          console.log('📝 Serialized data size:', serializedData.length, 'bytes');
+          
+          // Try localStorage first
+          localStorage.setItem('invoicePreviewData', serializedData);
+          console.log('✅ Receipt preview data saved to localStorage');
+        } catch (storageError) {
+          console.error('❌ localStorage failed:', storageError);
+          // Try sessionStorage as fallback
+          try {
+            sessionStorage.setItem('invoicePreviewData', JSON.stringify(previewData));
+            console.log('✅ Receipt preview data saved to sessionStorage (fallback)');
+          } catch (sessionError) {
+            console.error('❌ sessionStorage also failed:', sessionError);
+            throw new Error('Cannot save preview data. Storage might be full.');
+          }
+        }
         
         // Get branch from route query
         const branch = route.query.branch || '';
+        console.log('🌿 Branch for preview:', branch);
         
         // Navigate to ICAN receipt preview page with branch context
         router.push({
@@ -1362,7 +1386,8 @@ export default defineComponent({
         
       } catch (error) {
         console.error('❌ Error preparing preview data:', error);
-        alert('Error preparing preview. Please try again.');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        alert(`Error preparing preview: ${errorMessage}\n\nPlease try:\n1. Reducing form data\n2. Removing uploaded images\n3. Clearing browser data`);
       }
     };
 
@@ -1402,7 +1427,7 @@ export default defineComponent({
         parsedData.value = { organizationName: '', subtitle: '', addresses: [], phones: [], parseMethod: 'none' };
         
         // Clear localStorage
-        localStorage.removeItem('generateInvoiceFormData');
+        localStorage.removeItem('generateReceiptFormData');
         
         alert('✅ Form cleared successfully! Ready for new data.');
       }
@@ -1432,6 +1457,17 @@ export default defineComponent({
     // Save Invoice Functions
     const toggleInvoiceMenu = () => {
       showInvoiceMenu.value = !showInvoiceMenu.value;
+    };
+
+    const toggleSettingsPanel = () => {
+      showSettingsPanel.value = !showSettingsPanel.value;
+    };
+
+    // Handle click outside to close dropdown
+    const handleClickOutside = (event) => {
+      if (invoiceMenuRef.value && !invoiceMenuRef.value.contains(event.target)) {
+        showInvoiceMenu.value = false;
+      }
     };
 
     const handleSaveReceipt = () => {
@@ -1591,11 +1627,11 @@ export default defineComponent({
 
     // Navigation functions
     const viewSavedInvoices = () => {
-      router.push({ name: 'ican-app-saved-invoices', query: route.query });
+      router.push({ name: 'SavedInvoices', query: route.query });
     };
 
     const viewSavedReceipts = () => {
-      router.push({ name: 'ican-app-saved-receipts', query: route.query });
+      router.push({ name: 'SavedReceipts', query: route.query });
     };
 
     // Component lifecycle
@@ -1619,6 +1655,9 @@ export default defineComponent({
     });
 
     onMounted(async () => {
+      // Add click outside listener for dropdown
+      document.addEventListener('click', handleClickOutside);
+      
       // Load shared signature state first
       loadSharedSignatureState();
       
@@ -1630,6 +1669,23 @@ export default defineComponent({
       
       // Ensure page data exists for current page
       ensurePageData(currentPage.value);
+
+      // Handle Android hardware back button
+      const handleAndroidBackButton = async () => {
+        console.log('🔙 Android back button pressed on Receipt page');
+        // Navigate back to dashboard instead of exiting app
+        const branch = route.query.branch || '';
+        router.push({ name: 'Dashboard', query: { branch } });
+      };
+      
+      // Register Android back button listener
+      try {
+        const { App } = await import('@capacitor/app');
+        App.addListener('backButton', handleAndroidBackButton);
+        console.log('✅ Android back button listener registered for Receipt');
+      } catch (error) {
+        console.log('ℹ️ Not running on Android or Capacitor not available:', error);
+      }
 
       // Save data when the user is about to leave the page
       window.addEventListener('beforeunload', saveFormData);
@@ -1667,7 +1723,19 @@ export default defineComponent({
     };
 
     // Cleanup and save before unmount
-    onBeforeUnmount(() => {
+    onBeforeUnmount(async () => {
+      // Remove click outside listener
+      document.removeEventListener('click', handleClickOutside);
+      
+      // Remove Android back button listener
+      try {
+        const { App } = await import('@capacitor/app');
+        App.removeAllListeners();
+        console.log('🧹 Android back button listener removed from Receipt');
+      } catch (error) {
+        console.log('ℹ️ No Capacitor listeners to remove');
+      }
+      
       window.removeEventListener('beforeunload', saveFormData);
       window.removeEventListener('storage', handleStorageChange);
       
@@ -1871,6 +1939,9 @@ export default defineComponent({
       handleSaveReceipt,
       handleViewSavedReceipts,
       showInvoiceMenu,
+      showSettingsPanel,
+      toggleSettingsPanel,
+      invoiceMenuRef,
       showSaveDialog,
       cancelSave,
       saveReceipt,

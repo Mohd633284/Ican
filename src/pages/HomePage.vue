@@ -1,7 +1,19 @@
 <template>
-  <div class="min-h-screen relative overflow-x-hidden">
-    <!-- Background Image Carousel -->
-    <div class="background-carousel">
+  <ion-page>
+    <ion-content :fullscreen="true">
+      <!-- Pull to Refresh -->
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
+        <ion-refresher-content
+          :pulling-icon="chevronDownCircleOutline"
+          pulling-text="Pull to refresh branches"
+          refreshing-spinner="circles"
+          refreshing-text="Reloading...">
+        </ion-refresher-content>
+      </ion-refresher>
+
+      <div class="min-h-screen relative overflow-x-hidden">
+        <!-- Background Image Carousel -->
+        <div class="background-carousel">
       <transition-group name="fade" tag="div">
         <div
           v-for="(image, index) in backgroundImages"
@@ -394,23 +406,31 @@
         </div>
       </div>
     </Transition>
-  </div>
+      </div>
+    </ion-content>
+  </ion-page>
 </template>
 
 <script>
 import { defineComponent, ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import BaseButton from '@/components/BaseButton.vue';
+import { IonPage, IonContent, IonRefresher, IonRefresherContent } from '@ionic/vue';
+import { chevronDownCircleOutline } from 'ionicons/icons';
+import BaseButton from '../components/BaseButton.vue';
 import { 
   ICANBranchService, 
   ICANUserService, 
   ICANSeedService
-} from '@/services/ican-firebase.service';
+} from '../services/ican-service.js';
 
 export default defineComponent({
   name: 'HomePage',
   components: {
     BaseButton,
+    IonPage,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
   },
   setup() {
     const router = useRouter();
@@ -580,15 +600,20 @@ export default defineComponent({
       errorMessage.value = '';
       statusMessage.value = 'Loading branches...';
       try {
+        console.log('🔍 Loading branches from Firebase...');
+        
         // Load all branches from Firebase
         const branchList = await ICANBranchService.getAllBranches();
+        console.log('✅ Branch list loaded:', branchList.length, 'branches');
         
         // Only seed if no branches exist (first-time setup)
         if (branchList.length === 0) {
+          console.log('📌 No branches found, seeding...');
           statusMessage.value = 'Initializing branches...';
           await ICANSeedService.forceReseedAllNigerianStates();
           const newBranchList = await ICANBranchService.getAllBranches();
           branches.value = newBranchList.map(branch => branch.name);
+          console.log('✅ Branches seeded:', branches.value.length);
         } else {
           branches.value = branchList.map(branch => branch.name);
         }
@@ -599,12 +624,28 @@ export default defineComponent({
           statusMessage.value = 'No branches configured. Contact an administrator.';
         }
       } catch (error) {
-        console.error('Error loading branches:', error);
-        errorMessage.value = 'Unable to load branch list. Please try again later.';
+        console.error('❌ Error loading branches:', error);
+        console.error('Error details:', {
+          message: error?.message,
+          code: error?.code,
+          stack: error?.stack
+        });
+        
+        // More detailed error message
+        const errorDetails = error?.message || error?.code || 'Unknown error';
+        errorMessage.value = `Unable to load branch list: ${errorDetails}. Please check your internet connection.`;
         statusMessage.value = '';
       } finally {
         isLoadingBranches.value = false;
       }
+    };
+
+    // Handle pull-to-refresh
+    const handleRefresh = async (event) => {
+      console.log('🔄 Pull-to-refresh: Reloading branches...');
+      branches.value = []; // Clear current branches
+      await loadBranches();
+      event.target.complete();
     };
 
     onMounted(() => {
@@ -682,13 +723,39 @@ export default defineComponent({
       isSubmitting.value = true;
 
       try {
+        statusMessage.value = 'Testing Firebase connection...';
+        
+        console.log('🔍 Debug: Starting authentication for:', {
+          branch: selectedBranch.value,
+          email: email.value,
+          timestamp: new Date().toISOString()
+        });
+
+        // Test Firebase connectivity first
+        const connectionTest = await ICANBranchService.testFirebaseConnection();
+        console.log('🔍 Debug: Firebase connection test:', connectionTest);
+        
+        if (!connectionTest.connected) {
+          throw new Error(`Firebase connection failed: ${connectionTest.error}`);
+        }
+
         statusMessage.value = 'Verifying branch access...';
         
         // Step 1: Verify branch credentials (branch password)
         const branch = await ICANBranchService.verifyBranchCredentials(selectedBranch.value, password.value);
+        
+        console.log('🔍 Debug: Branch verification result:', branch ? 'SUCCESS' : 'FAILED');
+        
         if (!branch) {
+          console.log('🔍 Debug: Branch verification failed - no branch returned');
+          console.log('🔍 Debug: Available branches:', connectionTest.branches);
           throw new Error('Incorrect branch password. Please check with your branch administrator.');
         }
+
+        console.log('🔍 Debug: Branch verified successfully:', {
+          branchId: branch.id,
+          branchName: branch.name
+        });
 
         statusMessage.value = 'Checking member registration...';
         
@@ -756,7 +823,7 @@ export default defineComponent({
         }));
 
         router.push({
-          name: 'ican-app-dashboard',
+          name: 'Dashboard',
           query: {
             branch: branch.name,
           },
@@ -818,8 +885,10 @@ export default defineComponent({
       handleModalEnterKey,
       handleSubmit,
       handleSignUp,
+      handleRefresh,
       backgroundImages,
       currentImageIndex,
+      chevronDownCircleOutline,
     };
   },
 });

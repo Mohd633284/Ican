@@ -1,13 +1,25 @@
 <template>
-  <div class="h-screen overflow-y-auto bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900 py-10">
-    <!-- Background Pattern -->
-    <div class="fixed inset-0 opacity-5 pointer-events-none">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(16,185,129,0.3),_transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(6,182,212,0.2),_transparent_50%)]"></div>
-    </div>
+  <ion-page>
+    <ion-content :fullscreen="true">
+      <!-- Pull to Refresh -->
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
+        <ion-refresher-content
+          :pulling-icon="chevronDownCircleOutline"
+          pulling-text="Pull to refresh"
+          refreshing-spinner="circles"
+          refreshing-text="Refreshing...">
+        </ion-refresher-content>
+      </ion-refresher>
 
-    <!-- Main Content -->
-    <div class="relative min-h-full py-8 px-4 sm:px-6 lg:px-8">
+      <div class="h-full overflow-y-auto bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-900 py-10">
+        <!-- Background Pattern -->
+        <div class="fixed inset-0 opacity-5 pointer-events-none">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(16,185,129,0.3),_transparent_50%)]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(6,182,212,0.2),_transparent_50%)]"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="relative min-h-full py-8 px-4 sm:px-6 lg:px-8">
       <!-- Header Section -->
       <div class="max-w-7xl mx-auto mb-8">
         <div class="text-center mb-8 relative">
@@ -272,12 +284,16 @@
         </BaseButton>
       </div>
     </div>
-  </div>
+    </div>
+    </ion-content>
+  </ion-page>
 </template>
 
 <script>
 import { defineComponent, computed, ref, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { IonPage, IonContent, IonRefresher, IonRefresherContent } from '@ionic/vue';
+import { chevronDownCircleOutline } from 'ionicons/icons';
 import BaseButton from '@/components/BaseButton.vue';
 import { getDashboardData, getAllMembers, getActivities, getAllInvoices, getAllReceipts } from '../api-service';
 
@@ -285,6 +301,10 @@ export default defineComponent({
   name: 'DashboardPage',
   components: {
     BaseButton,
+    IonPage,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
   },
   setup() {
     const route = useRoute();
@@ -306,7 +326,17 @@ export default defineComponent({
       return branch ? `${branch}` : 'ICAN Member';
     });
 
-    const branchName = computed(() => route.query.branch || '');
+    const branchName = computed(() => {
+      // Try to get branch from route query first, then fallback to localStorage
+      const routeBranch = route.query.branch;
+      if (routeBranch) {
+        // Save to localStorage for future reference
+        localStorage.setItem('currentBranch', routeBranch);
+        return routeBranch;
+      }
+      // Fallback to localStorage
+      return localStorage.getItem('currentBranch') || '';
+    });
 
     // Computed property for displaying limited activities
     const displayedActivities = computed(() => {
@@ -410,6 +440,11 @@ export default defineComponent({
     };
 
     onMounted(async () => {
+      // Persist branch to localStorage when dashboard loads
+      if (branchName.value) {
+        localStorage.setItem('currentBranch', branchName.value);
+      }
+      
       // Load stats first, then activities to avoid simultaneous Firebase calls
       await fetchBranchStats();
       loadActivities();
@@ -528,6 +563,12 @@ export default defineComponent({
       loadActivities();
     };
 
+    // Handle pull-to-refresh
+    const handleRefresh = async (event) => {
+      console.log('🔄 Pull-to-refresh triggered...');
+      await refreshDashboard();
+      event.target.complete();
+    };
 
 
     const formatTimeAgo = (timestamp) => {
@@ -564,11 +605,15 @@ export default defineComponent({
     };
 
     const handleCreateInvoice = () => {
-      router.push({ name: 'ican-app-invoice-ican', query: { branch: branchName.value } });
+      // Persist branch to localStorage
+      localStorage.setItem('currentBranch', branchName.value);
+      router.push({ name: 'Invoice', query: { branch: branchName.value } });
     };
 
     const handleCreateReceipt = () => {
-      router.push({ name: 'ican-app-receipt', query: { branch: branchName.value } });
+      // Persist branch to localStorage
+      localStorage.setItem('currentBranch', branchName.value);
+      router.push({ name: 'Receipt', query: { branch: branchName.value } });
     };
 
     const handleViewStats = () => {
@@ -586,41 +631,27 @@ export default defineComponent({
     };
 
     const handleReports = () => {
-      try {
-        router.push({ name: 'ican-app-reports', query: { branch: branchName.value } });
-      } catch (error) {
-        console.error('Error navigating to Reports:', error);
-        router.push('/ican-app/reports');
-      }
+      // Persist branch to localStorage
+      localStorage.setItem('currentBranch', branchName.value);
+      router.push({ name: 'Reports', query: { branch: branchName.value } });
     };
 
     const handleSignature = () => {
-      try {
-        router.push('/ican-app/signature');
-      } catch (error) {
-        console.error('Error navigating to Signature:', error);
-        router.push('/ican-app/signature');
-      }
+      // Persist branch to localStorage
+      localStorage.setItem('currentBranch', branchName.value);
+      router.push({ name: 'Signature', query: { branch: branchName.value } });
     };
 
     const handleSavedInvoices = () => {
-      try {
-        router.push({ name: 'ican-app-saved-invoices', query: { branch: branchName.value } });
-      } catch (error) {
-        console.error('Error navigating to Saved Invoices:', error);
-        // Fallback: try direct path navigation
-        router.push('/ican-app/saved-invoices');
-      }
+      // Persist branch to localStorage
+      localStorage.setItem('currentBranch', branchName.value);
+      router.push({ name: 'SavedInvoices', query: { branch: branchName.value } });
     };
 
     const handleSavedReceipts = () => {
-      try {
-        router.push({ name: 'ican-app-saved-receipts', query: { branch: branchName.value } });
-      } catch (error) {
-        console.error('Error navigating to Saved Receipts:', error);
-        // Fallback: try direct path navigation
-        router.push('/ican-app/saved-receipts');
-      }
+      // Persist branch to localStorage
+      localStorage.setItem('currentBranch', branchName.value);
+      router.push({ name: 'SavedReceipts', query: { branch: branchName.value } });
     };
 
     return {
@@ -646,8 +677,10 @@ export default defineComponent({
       handleSavedInvoices,
       handleSavedReceipts,
       refreshDashboard,
+      handleRefresh,
       formatTimeAgo,
       getActivityIconClass,
+      chevronDownCircleOutline,
     };
   },
 });

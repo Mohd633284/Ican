@@ -1,15 +1,15 @@
 <template>
-  <div class="h-screen overflow-y-auto bg-gradient-to-br from-slate-50 via-sky-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900">
+  <div class="h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-br from-slate-50 via-sky-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900">
     <!-- Background accents -->
     <div class="fixed inset-0 opacity-5 pointer-events-none">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,_rgba(56,189,248,0.25),_transparent_55%)]"></div>
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,_rgba(16,185,129,0.2),_transparent_55%)]"></div>
     </div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-20">
+    <div class="relative w-full max-w-full lg:max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8 lg:py-12 pb-20">
       <!-- Page header -->
-      <header class="mb-10">
-        <div class="flex items-center justify-between flex-wrap gap-4">
+      <header class="mb-6 sm:mb-8 lg:mb-10">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-100/80 dark:bg-sky-900/30 text-sm font-semibold text-sky-700 dark:text-sky-300">
               <span class="h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>
@@ -20,10 +20,10 @@
               Monitor financial performance, member activity, and operational trends for the {{ branchLabel }} branch.
             </p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <select
               v-model="selectedRange"
-              class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
@@ -31,21 +31,22 @@
             </select>
             <button
               @click="refreshData"
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
             >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Refresh
+              <span class="hidden sm:inline">Refresh</span>
             </button>
             <button
               @click="exportReport"
-              class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-lg shadow-sky-600/20 transition"
+              class="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-5 py-2 text-sm sm:text-base rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-lg shadow-sky-600/20 transition"
             >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m0 0l-3-3m3 3l3-3m-6 6h6a2 2 0 002-2V6a2 2 0 00-2-2h-3.5l-1.5-1.5A1.5 1.5 0 0010 2H6a2 2 0 00-2 2v12a2 2 0 002 2h3" />
               </svg>
-              Export Summary
+              <span class="hidden sm:inline">Export</span>
+              <span class="sm:hidden">Export</span>
             </button>
           </div>
         </div>
@@ -783,7 +784,7 @@ export default defineComponent({
     };
 
     const goToDashboard = () => {
-      router.push({ name: 'ican-app-dashboard', query: { branch: branchName.value } });
+      router.push({ name: 'Dashboard', query: { branch: branchName.value } });
     };
 
     const viewRawData = () => {

@@ -18,7 +18,7 @@
           <button
             class="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
             title="Go Back to Dashboard"
-            @click="$router.push({ name: 'ican-app-dashboard', query: $route.query })"
+            @click="$router.push({ name: 'Dashboard', query: $route.query })"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -38,25 +38,7 @@
             </div>
           </div>
           
-          <!-- Navigation Buttons -->
-          <div class="flex gap-2">
-            <button
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm"
-              title="Create a new invoice"
-              @click="createNewInvoice"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              New Invoice
-            </button>
-          </div>
-        </div>
-
-        <!-- Settings Row -->
-        <div class="mt-2.5 flex justify-between items-center flex-wrap gap-2.5 pt-2.5 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex gap-2.5 flex-wrap">
-            <!-- Invoices Dropdown Button -->
+           <!-- Invoices Dropdown Button -->
             <div class="relative">
               <button
                 class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-lg border border-blue-300 dark:border-blue-600 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors"
@@ -73,7 +55,7 @@
               </button>
               
               <!-- Dropdown Menu -->
-              <div v-if="showInvoiceMenu" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
+              <div v-if="showInvoiceMenu" class="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
                 <button
                   @click="handleSaveInvoice"
                   class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-t-lg flex items-center gap-2"
@@ -96,32 +78,21 @@
               </div>
             </div>
 
-            <!-- Auto Receipt Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Auto Receipt #</span>
-            </label>
-
-            <!-- Auto Date Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="autoDate" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Auto Date</span>
-            </label>
-
-            <!-- Tax Enable Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="taxEnabled" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Enable Tax</span>
-            </label>
-
-            <!-- Show Page Numbers Toggle -->
-            <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <input type="checkbox" v-model="showPageNumbers" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
-              <span>Show Page #</span>
-              <span v-if="showPageNumbers" class="text-[8px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 py-0.5 rounded">{{ displayPageNumber }}</span>
-            </label>
+            
+          <!-- Navigation Buttons -->
+          <div class="flex gap-2">
+            <button
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm"
+              title="Create a new invoice"
+              @click="createNewInvoice"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              New Invoice
+            </button>
           </div>
-          
+
           <!-- Multiple Copies Controls -->
           <div class="flex items-center gap-2.5">
             <!-- Copies Input -->
@@ -167,6 +138,59 @@
                   </svg>
                 </button>
               </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Settings Dropdown Toggle -->
+        <div class="mt-2.5 pt-2.5 border-t border-gray-200 dark:border-gray-700">
+          <button
+            @click="toggleSettingsPanel"
+            class="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          >
+            <svg
+              class="w-4 h-4 transition-transform duration-200"
+              :class="{ 'rotate-180': showSettingsPanel }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <span>{{ showSettingsPanel ? 'Hide Settings' : 'Show Settings' }}</span>
+          </button>
+
+          <!-- Collapsible Settings Panel -->
+          <div
+            v-if="showSettingsPanel"
+            class="mt-2.5 flex justify-between items-center flex-wrap gap-2.5"
+          >
+            <div class="flex gap-2.5 flex-wrap">
+              <!-- Auto Receipt Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="autoReceiptNumber" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Auto Receipt #</span>
+              </label>
+
+              <!-- Auto Date Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="autoDate" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Auto Date</span>
+              </label>
+
+              <!-- Tax Enable Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="taxEnabled" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Enable Tax</span>
+              </label>
+
+              <!-- Show Page Numbers Toggle -->
+              <label class="flex items-center gap-1.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+                <input type="checkbox" v-model="showPageNumbers" class="rounded border-gray-300 cursor-pointer accent-emerald-600" />
+                <span>Show Page #</span>
+                <span v-if="showPageNumbers" class="text-[8px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1 py-0.5 rounded">{{ displayPageNumber }}</span>
+              </label>
             </div>
           </div>
         </div>
@@ -236,7 +260,7 @@
                     </div>
 
                     <!-- Tax -->
-                    <div>
+                    <div v-if="taxEnabled">
                       <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Tax (%)
                       </label>
@@ -291,22 +315,10 @@
                      Add Item
                 </button>
               </div>
-
-              <!-- Subtotal Display -->
-              <div class="mt-3 bg-gray-50 dark:bg-slate-800 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg">
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Subtotal:</span>
-                  <span class="text-lg font-bold text-slate-900 dark:text-white">{{ toCurrency(subtotal) }}</span>
-                </div>
-              </div>
-
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                Press Enter in description field to quickly add a new item. Maximum {{ MAX_ITEMS }} items allowed.
-              </p>
             </div>
   
             <!-- Tax Settings -->
-            <div class="md:col-span-2 flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+            <div v-if="taxEnabled" class="md:col-span-2 flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
@@ -316,7 +328,7 @@
                 <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Enable Tax</span>
               </label>
               
-              <div v-if="taxEnabled" class="flex items-center gap-2 flex-1">
+              <div class="flex items-center gap-2 flex-1">
                 <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Tax Rate (%):
                 </label>
@@ -332,108 +344,6 @@
                   (Tax: {{ toCurrency(taxAmount) }})
                 </span>
               </div>
-            </div>
-  
-            <!-- Amount in Words -->
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Amount in Words (Auto-generated)
-              </label>
-              <div class="grid grid-cols-1 gap-2">
-                <input
-                  ref="sumOfInput1"
-                  v-model="sumOf"
-                  type="text"
-                  placeholder="Line 1"
-                  @input="handleSumOfOverflow"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
-                />
-                <input
-                  ref="sumOfInput2"
-                  v-model="sumOf2"
-                  type="text"
-                  placeholder="Line 2 (overflow)"
-                  @input="handleSumOf2Input"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white"
-                />
-              </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Automatically filled based on total amount
-              </p>
-            </div>
-
-            <!-- Signature Selection -->
-            <div class="md:col-span-2 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-semibold text-purple-900 dark:text-purple-300 flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  Digital Signatures
-                </h3>
-                <button
-                  @click="handleCreateSignature"
-                  class="text-xs px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition-colors flex items-center gap-1"
-                >
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Create New Signature
-                </button>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Signature 1 Selector -->
-                <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Signature 1 (Left)
-                  </label>
-                  <select
-                    v-model="selectedSignature1"
-                    @change="handleSignature1Change"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
-                  >
-                    <option value="">No signature</option>
-                    <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">
-                      {{ sig.name }}{{ sig.isPrimary ? ' (Primary)' : '' }}
-                    </option>
-                  </select>
-                  
-                  <!-- Preview Signature 1 -->
-                  <div v-if="signatureImage1" class="mt-2 p-2 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-gray-600">
-                    <img :src="signatureImage1" alt="Signature 1 Preview" class="h-12 w-full object-contain" />
-                  </div>
-                </div>
-
-                <!-- Signature 2 Selector -->
-                <div>
-                  <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Signature 2 (Right)
-                  </label>
-                  <select
-                    v-model="selectedSignature2"
-                    @change="handleSignature2Change"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
-                  >
-                    <option value="">No signature</option>
-                    <option v-for="sig in savedSignatures" :key="sig.id" :value="sig.id">
-                      {{ sig.name }}{{ sig.isPrimary ? ' (Primary)' : '' }}
-                    </option>
-                  </select>
-                  
-                  <!-- Preview Signature 2 -->
-                  <div v-if="signatureImage2" class="mt-2 p-2 bg-white dark:bg-slate-800 rounded border border-gray-200 dark:border-gray-600">
-                    <img :src="signatureImage2" alt="Signature 2 Preview" class="h-12 w-full object-contain" />
-                  </div>
-                </div>
-              </div>
-
-              <p class="text-xs text-purple-700 dark:text-purple-300 mt-3 flex items-start gap-1">
-                <svg class="w-3 h-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Select signatures from your saved signatures or create new ones. Signatures will appear at the bottom of the invoice.</span>
-              </p>
             </div>
           </div>
   
@@ -555,6 +465,7 @@ export default defineComponent({
     const invoiceName = ref('');
     const isSaving = ref(false);
     const showInvoiceMenu = ref(false);
+    const showSettingsPanel = ref(false);
     
     // Form fields
     const organizationName = ref('');
@@ -1247,8 +1158,16 @@ export default defineComponent({
 
     const handlePreviewClick = async () => {
       try {
+        console.log('🔍 Starting preview preparation...');
+        
         // Force immediate save before navigation
         debouncedSaveFormData(true);
+        
+        // Validate items data
+        if (!items.value || items.value.length === 0) {
+          alert('⚠️ Please add at least one item before previewing.');
+          return;
+        }
         
         // Prepare preview data with items and transaction data
         const previewData = {
@@ -1272,17 +1191,38 @@ export default defineComponent({
           timestamp: Date.now()
         };
         
+        console.log('📦 Preview data prepared:', { itemsCount: previewData.items.length });
+        
         // Clear any existing corrupted data first
-        safeLocalStorage.removeItem('invoicePreviewData');
+        try {
+          localStorage.removeItem('invoicePreviewData');
+        } catch (clearError) {
+          console.warn('⚠️ Could not clear old preview data:', clearError);
+        }
         
-        // Save with error handling
-        const serializedData = JSON.stringify(previewData);
-        safeLocalStorage.setItem('invoicePreviewData', serializedData, { fallbackToMemory: true });
-        
-        // Preview data saved successfully
+        // Save with error handling - try multiple methods
+        try {
+          const serializedData = JSON.stringify(previewData);
+          console.log('📝 Serialized data size:', serializedData.length, 'bytes');
+          
+          // Try localStorage first
+          localStorage.setItem('invoicePreviewData', serializedData);
+          console.log('✅ Preview data saved to localStorage');
+        } catch (storageError) {
+          console.error('❌ localStorage failed:', storageError);
+          // Try sessionStorage as fallback
+          try {
+            sessionStorage.setItem('invoicePreviewData', JSON.stringify(previewData));
+            console.log('✅ Preview data saved to sessionStorage (fallback)');
+          } catch (sessionError) {
+            console.error('❌ sessionStorage also failed:', sessionError);
+            throw new Error('Cannot save preview data. Storage might be full.');
+          }
+        }
         
         // Get branch from route query
         const branch = route.query.branch || '';
+        console.log('🌿 Branch for preview:', branch);
         
         // Navigate to ICAN preview page with branch context
         router.push({
@@ -1292,7 +1232,8 @@ export default defineComponent({
         
       } catch (error) {
         console.error('❌ Error preparing preview data:', error);
-        alert('Error preparing preview. Please try again.');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        alert(`Error preparing preview: ${errorMessage}\n\nPlease try:\n1. Reducing the number of items\n2. Removing uploaded images\n3. Clearing browser data`);
       }
     };
 
@@ -1362,6 +1303,10 @@ export default defineComponent({
     // Save Invoice Functions
     const toggleInvoiceMenu = () => {
       showInvoiceMenu.value = !showInvoiceMenu.value;
+    };
+
+    const toggleSettingsPanel = () => {
+      showSettingsPanel.value = !showSettingsPanel.value;
     };
 
     const handleSaveInvoice = () => {
@@ -1479,7 +1424,7 @@ export default defineComponent({
 
     // Navigation functions
     const viewSavedInvoices = () => {
-      router.push({ name: 'ican-app-saved-invoices', query: route.query });
+      router.push({ name: 'SavedInvoices', query: route.query });
     };
 
     // Component lifecycle
@@ -1511,6 +1456,23 @@ export default defineComponent({
       
       // Load signatures from Firebase
       await loadSignatures();
+
+      // Handle Android hardware back button
+      const handleAndroidBackButton = async () => {
+        console.log('🔙 Android back button pressed');
+        // Navigate back to dashboard instead of exiting app
+        const branch = route.query.branch || '';
+        router.push({ name: 'Dashboard', query: { branch } });
+      };
+      
+      // Register Android back button listener
+      try {
+        const { App } = await import('@capacitor/app');
+        App.addListener('backButton', handleAndroidBackButton);
+        console.log('✅ Android back button listener registered');
+      } catch (error) {
+        console.log('ℹ️ Not running on Android or Capacitor not available:', error);
+      }
 
       // Save data when the user is about to leave the page
       window.addEventListener('beforeunload', saveFormData);
@@ -1728,9 +1690,11 @@ export default defineComponent({
       loadFormData,
       viewSavedInvoices,
       toggleInvoiceMenu,
+      toggleSettingsPanel,
       handleSaveInvoice,
       handleViewSavedInvoices,
       showInvoiceMenu,
+      showSettingsPanel,
       showSaveDialog,
       cancelSave,
       saveInvoice,
