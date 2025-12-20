@@ -1,38 +1,80 @@
 /**
- * ICAN Service - Standalone Implementation
- * Provides offline-capable services using LocalStorage
- * Replaces the dependency on the parent project for standalone builds
+ * ICAN Service - Firebase Integration
+ * Uses main SmartDesignPro Firebase for authentication and data storage
+ * ENFORCES ONLINE-ONLY ACCESS - No offline mode allowed
  */
 
-const STORAGE_KEYS = {
+// Import from MAIN SmartDesignPro Firebase config
+// Using relative path from ICAN services to main config
+import { db, auth } from '../../../../../config/firebase'
+import { 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  setDoc, 
+  updateDoc, 
+  query, 
+  where,
+  orderBy,
+  limit as firestoreLimit,
+  addDoc,
+  serverTimestamp
+} from 'firebase/firestore'
+
+// Firestore collections - prefixed with 'ican_' to separate from main SmartDesignPro data
+const COLLECTIONS = {
   BRANCHES: 'ican_branches',
   USERS: 'ican_users',
   INVOICES: 'ican_invoices',
   RECEIPTS: 'ican_receipts',
   COUNTERS: 'ican_counters',
-  SIGNATURES: 'ican_signatures'
+  SIGNATURES: 'ican_signatures',
+  ACTIVITIES: 'ican_activities' // New collection for activity tracking
 };
+
+console.log('✅ ICAN Service using MAIN SmartDesignPro Firebase');
+console.log('📦 Firebase DB:', db ? 'Connected' : 'Not initialized');
+console.log('🔐 Firebase Auth:', auth ? 'Available' : 'Not initialized');
+
+// Validate Firebase initialization
+if (!db) {
+  console.error('❌ CRITICAL: Firebase DB not initialized! Check main Firebase config at src/config/firebase.ts');
+  console.error('Make sure .env file has valid Firebase credentials');
+  throw new Error('Firebase Firestore (db) is not initialized. Please check your Firebase configuration.');
+}
+
+if (!auth) {
+  console.error('❌ CRITICAL: Firebase Auth not initialized! Check main Firebase config at src/config/firebase.ts');
+  throw new Error('Firebase Auth is not initialized. Please check your Firebase configuration.');
+}
 
 // --- Helper Functions ---
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const getStorage = (key, defaultVal = []) => {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultVal;
-  } catch (e) {
-    return defaultVal;
+// Check internet connectivity
+const requireOnline = () => {
+  if (!navigator.onLine) {
+    throw new Error('🔴 No internet connection. ICAN requires an active internet connection to function.');
   }
 };
 
+const getStorage = (key, defaultVal = []) => {
+  // Deprecated - localStorage no longer used for main data
+  console.warn('⚠️ LocalStorage access deprecated. Use Firebase.');
+  return defaultVal;
+};
+
 const setStorage = (key, value) => {
-  localStorage.setItem(key, JSON.stringify(value));
+  // Deprecated - localStorage no longer used for main data
+  console.warn('⚠️ LocalStorage write deprecated. Use Firebase.');
 };
 
 // --- ICAN Seed Service ---
 export const ICANSeedService = {
   async forceReseedAllNigerianStates() {
-    await delay(1000); // Simulate network
+    requireOnline();
+    
     const nigerianStates = [
       "Abia State", "Adamawa State", "Akwa Ibom State", "Anambra State", 
       "Bauchi State", "Bayelsa State", "Benue State", "Borno State", 
@@ -46,21 +88,47 @@ export const ICANSeedService = {
       "Zamfara State"
     ];
 
-    const branches = nigerianStates.map((state, index) => ({
-      id: `branch_${index + 1}`,
-      name: state,
-      location: state,
-      createdAt: new Date().toISOString()
-    }));
-
-    setStorage(STORAGE_KEYS.BRANCHES, branches);
-    console.log('✅ Seeded branches to LocalStorage');
-    return branches;
+    try {
+      const branchesRef = collection(db, COLLECTIONS.BRANCHES);
+      const batch = [];
+      
+      for (let i = 0; i < nigerianStates.length; i++) {
+        const state = nigerianStates[i];
+        const branchId = `branch_${i + 1}`;
+        const branchDoc = doc(db, COLLECTIONS.BRANCHES, branchId);
+        
+        const branchData = {
+          id: branchId,
+          name: state,
+          location: state,
+          password: 'default123', // Default password - should be changed
+          createdAt: serverTimestamp(),
+          isActive: true
+        };
+        
+        batch.push(setDoc(branchDoc, branchData));
+      }
+      
+      await Promise.all(batch);
+      console.log('✅ Seeded branches to Firebase');
+      
+      return nigerianStates.map((state, index) => ({
+        id: `branch_${index + 1}`,
+        name: state,
+        location: state
+      }));
+    } catch (error) {
+      console.error('❌ Error seeding branches:', error);
+      throw new Error('Failed to seed branches to Firebase: ' + error.message);
+    }
   },
 
   async seedDefaultBranches() {
-    const branches = getStorage(STORAGE_KEYS.BRANCHES);
-    if (branches.length === 0) {
+    requireOnline();
+    const branchesRef = collection(db, COLLECTIONS.BRANCHES);
+    const snapshot = await getDocs(branchesRef);
+    
+    if (snapshot.empty) {
       return await this.forceReseedAllNigerianStates();
     }
   }
@@ -69,35 +137,53 @@ export const ICANSeedService = {
 // --- ICAN Branch Service ---
 export const ICANBranchService = {
   async getAllBranches() {
-    await delay(800);
-    let branches = getStorage(STORAGE_KEYS.BRANCHES);
+    requireOnline();
     
-    // Auto-seed if empty
-    if (branches.length === 0) {
-      return await ICANSeedService.forceReseedAllNigerianStates();
+    try {
+      const branchesRef = collection(db, COLLECTIONS.BRANCHES);
+      const snapshot = await getDocs(branchesRef);
+      
+      if (snapshot.empty) {
+        console.log('📌 No branches found, seeding...');
+        return await ICANSeedService.forceReseedAllNigerianStates();
+      }
+      
+      const branches = [];
+      snapshot.forEach(doc => {
+        branches.push({ id: doc.id, ...doc.data() });
+      });
+      
+      return branches;
+    } catch (error) {
+      console.error('❌ Error fetching branches:', error);
+      throw new Error('Failed to load branches from Firebase: ' + error.message);
     }
-    return branches;
   },
 
   async testFirebaseConnection() {
-    // For the standalone LocalStorage version, simulate a connection test
-    await delay(500);
+    requireOnline();
+    
     try {
-      const branches = getStorage(STORAGE_KEYS.BRANCHES);
-      const branchNames = branches.map(b => b.name).sort();
+      console.log('🔍 Testing Firebase connection...');
+      const testRef = collection(db, COLLECTIONS.BRANCHES);
+      const snapshot = await getDocs(query(testRef, firestoreLimit(5)));
       
-      console.log('🔍 Testing Firebase connection (LocalStorage mode)...');
-      console.log('🔍 Connection test successful!', { 
-        branchCount: branches.length, 
-        branches: branchNames.slice(0, 5)
+      const branchNames = [];
+      snapshot.forEach(doc => {
+        branchNames.push(doc.data().name);
+      });
+      
+      console.log('✅ Firebase connection successful!', { 
+        branchCount: snapshot.size, 
+        branches: branchNames
       });
       
       return {
         connected: true,
-        branches: branchNames
+        branches: branchNames.sort()
       };
     } catch (error) {
-      console.error('🔍 Connection test failed:', error);
+      console.error('❌ Firebase connection test failed:', error);
       return {
         connected: false,
         branches: [],
@@ -107,185 +193,494 @@ export const ICANBranchService = {
   },
 
   async verifyBranchCredentials(branchName, password) {
-    await delay(1000);
-    // Simulation: Any password longer than 3 chars works for now
-    if (password && password.length >= 3) {
-      const branches = await this.getAllBranches();
-      const branch = branches.find(b => b.name === branchName);
-      if (branch) return branch;
+    requireOnline();
+    
+    try {
+      const branchesRef = collection(db, COLLECTIONS.BRANCHES);
+      const q = query(branchesRef, where('name', '==', branchName));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        console.log('❌ Branch not found:', branchName);
+        return null;
+      }
+      
+      const branchDoc = snapshot.docs[0];
+      const branch = { id: branchDoc.id, ...branchDoc.data() };
+      
+      // Verify password matches exactly
+      if (branch.password === password) {
+        console.log('✅ Branch credentials verified:', branchName);
+        return branch;
+      }
+      
+      console.log('❌ Invalid branch password');
+      return null;
+    } catch (error) {
+      console.error('❌ Error verifying branch credentials:', error);
+      throw new Error('Failed to verify branch credentials: ' + error.message);
     }
-    return null;
   },
 
   async createBranch(branchData) {
-    await delay(800);
-    const branches = getStorage(STORAGE_KEYS.BRANCHES);
-    const newBranch = {
-        id: `branch_${Date.now()}`,
+    requireOnline();
+    
+    try {
+      const branchesRef = collection(db, COLLECTIONS.BRANCHES);
+      const docRef = await addDoc(branchesRef, {
         ...branchData,
-        createdAt: new Date().toISOString()
-    };
-    branches.push(newBranch);
-    setStorage(STORAGE_KEYS.BRANCHES, branches);
-    return newBranch.id;
+        createdAt: serverTimestamp()
+      });
+      
+      console.log('✅ Branch created:', docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error('❌ Error creating branch:', error);
+      throw new Error('Failed to create branch: ' + error.message);
+    }
+  },
+
+  async updateBranchPassword(branchId, newPassword) {
+    requireOnline();
+    
+    try {
+      const branchRef = doc(db, COLLECTIONS.BRANCHES, branchId);
+      await updateDoc(branchRef, {
+        password: newPassword,
+        passwordUpdatedAt: serverTimestamp(),
+        passwordUpdatedBy: 'admin'
+      });
+      
+      console.log('✅ Branch password updated:', branchId);
+      return true;
+    } catch (error) {
+      console.error('❌ Error updating branch password:', error);
+      throw new Error('Failed to update branch password: ' + error.message);
+    }
   }
 };
 
 // --- ICAN User Service ---
 export const ICANUserService = {
   async findUser(email, branchId) {
-    await delay(600);
-    const users = getStorage(STORAGE_KEYS.USERS);
-    return users.find(u => u.email === email && u.branchId === branchId) || null;
+    requireOnline();
+    
+    try {
+      const usersRef = collection(db, COLLECTIONS.USERS);
+      const q = query(usersRef, where('email', '==', email), where('branchId', '==', branchId));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        return null;
+      }
+      
+      const userDoc = snapshot.docs[0];
+      return { id: userDoc.id, ...userDoc.data() };
+    } catch (error) {
+      console.error('❌ Error finding user:', error);
+      throw new Error('Failed to find user: ' + error.message);
+    }
   },
 
   async authenticateUser(email, branchId) {
-      return this.findUser(email, branchId);
+    return this.findUser(email, branchId);
   },
   
   async getUserByEmailAndBranch(email, branchId) {
-      return this.findUser(email, branchId);
+    return this.findUser(email, branchId);
   },
 
   async getUsersByBranch(branchId) {
-      const users = getStorage(STORAGE_KEYS.USERS);
-      return users.filter(u => u.branchId === branchId);
+    requireOnline();
+    
+    try {
+      const usersRef = collection(db, COLLECTIONS.USERS);
+      const q = query(usersRef, where('branchId', '==', branchId));
+      const snapshot = await getDocs(q);
+      
+      const users = [];
+      snapshot.forEach(doc => {
+        users.push({ id: doc.id, ...doc.data() });
+      });
+      
+      return users;
+    } catch (error) {
+      console.error('❌ Error fetching users:', error);
+      throw new Error('Failed to fetch users: ' + error.message);
+    }
   },
 
   async createUser(userData) {
-    await delay(800);
-    const users = getStorage(STORAGE_KEYS.USERS);
-    const newUser = {
-      ...userData,
-      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-      createdAt: new Date().toISOString()
-    };
-    users.push(newUser);
-    setStorage(STORAGE_KEYS.USERS, users);
-    return newUser.id;
+    requireOnline();
+    
+    try {
+      const usersRef = collection(db, COLLECTIONS.USERS);
+      const docRef = await addDoc(usersRef, {
+        ...userData,
+        createdAt: serverTimestamp()
+      });
+      
+      console.log('✅ User created:', docRef.id);
+      
+      // Log user creation activity
+      await this.logActivity(docRef.id, {
+        type: 'USER_CREATED',
+        timestamp: serverTimestamp(),
+        details: {
+          email: userData.email,
+          branch: userData.branch,
+          role: userData.role
+        }
+      });
+      
+      return docRef.id;
+    } catch (error) {
+      console.error('❌ Error creating user:', error);
+      throw new Error('Failed to create user: ' + error.message);
+    }
   },
 
   async updateUser(userId, updates) {
-    await delay(500);
-    const users = getStorage(STORAGE_KEYS.USERS);
-    const index = users.findIndex(u => u.id === userId);
-    if (index !== -1) {
-      users[index] = { ...users[index], ...updates };
-      setStorage(STORAGE_KEYS.USERS, users);
+    requireOnline();
+    
+    try {
+      const userRef = doc(db, COLLECTIONS.USERS, userId);
+      await updateDoc(userRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+      
+      console.log('✅ User updated:', userId);
       return true;
+    } catch (error) {
+      console.error('❌ Error updating user:', error);
+      throw new Error('Failed to update user: ' + error.message);
     }
-    return false;
   },
 
   async isEmailUsedForBranchLogin(email) {
-      const users = getStorage(STORAGE_KEYS.USERS);
-      return users.some(u => u.email === email && u.isBranchUser);
+    requireOnline();
+    
+    try {
+      const usersRef = collection(db, COLLECTIONS.USERS);
+      const q = query(usersRef, where('email', '==', email), where('isBranchUser', '==', true));
+      const snapshot = await getDocs(q);
+      
+      return !snapshot.empty;
+    } catch (error) {
+      console.error('❌ Error checking email:', error);
+      return false;
+    }
   },
 
   async resetUserPassword(userId, newPassword, adminEmail) {
-      return this.updateUser(userId, { password: newPassword });
+    requireOnline();
+    
+    try {
+      await this.updateUser(userId, { password: newPassword });
+      
+      // Log password reset
+      await this.logActivity(userId, {
+        type: 'PASSWORD_RESET',
+        timestamp: serverTimestamp(),
+        details: {
+          resetBy: adminEmail
+        }
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error resetting password:', error);
+      throw new Error('Failed to reset password: ' + error.message);
+    }
+  },
+
+  // NEW: Activity Logging Method
+  async logActivity(userId, activityData) {
+    requireOnline();
+    
+    try {
+      const activitiesRef = collection(db, COLLECTIONS.ACTIVITIES);
+      await addDoc(activitiesRef, {
+        userId,
+        ...activityData,
+        timestamp: serverTimestamp(),
+        createdAt: serverTimestamp()
+      });
+      
+      console.log('✅ Activity logged:', activityData.type);
+      return true;
+    } catch (error) {
+      console.error('❌ Error logging activity:', error);
+      // Don't throw error for logging failures - they shouldn't block main operations
+      return false;
+    }
+  },
+
+  // NEW: Get User Activities
+  async getUserActivities(userId, limitCount = 50) {
+    requireOnline();
+    
+    try {
+      const activitiesRef = collection(db, COLLECTIONS.ACTIVITIES);
+      const q = query(
+        activitiesRef, 
+        where('userId', '==', userId),
+        orderBy('timestamp', 'desc'),
+        firestoreLimit(limitCount)
+      );
+      const snapshot = await getDocs(q);
+      
+      const activities = [];
+      snapshot.forEach(doc => {
+        activities.push({ id: doc.id, ...doc.data() });
+      });
+      
+      return activities;
+    } catch (error) {
+      console.error('❌ Error fetching activities:', error);
+      return [];
+    }
+  },
+
+  // NEW: Get All Activities (for admin monitoring)
+  async getAllActivities(limitCount = 100) {
+    requireOnline();
+    
+    try {
+      const activitiesRef = collection(db, COLLECTIONS.ACTIVITIES);
+      const q = query(
+        activitiesRef,
+        orderBy('timestamp', 'desc'),
+        firestoreLimit(limitCount)
+      );
+      const snapshot = await getDocs(q);
+      
+      const activities = [];
+      snapshot.forEach(doc => {
+        activities.push({ id: doc.id, ...doc.data() });
+      });
+      
+      return activities;
+    } catch (error) {
+      console.error('❌ Error fetching all activities:', error);
+      return [];
+    }
   }
 };
 
 // --- ICAN Counter Service ---
 export const ICANCounterService = {
   async getNextCounter(type, branchId) {
-      await delay(200);
-      const counters = getStorage(STORAGE_KEYS.COUNTERS, {});
-      const key = `${branchId}_${type}`;
-      const current = counters[key] || 0;
-      const next = current + 1;
+    requireOnline();
+    
+    try {
+      const counterKey = `${branchId}_${type}`;
+      const counterRef = doc(db, COLLECTIONS.COUNTERS, counterKey);
+      const counterDoc = await getDoc(counterRef);
       
-      counters[key] = next;
-      setStorage(STORAGE_KEYS.COUNTERS, counters);
-      return next;
+      let nextValue = 1;
+      if (counterDoc.exists()) {
+        nextValue = (counterDoc.data().value || 0) + 1;
+      }
+      
+      await setDoc(counterRef, {
+        value: nextValue,
+        lastUpdated: serverTimestamp()
+      });
+      
+      return nextValue;
+    } catch (error) {
+      console.error('❌ Error getting counter:', error);
+      throw new Error('Failed to get counter: ' + error.message);
+    }
   },
 
   async getMemberCount(branchId) {
-      await delay(200);
-      const users = getStorage(STORAGE_KEYS.USERS);
-      // Count members in this branch
-      return users.filter(u => u.branchId === branchId && u.isMember).length;
+    requireOnline();
+    
+    try {
+      const usersRef = collection(db, COLLECTIONS.USERS);
+      const q = query(usersRef, where('branchId', '==', branchId), where('isMember', '==', true));
+      const snapshot = await getDocs(q);
+      
+      return snapshot.size;
+    } catch (error) {
+      console.error('❌ Error getting member count:', error);
+      return 0;
+    }
   },
   
   async incrementMemberCount(branchId) {
-      // Logic handled by getting real count
-      return true;
+    // Member count is calculated dynamically
+    return true;
   }
 };
 
 // --- ICAN Invoice Service ---
 export const ICANInvoiceService = {
   async createInvoice(invoiceData) {
-    await delay(800);
-    const invoices = getStorage(STORAGE_KEYS.INVOICES);
+    requireOnline();
     
-    // Auto-generate ID if not present
-    const id = invoiceData.id || `INV-${Date.now()}`;
-    
-    const newInvoice = {
-      ...invoiceData,
-      id,
-      createdAt: new Date().toISOString()
-    };
-    invoices.push(newInvoice);
-    setStorage(STORAGE_KEYS.INVOICES, invoices);
-    return newInvoice.id;
+    try {
+      const invoicesRef = collection(db, COLLECTIONS.INVOICES);
+      const id = invoiceData.id || `INV-${Date.now()}`;
+      const invoiceRef = doc(db, COLLECTIONS.INVOICES, id);
+      
+      await setDoc(invoiceRef, {
+        ...invoiceData,
+        id,
+        createdAt: serverTimestamp()
+      });
+      
+      // Log invoice creation activity
+      if (invoiceData.userId) {
+        await ICANUserService.logActivity(invoiceData.userId, {
+          type: 'INVOICE_CREATED',
+          timestamp: serverTimestamp(),
+          details: {
+            invoiceId: id,
+            branch: invoiceData.branch,
+            amount: invoiceData.totalAmount || 0
+          }
+        });
+      }
+      
+      console.log('✅ Invoice created:', id);
+      return id;
+    } catch (error) {
+      console.error('❌ Error creating invoice:', error);
+      throw new Error('Failed to create invoice: ' + error.message);
+    }
   },
 
   async getInvoicesByBranch(branchId, limit = 50) {
-    await delay(600);
-    const invoices = getStorage(STORAGE_KEYS.INVOICES);
-    return invoices
-        .filter(inv => inv.branchId === branchId)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, limit);
+    requireOnline();
+    
+    try {
+      const invoicesRef = collection(db, COLLECTIONS.INVOICES);
+      // Query without orderBy to avoid requiring composite index
+      const q = query(
+        invoicesRef,
+        where('branchId', '==', branchId)
+      );
+      const snapshot = await getDocs(q);
+      
+      const invoices = [];
+      snapshot.forEach(doc => {
+        invoices.push({ id: doc.id, ...doc.data() });
+      });
+      
+      // Sort and limit in JavaScript to avoid composite index requirement
+      invoices.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+        return dateB - dateA; // desc order
+      });
+      
+      return invoices.slice(0, limit);
+    } catch (error) {
+      console.error('❌ Error fetching invoices:', error);
+      console.error('Error details:', error.message);
+      return [];
+    }
   }
 };
 
 // --- ICAN Receipt Service ---
 export const ICANReceiptService = {
   async createReceipt(receiptData) {
-    await delay(800);
-    const receipts = getStorage(STORAGE_KEYS.RECEIPTS);
-    const newReceipt = {
-      ...receiptData,
-      id: receiptData.id || `REC-${Date.now()}`,
-      createdAt: new Date().toISOString()
-    };
-    receipts.push(newReceipt);
-    setStorage(STORAGE_KEYS.RECEIPTS, receipts);
-    return newReceipt.id;
+    requireOnline();
+    
+    try {
+      const receiptsRef = collection(db, COLLECTIONS.RECEIPTS);
+      const id = receiptData.id || `REC-${Date.now()}`;
+      const receiptRef = doc(db, COLLECTIONS.RECEIPTS, id);
+      
+      await setDoc(receiptRef, {
+        ...receiptData,
+        id,
+        createdAt: serverTimestamp()
+      });
+      
+      // Log receipt creation activity
+      if (receiptData.userId) {
+        await ICANUserService.logActivity(receiptData.userId, {
+          type: 'RECEIPT_CREATED',
+          timestamp: serverTimestamp(),
+          details: {
+            receiptId: id,
+            branch: receiptData.branch,
+            amount: receiptData.amount || 0
+          }
+        });
+      }
+      
+      console.log('✅ Receipt created:', id);
+      return id;
+    } catch (error) {
+      console.error('❌ Error creating receipt:', error);
+      throw new Error('Failed to create receipt: ' + error.message);
+    }
   },
 
   async getReceiptsByBranch(branchId, limit = 50) {
-    await delay(600);
-    const receipts = getStorage(STORAGE_KEYS.RECEIPTS);
-    return receipts
-        .filter(r => r.branchId === branchId)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, limit);
+    requireOnline();
+    
+    try {
+      const receiptsRef = collection(db, COLLECTIONS.RECEIPTS);
+      // Query without orderBy to avoid requiring composite index
+      const q = query(
+        receiptsRef,
+        where('branchId', '==', branchId)
+      );
+      const snapshot = await getDocs(q);
+      
+      const receipts = [];
+      snapshot.forEach(doc => {
+        receipts.push({ id: doc.id, ...doc.data() });
+      });
+      
+      // Sort and limit in JavaScript to avoid composite index requirement
+      receipts.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+        return dateB - dateA; // desc order
+      });
+      
+      return receipts.slice(0, limit);
+    } catch (error) {
+      console.error('❌ Error fetching receipts:', error);
+      console.error('Error details:', error.message);
+      return [];
+    }
   }
 };
 
-// --- ICAN Stats Service (for legacy compatibility) ---
+// --- ICAN Stats Service ---
 export const ICANStatsService = {
-    async getBranchStatistics(branchId) {
-        const invoices = await ICANInvoiceService.getInvoicesByBranch(branchId, 10);
-        const receipts = await ICANReceiptService.getReceiptsByBranch(branchId, 10);
-        return {
-            recentInvoices: invoices,
-            recentReceipts: receipts
-        };
-    }
+  async getBranchStatistics(branchId) {
+    requireOnline();
+    
+    const invoices = await ICANInvoiceService.getInvoicesByBranch(branchId, 10);
+    const receipts = await ICANReceiptService.getReceiptsByBranch(branchId, 10);
+    
+    return {
+      recentInvoices: invoices,
+      recentReceipts: receipts
+    };
+  }
 };
 
-
+// Firebase service export
 export const ICANFirebaseService = {
-    // Placeholder for direct firebase access if needed
-    db: null,
-    auth: null
+  db,
+  auth,
+  collections: COLLECTIONS
 };
+
+// Export activity logging helper for external use
+export const logActivity = ICANUserService.logActivity;
 
 // Export a default object for convenience
 export default {
@@ -295,5 +690,7 @@ export default {
   ICANCounterService,
   ICANInvoiceService,
   ICANReceiptService,
-  ICANStatsService
+  ICANStatsService,
+  ICANFirebaseService,
+  logActivity
 };

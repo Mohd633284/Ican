@@ -133,13 +133,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                       </svg>
                     </button>
-                    <p v-if="isLoadingBranches" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Loading branches...
-                    </p>
                     <p v-if="selectedBranch && !isBranchAccessible(selectedBranch)" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5 border border-amber-200 dark:border-amber-800">
                       <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -238,6 +231,20 @@
                   <div class="text-center text-xs text-slate-500 dark:text-slate-400 space-y-1.5">
                     <p class="font-medium">Need Assistance?</p>
                     <p>Contact your branch administrator or reach out to the ICAN service desk for support.</p>
+                  </div>
+                  
+                  <!-- Reset Branch Password Button -->
+                  <div class="mt-4">
+                    <button
+                      type="button"
+                      @click="showPasswordResetModal = true"
+                      class="w-full px-4 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                      </svg>
+                      Reset Branch Password
+                    </button>
                   </div>
                 </div>
               </div>
@@ -406,6 +413,208 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Password Reset Modal -->
+    <Transition name="modal">
+      <div v-if="showPasswordResetModal" class="fixed inset-0 z-[9999] overflow-y-auto" style="display: flex !important; align-items: center !important; justify-content: center !important; padding: 1rem; min-height: 100vh;" @click.self="closePasswordResetModal">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md" style="z-index: 1;"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full overflow-hidden animate-modal-in" style="max-width: 28rem; z-index: 10;">
+          <!-- Modal Header -->
+          <div class="bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-700 dark:to-orange-700 px-6 py-5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Reset Branch Password</h3>
+                  <p class="text-amber-100 text-xs mt-0.5">Change your branch access password</p>
+                </div>
+              </div>
+              <button 
+                @click="closePasswordResetModal"
+                class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              >
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Reset Form -->
+          <form @submit.prevent="handlePasswordReset" class="p-6 space-y-4">
+            <!-- Step 1: Select Branch -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Select Branch
+              </label>
+              <button
+                type="button"
+                @click="showResetBranchSelection = true"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all flex items-center justify-between"
+              >
+                <span :class="{ 'text-slate-400': !resetSelectedBranch }">
+                  {{ resetSelectedBranch || 'Choose branch to reset' }}
+                </span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Step 2: Current Password (only show if branch selected) -->
+            <div v-if="resetSelectedBranch">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Current Branch Password
+              </label>
+              <div class="relative">
+                <input
+                  v-model="currentPassword"
+                  :type="showCurrentPassword ? 'text' : 'password'"
+                  placeholder="Enter current password"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+                <button
+                  type="button"
+                  @click="showCurrentPassword = !showCurrentPassword"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  <svg v-if="!showCurrentPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: New Password (only show if current password entered) -->
+            <div v-if="resetSelectedBranch && currentPassword">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                New Password
+              </label>
+              <div class="relative">
+                <input
+                  v-model="newPassword"
+                  :type="showNewPassword ? 'text' : 'password'"
+                  placeholder="Enter new password"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                  minlength="6"
+                />
+                <button
+                  type="button"
+                  @click="showNewPassword = !showNewPassword"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  <svg v-if="!showNewPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Minimum 6 characters
+              </p>
+            </div>
+
+            <!-- Step 4: Confirm New Password -->
+            <div v-if="resetSelectedBranch && currentPassword && newPassword">
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Confirm New Password
+              </label>
+              <div class="relative">
+                <input
+                  v-model="confirmPassword"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="Re-enter new password"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  required
+                />
+                <button
+                  type="button"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  <svg v-if="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div v-if="resetErrorMessage" class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <p class="text-xs text-red-800 dark:text-red-200">{{ resetErrorMessage }}</p>
+            </div>
+            
+            <div v-if="resetSuccessMessage" class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+              <p class="text-xs text-green-800 dark:text-green-200">{{ resetSuccessMessage }}</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-2">
+              <button
+                type="button"
+                @click="closePasswordResetModal"
+                class="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="isResettingPassword || !resetSelectedBranch || !currentPassword || !newPassword || !confirmPassword"
+                class="flex-1 px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <svg v-if="isResettingPassword" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="isResettingPassword">Resetting...</span>
+                <span v-else>Reset Password</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Branch Selection List (inline) -->
+          <div v-if="showResetBranchSelection" class="fixed inset-0 z-[10000] flex items-center justify-center p-4" @click.self="showResetBranchSelection = false">
+            <div class="absolute inset-0 bg-black/50"></div>
+            <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full max-h-96 overflow-hidden">
+              <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                <h4 class="font-semibold text-slate-900 dark:text-white">Select Branch</h4>
+              </div>
+              <div class="overflow-y-auto max-h-72 p-4 space-y-2">
+                <button
+                  v-for="branch in branches"
+                  :key="branch"
+                  @click="selectResetBranch(branch)"
+                  class="w-full text-left px-4 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all"
+                  :class="{ 'bg-amber-100 dark:bg-amber-900/30': resetSelectedBranch === branch }"
+                >
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ branch }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
       </div>
     </ion-content>
   </ion-page>
@@ -422,6 +631,7 @@ import {
   ICANUserService, 
   ICANSeedService
 } from '../services/ican-service.js';
+import { SessionManager } from '../utils/secure-storage.js';
 
 export default defineComponent({
   name: 'HomePage',
@@ -445,6 +655,55 @@ export default defineComponent({
     const isLoadingBranches = ref(false);
     const showBranchModal = ref(false);
     const branchSearchQuery = ref('');
+    const isOnline = ref(navigator.onLine);
+    
+    // Password reset refs
+    const showPasswordResetModal = ref(false);
+    const showResetBranchSelection = ref(false);
+    const resetSelectedBranch = ref('');
+    const currentPassword = ref('');
+    const newPassword = ref('');
+    const confirmPassword = ref('');
+    const showCurrentPassword = ref(false);
+    const showNewPassword = ref(false);
+    const showConfirmPassword = ref(false);
+    const isResettingPassword = ref(false);
+    const resetErrorMessage = ref('');
+    const resetSuccessMessage = ref('');
+    
+    // Activity logging function
+    const logUserActivity = async (userId, activityType, details = {}) => {
+      try {
+        await ICANUserService.logActivity(userId, {
+          type: activityType,
+          timestamp: new Date(),
+          details: details,
+          deviceInfo: {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            online: navigator.onLine
+          }
+        });
+        console.log('✅ Activity logged:', activityType);
+      } catch (error) {
+        console.error('❌ Failed to log activity:', error);
+      }
+    };
+    
+    // Monitor online/offline status
+    const handleOnlineStatus = () => {
+      isOnline.value = navigator.onLine;
+      if (!navigator.onLine) {
+        errorMessage.value = '⚠️ No internet connection. Please connect to the internet to use ICAN app.';
+        statusMessage.value = '';
+      } else {
+        if (errorMessage.value.includes('No internet connection')) {
+          errorMessage.value = '';
+          statusMessage.value = '✅ Internet connection restored.';
+          setTimeout(() => { statusMessage.value = ''; }, 3000);
+        }
+      }
+    };
     
     // Background images carousel
     const backgroundImages = [
@@ -598,43 +857,34 @@ export default defineComponent({
     const loadBranches = async () => {
       isLoadingBranches.value = true;
       errorMessage.value = '';
-      statusMessage.value = 'Loading branches...';
       try {
         console.log('🔍 Loading branches from Firebase...');
         
-        // Load all branches from Firebase
+        // Load all branches from Firebase - faster without unnecessary status updates
         const branchList = await ICANBranchService.getAllBranches();
         console.log('✅ Branch list loaded:', branchList.length, 'branches');
         
-        // Only seed if no branches exist (first-time setup)
+        // Only seed if no branches exist (first-time setup only)
         if (branchList.length === 0) {
           console.log('📌 No branches found, seeding...');
-          statusMessage.value = 'Initializing branches...';
           await ICANSeedService.forceReseedAllNigerianStates();
           const newBranchList = await ICANBranchService.getAllBranches();
           branches.value = newBranchList.map(branch => branch.name);
           console.log('✅ Branches seeded:', branches.value.length);
         } else {
+          // Directly map branches - faster
           branches.value = branchList.map(branch => branch.name);
         }
         
-        statusMessage.value = '';
-        
         if (branches.value.length === 0) {
-          statusMessage.value = 'No branches configured. Contact an administrator.';
+          errorMessage.value = 'No branches configured. Contact an administrator.';
         }
       } catch (error) {
         console.error('❌ Error loading branches:', error);
-        console.error('Error details:', {
-          message: error?.message,
-          code: error?.code,
-          stack: error?.stack
-        });
         
         // More detailed error message
         const errorDetails = error?.message || error?.code || 'Unknown error';
         errorMessage.value = `Unable to load branch list: ${errorDetails}. Please check your internet connection.`;
-        statusMessage.value = '';
       } finally {
         isLoadingBranches.value = false;
       }
@@ -649,7 +899,17 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      loadBranches();
+      // Check internet connection first
+      if (!navigator.onLine) {
+        errorMessage.value = '⚠️ No internet connection detected. Please connect to the internet to access ICAN.';
+        isLoadingBranches.value = false;
+      } else {
+        loadBranches();
+      }
+      
+      // Listen for online/offline events
+      window.addEventListener('online', handleOnlineStatus);
+      window.addEventListener('offline', handleOnlineStatus);
       
       // Start background image carousel
       imageIntervalId = window.setInterval(() => {
@@ -678,6 +938,10 @@ export default defineComponent({
     });
 
     onUnmounted(() => {
+      // Remove online/offline listeners
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+      
       // Clear image carousel interval
       if (imageIntervalId) {
         clearInterval(imageIntervalId);
@@ -702,6 +966,12 @@ export default defineComponent({
     });
 
     const handleSubmit = async () => {
+      // CRITICAL: Check internet connection before proceeding
+      if (!navigator.onLine) {
+        errorMessage.value = '❌ No internet connection. ICAN requires an active internet connection for authentication and security.';
+        return;
+      }
+      
       if (!selectedBranch.value) {
         errorMessage.value = 'Please select a branch to continue.';
         return;
@@ -719,29 +989,30 @@ export default defineComponent({
       }
 
       errorMessage.value = '';
-      statusMessage.value = 'Verifying credentials...';
+      statusMessage.value = '🔐 Verifying credentials online...';
       isSubmitting.value = true;
 
       try {
-        statusMessage.value = 'Testing Firebase connection...';
+        statusMessage.value = '🌐 Connecting to Firebase authentication...';
         
-        console.log('🔍 Debug: Starting authentication for:', {
+        console.log('🔍 Debug: Starting ONLINE authentication for:', {
           branch: selectedBranch.value,
           email: email.value,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          online: navigator.onLine
         });
 
-        // Test Firebase connectivity first
+        // CRITICAL: Test Firebase connectivity first - NO OFFLINE FALLBACK
         const connectionTest = await ICANBranchService.testFirebaseConnection();
         console.log('🔍 Debug: Firebase connection test:', connectionTest);
         
         if (!connectionTest.connected) {
-          throw new Error(`Firebase connection failed: ${connectionTest.error}`);
+          throw new Error(`❌ Firebase authentication server unreachable. Please check your internet connection and try again.`);
         }
 
-        statusMessage.value = 'Verifying branch access...';
+        statusMessage.value = '🔍 Verifying branch credentials...';
         
-        // Step 1: Verify branch credentials (branch password)
+        // Step 1: Verify branch credentials with Firebase (branch password)
         const branch = await ICANBranchService.verifyBranchCredentials(selectedBranch.value, password.value);
         
         console.log('🔍 Debug: Branch verification result:', branch ? 'SUCCESS' : 'FAILED');
@@ -749,33 +1020,43 @@ export default defineComponent({
         if (!branch) {
           console.log('🔍 Debug: Branch verification failed - no branch returned');
           console.log('🔍 Debug: Available branches:', connectionTest.branches);
-          throw new Error('Incorrect branch password. Please check with your branch administrator.');
+          
+          // Log failed login attempt
+          await logUserActivity('unknown', 'LOGIN_FAILED', {
+            email: email.value,
+            branch: selectedBranch.value,
+            reason: 'Invalid branch password'
+          });
+          
+          throw new Error('❌ Incorrect branch password. Please check with your branch administrator.');
         }
 
-        console.log('🔍 Debug: Branch verified successfully:', {
+        console.log('✅ Debug: Branch verified successfully:', {
           branchId: branch.id,
           branchName: branch.name
         });
 
-        statusMessage.value = 'Checking member registration...';
+        statusMessage.value = '👤 Checking user registration...';
         
-        // Step 2: Check if user exists in this branch
+        // Step 2: Check if user exists in this branch (Firebase only)
         let user = await ICANUserService.findUser(email.value, branch.id);
         
         if (!user) {
-          // User doesn't exist - this is NOT member registration, just branch access tracking
-          statusMessage.value = 'Setting up branch access...';
+          // User doesn't exist - create new user record in Firebase
+          statusMessage.value = '📝 Creating user profile in Firebase...';
           
-          // Create a basic user record for branch access tracking (NOT a member account)
           const userId = await ICANUserService.createUser({
             email: email.value,
-            name: email.value.split('@')[0], // Use email prefix as default name
+            name: email.value.split('@')[0],
             branchId: branch.id,
             branch: branch.name,
-            role: 'guest', // Use 'guest' role to distinguish from actual members
+            role: 'guest',
             isActive: true,
-            isBranchUser: true, // Flag to indicate this is branch access, not member account
-            isMember: false // Explicitly mark as not a member
+            isBranchUser: true,
+            isMember: false,
+            createdAt: new Date(),
+            firstLogin: new Date(),
+            requiresOnlineAuth: true // Flag to enforce online authentication
           });
           
           user = {
@@ -784,44 +1065,84 @@ export default defineComponent({
             name: email.value.split('@')[0],
             branchId: branch.id,
             branch: branch.name,
-            role: 'guest', // Changed from 'user' to 'guest'
+            role: 'guest',
             createdAt: new Date(),
             lastLogin: new Date(),
             isActive: true,
             isBranchUser: true,
-            isMember: false
+            isMember: false,
+            requiresOnlineAuth: true
           };
           
-          statusMessage.value = 'Branch access granted.';
-        } else {
-          // User exists - allow branch access (member status doesn't prevent branch login)
-          statusMessage.value = 'Welcome back!';
+          // Log first-time login
+          await logUserActivity(userId, 'FIRST_LOGIN', {
+            email: email.value,
+            branch: branch.name,
+            branchId: branch.id
+          });
           
-          // Update last login
+          statusMessage.value = '✅ Branch access granted.';
+        } else {
+          // User exists - verify they're active
+          if (!user.isActive) {
+            await logUserActivity(user.id, 'LOGIN_FAILED', {
+              email: email.value,
+              branch: branch.name,
+              reason: 'Account deactivated'
+            });
+            throw new Error('❌ Your account has been deactivated. Please contact your administrator.');
+          }
+          
+          statusMessage.value = '🎉 Welcome back!';
+          
+          // Update last login timestamp in Firebase
           await ICANUserService.updateUser(user.id, {
-            lastLogin: new Date()
+            lastLogin: new Date(),
+            lastLoginIP: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown')
+          });
+          
+          // Log successful login
+          await logUserActivity(user.id, 'LOGIN_SUCCESS', {
+            email: email.value,
+            branch: branch.name,
+            branchId: branch.id
           });
         }
         
         errorMessage.value = '';
-        statusMessage.value = '';
+        statusMessage.value = '🔄 Finalizing authentication...';
 
         // Update user's current branch context in Firebase
         await ICANUserService.updateUser(user.id, {
           currentBranch: branch.name,
           currentBranchId: branch.id,
-          lastBranchAccess: new Date()
+          lastBranchAccess: new Date(),
+          lastAuthMethod: 'firebase_online'
         });
 
-        // Store minimal info in localStorage for offline access (branch name stays in Firebase)
-        localStorage.setItem('user', JSON.stringify({
-          branch: user.branch || branch.name,
+        // ✅ SECURE: Store session using Capacitor Preferences (native) or localStorage (web)
+        // This persists across app restarts - CRITICAL for APK!
+        const sessionToken = {
           userId: user.id,
-          name: user.name,
           email: user.email,
-          branchId: branch.id
-        }));
+          branch: branch.name,
+          branchId: branch.id,
+          sessionStart: new Date().toISOString(),
+          requiresOnline: true,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+        };
+        
+        // Save session using SecureStorage (Capacitor Preferences on native, localStorage on web)
+        await SessionManager.saveSession(sessionToken);
+        
+        // Remove any old sessionStorage data (not reliable for APK)
+        sessionStorage.removeItem('ican_session');
+        sessionStorage.removeItem('user');
+        
+        console.log('✅ Session saved to secure storage (APK-compatible):', sessionToken);
 
+        statusMessage.value = '✅ Authentication successful!';
+        
         router.push({
           name: 'Dashboard',
           query: {
@@ -829,9 +1150,16 @@ export default defineComponent({
           },
         });
       } catch (error) {
-        console.error('Authentication error:', error);
-        errorMessage.value = error.message || 'Authentication failed.';
+        console.error('❌ Authentication error:', error);
+        errorMessage.value = error.message || '❌ Authentication failed. Please check your internet connection and try again.';
         statusMessage.value = '';
+        
+        // Log authentication error
+        await logUserActivity('unknown', 'AUTH_ERROR', {
+          email: email.value,
+          branch: selectedBranch.value,
+          error: error.message
+        }).catch(err => console.error('Failed to log error:', err));
       } finally {
         isSubmitting.value = false;
       }
@@ -839,7 +1167,7 @@ export default defineComponent({
 
     const handleSignUp = () => {
       router.push({
-        name: 'ican-app-signup',
+        path: '/signup',
         query: {
           branch: selectedBranch.value || ''
         }
@@ -860,6 +1188,109 @@ export default defineComponent({
       if (event.target.tagName !== 'INPUT' && selectedBranch.value && isBranchAccessible(selectedBranch.value)) {
         event.preventDefault();
         confirmBranchSelection();
+      }
+    };
+
+    // Password Reset Functions
+    const selectResetBranch = (branch) => {
+      resetSelectedBranch.value = branch;
+      showResetBranchSelection.value = false;
+      resetErrorMessage.value = '';
+      resetSuccessMessage.value = '';
+    };
+
+    const closePasswordResetModal = () => {
+      showPasswordResetModal.value = false;
+      showResetBranchSelection.value = false;
+      resetSelectedBranch.value = '';
+      currentPassword.value = '';
+      newPassword.value = '';
+      confirmPassword.value = '';
+      showCurrentPassword.value = false;
+      showNewPassword.value = false;
+      showConfirmPassword.value = false;
+      resetErrorMessage.value = '';
+      resetSuccessMessage.value = '';
+    };
+
+    const handlePasswordReset = async () => {
+      resetErrorMessage.value = '';
+      resetSuccessMessage.value = '';
+
+      // Validation
+      if (!resetSelectedBranch.value) {
+        resetErrorMessage.value = '❌ Please select a branch';
+        return;
+      }
+
+      if (!currentPassword.value) {
+        resetErrorMessage.value = '❌ Please enter the current password';
+        return;
+      }
+
+      if (!newPassword.value) {
+        resetErrorMessage.value = '❌ Please enter a new password';
+        return;
+      }
+
+      if (newPassword.value.length < 6) {
+        resetErrorMessage.value = '❌ New password must be at least 6 characters';
+        return;
+      }
+
+      if (newPassword.value !== confirmPassword.value) {
+        resetErrorMessage.value = '❌ New passwords do not match';
+        return;
+      }
+
+      if (currentPassword.value === newPassword.value) {
+        resetErrorMessage.value = '❌ New password must be different from current password';
+        return;
+      }
+
+      isResettingPassword.value = true;
+
+      try {
+        console.log('🔐 Verifying current password for branch:', resetSelectedBranch.value);
+
+        // Step 1: Verify current password
+        const branch = await ICANBranchService.verifyBranchCredentials(
+          resetSelectedBranch.value, 
+          currentPassword.value
+        );
+
+        if (!branch) {
+          resetErrorMessage.value = '❌ Current password is incorrect';
+          isResettingPassword.value = false;
+          return;
+        }
+
+        console.log('✅ Current password verified, updating to new password...');
+
+        // Step 2: Update branch password in Firebase
+        await ICANBranchService.updateBranchPassword(branch.id, newPassword.value);
+
+        // Log the password reset activity
+        await logUserActivity('system', 'PASSWORD_RESET', {
+          branch: resetSelectedBranch.value,
+          branchId: branch.id,
+          timestamp: new Date().toISOString()
+        }).catch(err => console.error('Failed to log password reset:', err));
+
+        console.log('✅ Password reset successful for branch:', resetSelectedBranch.value);
+
+        resetSuccessMessage.value = `✅ Password reset successful for ${resetSelectedBranch.value} branch! You can now login with your new password.`;
+        
+        // Clear form after success
+        setTimeout(() => {
+          closePasswordResetModal();
+        }, 3000);
+
+      } catch (error) {
+        console.error('❌ Password reset error:', error);
+        resetErrorMessage.value = error.message || '❌ Failed to reset password. Please try again.';
+      } finally {
+        isResettingPassword.value = false;
       }
     };
 
@@ -889,6 +1320,24 @@ export default defineComponent({
       backgroundImages,
       currentImageIndex,
       chevronDownCircleOutline,
+      isOnline,
+      logUserActivity,
+      // Password reset
+      showPasswordResetModal,
+      showResetBranchSelection,
+      resetSelectedBranch,
+      currentPassword,
+      newPassword,
+      confirmPassword,
+      showCurrentPassword,
+      showNewPassword,
+      showConfirmPassword,
+      isResettingPassword,
+      resetErrorMessage,
+      resetSuccessMessage,
+      selectResetBranch,
+      closePasswordResetModal,
+      handlePasswordReset,
     };
   },
 });

@@ -245,93 +245,93 @@
         <div class="flex items-center gap-2">
           <!-- Back Button -->
           <button
-            class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded transition-colors flex items-center justify-center flex-shrink-0"
+            class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded transition-colors flex items-center justify-center flex-shrink-0"
             title="Go Back"
             @click="$router.push({ name: 'ican-app-invoice-quickfill', query: $route.query })"
           >
-            <svg class="w-3.5 h-3.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
           </button>
           <div class="flex-1 min-w-0">
-            <h1 class="text-xs font-bold text-slate-900 dark:text-white truncate">Invoice Preview</h1>
+            <h1 class="text-sm font-bold text-slate-900 dark:text-white truncate">Invoice Preview</h1>
           </div>
           
           <!-- All controls inline -->
           <div class="flex items-center gap-1 flex-shrink-0">
             <!-- Zoom Controls -->
-            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700 rounded p-0.5">
+            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700 rounded p-1">
               <button
                 :disabled="zoomLevel <= minZoom"
-                class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Zoom Out"
                 @click="zoomOut"
               >
-                <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
                 </svg>
               </button>
               
-              <span class="text-[8px] font-medium text-slate-700 dark:text-slate-300 min-w-[1.2rem] text-center">
+              <span class="text-[9px] font-medium text-slate-700 dark:text-slate-300 min-w-[1.5rem] text-center">
                 {{ Math.round((autoFitEnabled ? effectiveZoomLevel : zoomLevel) * 100) }}%
               </span>
               
               <button
                 :disabled="zoomLevel >= maxZoom"
-                class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Zoom In"
                 @click="zoomIn"
               >
-                <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
                 </svg>
               </button>
               
               <button
-                class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
+                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
                 title="Fit to Screen"
                 @click="autoFitZoom"
               >
-                <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
               </button>
             </div>
             
             <!-- Copies Control -->
-            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700 rounded p-0.5">
+            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700 rounded p-1">
               <input
                 v-model.number="totalCopies"
                 type="number"
                 min="1"
                 max="100"
                 step="1"
-                class="w-6 h-4 text-[8px] text-center bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                class="w-8 h-5 text-[9px] text-center bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 title="Number of copies to generate"
                 @input="validateCopiesInput"
                 @blur="validateCopiesInput"
               />
-              <div class="text-[7px] text-slate-500 dark:text-slate-400">
+              <div class="text-[8px] text-slate-500 dark:text-slate-400">
                 {{ currentPage }}/{{ totalCopies }}
               </div>
               <div class="flex items-center gap-0.5">
                 <button
                   :disabled="currentPage <= 1"
-                  class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   title="Previous Page"
                   @click="goToPreviousPage"
                 >
-                  <svg class="w-2 h-2 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 <button
                   :disabled="currentPage >= totalCopies"
-                  class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   title="Next Page"
                   @click="goToNextPage"
                 >
-                  <svg class="w-2 h-2 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -339,25 +339,25 @@
             </div>
             
             <!-- Undo/Redo Controls -->
-            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700 rounded p-0.5">
+            <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700 rounded p-1">
               <button
                 :disabled="!canUndo"
-                class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Undo (Ctrl+Z)"
                 @click="undo"
               >
-                <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                 </svg>
               </button>
               
               <button
                 :disabled="!canRedo"
-                class="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Redo (Ctrl+Y)"
                 @click="redo"
               >
-                <svg class="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
                 </svg>
               </button>
@@ -369,7 +369,7 @@
         <div class="flex items-center gap-1">
                       <!-- Navigation Buttons -->
             <button
-              class="px-2 py-1 bg-cyan-500 hover:bg-cyan-600 text-white rounded text-[10px] font-medium transition-colors"
+              class="px-2.5 py-1.5 bg-cyan-500 hover:bg-cyan-600 text-white rounded text-[11px] font-medium transition-colors"
               title="View saved invoices"
               @click="viewSavedInvoices"
             >
@@ -377,7 +377,7 @@
             </button>
             
             <button
-              class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-medium transition-colors"
+              class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-medium transition-colors"
               title="Create new invoice"
               @click="createNewInvoice"
             >
@@ -388,7 +388,7 @@
           <div class="flex gap-1 flex-1">
             <div class="relative">
               <button
-                class="px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-[10px] font-medium transition-colors flex items-center gap-1"
+                class="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded text-[11px] font-medium transition-colors flex items-center gap-1"
                 @click="showMobileExportPopup = true"
               >
                 📤 Export & Share
@@ -1001,7 +1001,7 @@
                 data-text-id="org-name"
                 :style="{ 
                   color: colorStyles.accentColor,
-                  fontFamily: '\'Arial Narrow\', \'Roboto Condensed\', \'Oswald\', sans-serif',
+                  fontFamily: 'Impact, \'Arial Black\', \'Arial Narrow\', \'Haettenschweiler\', sans-serif',
                   fontWeight: '900',
                   fontSize: invoiceWidth <= 4.5 ? '20px' : '25px',
                   letterSpacing: '-0.5px',
@@ -1039,7 +1039,7 @@
                 :style="{ 
                   fontSize: '16px',
                   lineHeight: '1.2',
-                  color: '#1f2937',
+                  color: 'red',
                   fontWeight: '900',
                   marginTop: '3px',
                   marginBottom: '2px',
@@ -1513,6 +1513,10 @@ import * as htmlToImage from 'html-to-image';
 import { getAllSignatures, logActivity } from '../../api-service';
 import { safeLocalStorage } from '@/utils/storage.utils.js';
 import { withFirebaseErrorHandling } from '@/utils/firebase-error-handler.js';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 export default defineComponent({
   name: 'InvoicePreviewPage',
@@ -1626,12 +1630,35 @@ export default defineComponent({
       }
     };
     
+    // Android back button handler
+    let backButtonListener = null;
+    
     onMounted(() => {
       window.addEventListener('resize', updateWindowDimensions);
       // Initial dimension update
       nextTick(() => {
         updateContainerDimensions();
       });
+      
+      // Handle Android hardware back button
+      const handleAndroidBackButton = async () => {
+        console.log('🔙 Android back button pressed on PreviewIcanInvoice');
+        // Navigate back to invoice page or dashboard
+        const branch = route.query.branch || '';
+        if (route.query.from === 'invoice') {
+          router.push({ path: '/ican/invoice', query: { branch } });
+        } else {
+          router.push({ path: '/ican/dashboard', query: { branch } });
+        }
+      };
+      
+      // Register Android back button listener
+      try {
+        backButtonListener = App.addListener('backButton', handleAndroidBackButton);
+        console.log('✅ Android back button listener registered for PreviewIcanInvoice');
+      } catch (error) {
+        console.log('ℹ️ Not running on Android or Capacitor not available:', error);
+      }
     });
     
     // Debounced quick save function for settings changes - declare before onUnmounted
@@ -1645,6 +1672,12 @@ export default defineComponent({
       if (saveQuickSettingsTimeout) {
         clearTimeout(saveQuickSettingsTimeout);
         saveQuickSettingsTimeout = null;
+      }
+      
+      // Remove back button listener
+      if (backButtonListener && typeof backButtonListener.remove === 'function') {
+        backButtonListener.remove();
+        console.log('✅ Android back button listener removed from PreviewIcanInvoice');
       }
     });
     
@@ -2088,119 +2121,136 @@ export default defineComponent({
       }
     };
 
-    // Social media sharing functions with image support
+    // Social media sharing functions with Capacitor support for APK
     const shareToSocialMedia = async (platform) => {
       try {
         const shareText = `Check out this invoice from ${organizationName.value || 'SmartDesignPro'}`;
-        const shareUrl = window.location.href;
         
-        // First try to capture and share the image using Web Share API
-        if (navigator.share && invoiceRef.value) {
+        if (!invoiceRef.value) {
+          alert('⚠️ Invoice not found');
+          return;
+        }
+        
+        // Generate invoice image
+        const canvas = await html2canvas(invoiceRef.value, {
+          scale: 2,
+          useCORS: false,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          ignoreElements: (element) => {
+            return element.tagName === 'SCRIPT' || 
+                   element.classList.contains('no-capture');
+          }
+        });
+        
+        // Convert canvas to base64
+        const base64Data = canvas.toDataURL('image/jpeg', 0.95);
+        
+        // Check if running in Capacitor (APK) or web
+        const isNative = Capacitor.isNativePlatform();
+        
+        if (isNative) {
+          // For APK: Use Capacitor Filesystem and Share
           try {
-            // Use html2canvas with CORS handling for better compatibility
-            const canvas = await html2canvas(invoiceRef.value, {
-              scale: 2, // Higher resolution for sharing
-              useCORS: false, // Disable CORS to avoid external CSS issues
-              allowTaint: true, // Allow cross-origin images
-              backgroundColor: '#ffffff',
-              logging: false, // Reduce console noise
-              ignoreElements: (element) => {
-                // Skip elements that might cause CORS issues
-                return element.tagName === 'SCRIPT' || 
-                       element.classList.contains('no-capture');
-              }
+            const fileName = `invoice-${Date.now()}.jpg`;
+            
+            // Save to public Downloads directory
+            const savedFile = await Filesystem.writeFile({
+              path: fileName,
+              data: base64Data,
+              directory: Directory.Documents, // or Directory.External for public access
+              recursive: true
             });
             
-            // Convert canvas to blob
-            const blob = await new Promise((resolve) => {
-              canvas.toBlob(resolve, 'image/jpeg', 0.95);
-            });
+            console.log('File saved:', savedFile.uri);
             
-            // Create a file from the blob
-            const file = new File([blob], `invoice-${Date.now()}.jpg`, { 
-              type: 'image/jpeg' 
-            });
-            
-            // Try to share using Web Share API with image
-            const shareData = {
+            // Share the image using Capacitor Share API
+            await Share.share({
               title: shareText,
               text: shareText,
-              url: shareUrl,
-              files: [file]
-            };
+              url: savedFile.uri,
+              dialogTitle: 'Share Invoice'
+            });
             
-            // Check if sharing files is supported
-            if (navigator.canShare && navigator.canShare(shareData)) {
-              await navigator.share(shareData);
-              closeMobileShareOptions();
-              closeDesktopShareOptions();
-              return;
-            }
-          } catch (shareError) {
-            console.log('Web Share API with image failed, falling back to platform URLs:', shareError);
-            // Fall through to platform-specific sharing
+            alert('✅ Invoice image shared successfully!');
+            
+          } catch (error) {
+            console.error('Capacitor share error:', error);
+            alert('❌ Failed to share invoice. Please try again.');
           }
-        }
-        
-        // Fallback: Download image and open platform-specific sharing
-        const imageDownloaded = await downloadInvoiceImage();
-        
-        let url = '';
-        let message = shareText;
-        
-        // If image was downloaded, update the message
-        if (imageDownloaded) {
-          message = `${shareText} (Invoice image has been downloaded to your device)`;
-        }
-        
-        switch (platform) {
-          case 'WhatsApp':
-            url = `https://wa.me/?text=${encodeURIComponent(message + ' ' + shareUrl)}`;
-            break;
-          case 'Twitter':
-            url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(shareUrl)}`;
-            break;
-          case 'Facebook':
-            url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-            break;
-          case 'LinkedIn':
-            url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
-            break;
-          case 'Telegram':
-            url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
-            break;
-          case 'Email':
-            url = `mailto:?subject=${encodeURIComponent('Invoice Share')}&body=${encodeURIComponent(message + ' ' + shareUrl)}`;
-            break;
-        }
-        
-        if (url) {
-          window.open(url, '_blank', 'noopener,noreferrer');
-        }
-        
-        // Show user feedback about image download
-        if (imageDownloaded) {
-          // Small delay to ensure the share window opens first
+        } else {
+          // For Web/Desktop: Try Web Share API first
+          if (navigator.share && navigator.canShare) {
+            try {
+              // Convert base64 to blob
+              const blob = await (await fetch(base64Data)).blob();
+              const file = new File([blob], `invoice-${Date.now()}.jpg`, { type: 'image/jpeg' });
+              
+              const shareData = {
+                title: shareText,
+                text: shareText,
+                files: [file]
+              };
+              
+              if (navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+                closeMobileShareOptions();
+                closeDesktopShareOptions();
+                return;
+              }
+            } catch (shareError) {
+              console.log('Web Share API failed, falling back:', shareError);
+            }
+          }
+          
+          // Fallback: Download image and open platform URL
+          const link = document.createElement('a');
+          link.download = `invoice-${Date.now()}.jpg`;
+          link.href = base64Data;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Platform-specific sharing URLs
+          let url = '';
+          const shareUrl = window.location.href;
+          const message = `${shareText} (Image downloaded)`;
+          
+          switch (platform) {
+            case 'WhatsApp':
+              url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+              break;
+            case 'Twitter':
+              url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
+              break;
+            case 'Facebook':
+              url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+              break;
+            case 'LinkedIn':
+              url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+              break;
+            case 'Telegram':
+              url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
+              break;
+            case 'Email':
+              url = `mailto:?subject=${encodeURIComponent('Invoice Share')}&body=${encodeURIComponent(message)}`;
+              break;
+          }
+          
+          if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          }
+          
           setTimeout(() => {
-            alert('📸 Invoice image has been downloaded to your device! You can now attach it to your social media post.');
-          }, 1000);
+            alert('📸 Invoice image downloaded! You can attach it to your message.');
+          }, 500);
         }
         
       } catch (error) {
         console.error('Error sharing:', error);
-        
-        // Provide user-friendly error message
-        let errorMessage = 'Sharing failed. ';
-        if (error.message && error.message.includes('CORS')) {
-          errorMessage += 'Please try downloading the invoice image manually and sharing it.';
-        } else {
-          errorMessage += 'Please try again or use a different sharing method.';
-        }
-        
-        alert(errorMessage);
-        
+        alert('❌ Sharing failed. Please try again.');
       } finally {
-        // Always close share dropdowns
         closeMobileShareOptions();
         closeDesktopShareOptions();
       }
@@ -6808,7 +6858,8 @@ export default defineComponent({
 
     // Navigation functions
     const viewSavedInvoices = () => {
-      router.push({ name: 'ican-app-saved-invoices', query: router.currentRoute.value.query });
+      const branch = router.currentRoute.value.query.branch || '';
+      router.push({ path: '/ican-app/saved-invoices', query: { branch } });
     };
 
     const createNewInvoice = () => {
@@ -7607,14 +7658,12 @@ section::-webkit-scrollbar-thumb:hover {
 @media print {
   /* Force CMYK color space for print */
   .invoice-content-wrapper {
-    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
   
   /* Ensure backgrounds print */
   * {
-    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

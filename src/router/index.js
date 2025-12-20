@@ -10,6 +10,7 @@ import SplashScreen from '../pages/SplashScreen.vue';
 import MemberManagementPage from '../pages/MemberManagementPage.vue';
 import ReportsAnalyticsPage from '../pages/ReportsAnalyticsPage.vue';
 import SignaturePage from '../pages/SignaturePage.vue';
+import { SessionManager } from '../utils/secure-storage.js';
 
 // Import saved pages with correct paths - updated paths for InvoiceIcan and ReceiptIcan subdirectories
 // Use lazy loading for saved pages to avoid module resolution issues
@@ -22,7 +23,7 @@ import PreviewIcanReceipt from '../pages/ReceiptIcan/PreviewIcanReceipt.vue';
 const routes = [
   {
     path: '/',
-    redirect: '/splash', // Redirect to splash screen on initial load
+    redirect: '/splash'
   },
   {
     path: '/splash',
@@ -44,6 +45,11 @@ const routes = [
     name: 'Settings',
     component: SettingsPage,
     props: (route) => ({ branch: route.query.branch || '' }),
+  },
+  {
+    path: '/ican-app',
+    name: 'IcanApp',
+    component: HomePage,
   },
   {
     path: '/ican-app/dashboard',
@@ -148,11 +154,16 @@ const router = createRouter({
 
 const protectedRoutes = ['Dashboard', 'Invoice', 'Receipt', 'Stats', 'MemberManagement', 'Reports', 'Signature', 'SavedInvoices', 'SavedReceipts', 'ican-app-invoice-preview', 'ican-app-receipt-preview', 'ican-app-signature'];
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   // Check if route requires basic branch access
   if (protectedRoutes.includes(to.name)) {
+    // Check for session in SecureStorage (Capacitor Preferences on native, localStorage on web)
+    const isValid = await SessionManager.isSessionValid();
+    // Also check localStorage for backward compatibility with existing users
     const user = localStorage.getItem('user');
-    if (!user) {
+    
+    if (!isValid && !user) {
+      console.warn('⚠️ No active session found, redirecting to Home');
       next({ name: 'Home' });
     } else {
       next();

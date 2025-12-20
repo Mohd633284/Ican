@@ -274,7 +274,7 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, watch, onMounted } from 'vue';
+import { defineComponent, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getMemberActivities } from '../api-service';
 import { getDashboardData } from '../api-service';
@@ -292,6 +292,8 @@ import {
   Filler
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'vue-chartjs';
+import KpiCard from '../components/KpiCard.vue';
+import TrendCard from '../components/TrendCard.vue';
 
 // Register Chart.js components
 ChartJS.register(
@@ -306,48 +308,6 @@ ChartJS.register(
   Legend,
   Filler
 );
-
-const KpiCard = defineComponent({
-  name: 'KpiCard',
-  props: {
-    title: String,
-    value: [String, Number],
-    trend: String,
-    trendLabel: String,
-    gradient: {
-      type: String,
-      default: 'from-sky-500 to-blue-600'
-    }
-  },
-  template: `
-    <div class="bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 rounded-2xl shadow-xl p-6">
-      <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ title }}</p>
-      <p class="mt-4 text-3xl font-bold text-slate-900 dark:text-white">{{ value }}</p>
-      <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold text-white bg-gradient-to-r" :class="gradient">
-        {{ trend }}
-      </div>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">{{ trendLabel }}</p>
-    </div>
-  `
-});
-
-const TrendCard = defineComponent({
-  name: 'TrendCard',
-  props: {
-    title: String,
-    primary: String,
-    secondary: String,
-    trend: String
-  },
-  template: `
-    <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 p-5">
-      <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{{ title }}</p>
-      <p class="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{{ primary }}</p>
-      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ secondary }}</p>
-      <span class="mt-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-xs text-emerald-600 dark:text-emerald-300">{{ trend }}</span>
-    </div>
-  `
-});
 
 export default defineComponent({
   name: 'ReportsAnalyticsPage',
@@ -852,9 +812,35 @@ export default defineComponent({
       refreshData();
     }, { immediate: true });
 
-    onMounted(() => {
+    // Android back button handler
+    let backButtonListener = null;
+
+    onMounted(async () => {
       if (branchName.value) {
         refreshData();
+      }
+      
+      // Handle Android hardware back button
+      const handleAndroidBackButton = async () => {
+        console.log('🔙 Android back button pressed on Reports & Analytics');
+        // Navigate back to dashboard
+        router.push({ path: '/ican/dashboard', query: { branch: branchName.value } });
+      };
+      
+      // Register Android back button listener
+      try {
+        const { App } = await import('@capacitor/app');
+        backButtonListener = App.addListener('backButton', handleAndroidBackButton);
+        console.log('✅ Android back button listener registered for Reports & Analytics');
+      } catch (error) {
+        console.log('ℹ️ Not running on Android or Capacitor not available:', error);
+      }
+    });
+
+    onUnmounted(() => {
+      if (backButtonListener && typeof backButtonListener.remove === 'function') {
+        backButtonListener.remove();
+        console.log('✅ Android back button listener removed from Reports & Analytics');
       }
     });
 

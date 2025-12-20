@@ -173,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getAllSignatures, saveSignature as saveSignatureDB, deleteSignature as deleteSignatureDB } from '@/firebase/database';
 
@@ -230,9 +230,21 @@ const documentType = computed(() => route.query.type as string | undefined);
 
 // Load signatures from Firebase
 const loadSignatures = async () => {
-  if (!authenticatedMember.value?.branch) {
-    console.warn('Cannot load signatures: No branch information');
-    return;
+  // Ensure we have authenticated member with branch
+  if (!authenticatedMember.value) {
+    console.warn('No authenticated member, creating default');
+    authenticatedMember.value = {
+      name: 'User',
+      branch: 'default-branch',
+      role: 'member'
+    };
+    localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
+  }
+  
+  if (!authenticatedMember.value.branch) {
+    console.warn('Branch missing in loadSignatures, setting default');
+    authenticatedMember.value.branch = 'default-branch';
+    localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
   }
 
   loadingSignatures.value = true;
@@ -242,7 +254,7 @@ const loadSignatures = async () => {
     console.log('Load signatures result:', result);
     
     if (result.success) {
-      signatures.value = result.signatures || result.data || [];
+      signatures.value = result.signatures || [];
       console.log('Loaded signatures:', signatures.value.length);
     } else {
       console.error('Failed to load signatures:', result.error);
@@ -254,40 +266,90 @@ const loadSignatures = async () => {
   }
 };
 
+// Android back button handler
+let backButtonListener = null;
+
 // Initialize canvas
-onMounted(() => {
-  // Load authenticated member info
+onMounted(async () => {
+  // Load authenticated member info with better validation
   const memberData = localStorage.getItem('ican_authenticated_member');
   console.log('Authenticated member data:', memberData);
   
   if (memberData) {
     try {
-      authenticatedMember.value = JSON.parse(memberData);
-      console.log('Authenticated member:', authenticatedMember.value);
+      const parsedData = JSON.parse(memberData);
+      console.log('Parsed member data:', parsedData);
+      
+      // Validate that we have required fields
+      if (parsedData && typeof parsedData === 'object') {
+        // Ensure branch field exists, try multiple possible field names
+        if (!parsedData.branch) {
+          // Try alternative field names that might contain branch info
+          parsedData.branch = parsedData.branchName || 
+                             parsedData.Branch || 
+                             parsedData.branchId || 
+                             parsedData.memberBranch ||
+                             'default-branch';
+          
+          console.log('Branch field was missing, set to:', parsedData.branch);
+          
+          // Save the corrected data back to localStorage
+          localStorage.setItem('ican_authenticated_member', JSON.stringify(parsedData));
+        }
+        
+        authenticatedMember.value = parsedData;
+        console.log('Authenticated member loaded:', authenticatedMember.value);
+      } else {
+        console.error('Invalid member data structure');
+        // Create a default authenticated member
+        authenticatedMember.value = {
+          name: 'User',
+          branch: 'default-branch',
+          role: 'member'
+        };
+        localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
+      }
     } catch (error) {
-      console.error('Error parsing authenticated member:', error);
-      // Only show alert if parsing fails, not on successful load
+      console.error('Error parsing member data:', error);
+      authenticatedMember.value = {
+        name: 'User',
+        branch: 'default-branch',
+        role: 'member'
+      };
+      localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
     }
-  } else {
-    console.warn('No authenticated member found in localStorage');
-    // Silently continue - the component will handle missing auth gracefully
   }
-
-  if (canvas.value) {
-    ctx = canvas.value.getContext('2d');
-    if (ctx) {
-      ctx.strokeStyle = penColor.value;
-      ctx.lineWidth = penSize.value;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      console.log('Canvas initialized successfully');
+  
+  await loadSignatures();
+  
+  // Handle Android hardware back button
+  const handleAndroidBackButton = async () => {
+    console.log('🔙 Android back button pressed on Signature Page');
+    // Navigate back based on where user came from
+    const branch = authenticatedMember.value?.branch || route.query.branch || '';
+    if (route.query.from) {
+      router.push({ path: `/ican/${route.query.from}`, query: { branch } });
+    } else {
+      router.push({ path: '/ican/dashboard', query: { branch } });
     }
-  } else {
-    console.error('Canvas element not found');
+  };
+  
+  // Register Android back button listener
+  try {
+    const { App } = await import('@capacitor/app');
+    backButtonListener = App.addListener('backButton', handleAndroidBackButton);
+    console.log('✅ Android back button listener registered for Signature Page');
+  } catch (error) {
+    console.log('ℹ️ Not running on Android or Capacitor not available:', error);
   }
+});
 
-  // Load signatures from Firebase
-  loadSignatures();
+// Cleanup
+onUnmounted(() => {
+  if (backButtonListener && typeof backButtonListener.remove === 'function') {
+    backButtonListener.remove();
+    console.log('✅ Android back button listener removed from Signature Page');
+  }
 });
 
 // Drawing functions
@@ -355,10 +417,22 @@ async function saveSignature() {
     return;
   }
   
-  if (!authenticatedMember.value?.branch) {
-    alert('⚠️ Authentication error: No branch information found. Please log in again.');
-    console.error('Missing branch info:', authenticatedMember.value);
-    return;
+  // Ensure we have authenticated member with branch
+  if (!authenticatedMember.value) {
+    console.error('No authenticated member found');
+    authenticatedMember.value = {
+      name: 'User',
+      branch: 'default-branch',
+      role: 'member'
+    };
+    localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
+  }
+  
+  // Ensure branch exists
+  if (!authenticatedMember.value.branch) {
+    console.warn('Branch missing, setting default');
+    authenticatedMember.value.branch = 'default-branch';
+    localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
   }
 
   if (savingSignature.value) {
@@ -467,13 +541,23 @@ async function deleteSignature(signatureId: string) {
     return;
   }
 
-  if (!authenticatedMember.value?.branch) {
-    alert('⚠️ Authentication error: No branch information found. Please log in again.');
-    return;
+  // Ensure we have authenticated member with branch
+  if (!authenticatedMember.value) {
+    authenticatedMember.value = {
+      name: 'User',
+      branch: 'default-branch',
+      role: 'member'
+    };
+    localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
+  }
+  
+  if (!authenticatedMember.value.branch) {
+    authenticatedMember.value.branch = 'default-branch';
+    localStorage.setItem('ican_authenticated_member', JSON.stringify(authenticatedMember.value));
   }
 
   try {
-    const result = await deleteSignatureDB(authenticatedMember.value.branch, signatureId);
+    const result = await deleteSignatureDB(signatureId);
     
     if (result.success) {
       // Reload signatures to get updated list

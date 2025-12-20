@@ -10,6 +10,7 @@ import {
   ICANCounterService,
   ICANInvoiceService,
   ICANReceiptService,
+  ICANStatsService,
   type ICANBranch, 
   type ICANUser
 } from './services/ican-service.js'

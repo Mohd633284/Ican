@@ -2,21 +2,68 @@
   <div class="min-h-screen bg-slate-100 dark:bg-slate-900 p-4">
     <!-- Header -->
     <div class="max-w-7xl mx-auto mb-3">
-      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-3 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+        <!-- Mobile Layout -->
+        <div class="flex flex-col gap-3 sm:hidden">
+          <!-- Top Row: Back Button + Title -->
           <div class="flex items-center gap-2">
             <button
               @click="$router.push({ name: 'Dashboard', query: { branch: currentBranch } })"
-              class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors"
+              class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors flex-shrink-0"
               title="Go Back"
             >
-              <svg class="w-4 h-4 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <div class="flex-1 min-w-0">
+              <h1 class="text-lg font-bold text-slate-900 dark:text-white truncate">Saved ICAN Receipts</h1>
+              <p class="text-xs text-slate-600 dark:text-slate-400 truncate">
+                Branch: {{ currentBranch }}
+              </p>
+            </div>
+          </div>
+          
+          <!-- Bottom Row: Action Buttons -->
+          <div class="flex gap-2">
+            <button
+              @click="refreshReceipts"
+              :disabled="isLoading"
+              class="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors text-sm flex-1"
+            >
+              <svg class="w-4 h-4" :class="{ 'animate-spin': isLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span class="hidden xs:inline">{{ isLoading ? 'Loading...' : 'Refresh' }}</span>
+            </button>
+            
+            <button
+              @click="createNewReceipt"
+              class="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm flex-1"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span class="hidden xs:inline">Create New</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Desktop Layout -->
+        <div class="hidden sm:flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button
+              @click="$router.push({ name: 'Dashboard', query: { branch: currentBranch } })"
+              class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors"
+              title="Go Back"
+            >
+              <svg class="w-5 h-5 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
             <div>
               <h1 class="text-xl font-bold text-slate-900 dark:text-white">Saved ICAN Receipts</h1>
-              <p class="text-xs text-slate-600 dark:text-slate-400">
+              <p class="text-sm text-slate-600 dark:text-slate-400">
                 Manage your saved ICAN receipts • Branch: {{ currentBranch }}
               </p>
             </div>
@@ -27,9 +74,9 @@
             <button
               @click="refreshReceipts"
               :disabled="isLoading"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors text-sm"
+              class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors text-sm font-medium"
             >
-              <svg class="w-3.5 h-3.5" :class="{ 'animate-spin': isLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4" :class="{ 'animate-spin': isLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               {{ isLoading ? 'Loading...' : 'Refresh' }}
@@ -37,9 +84,9 @@
             
             <button
               @click="createNewReceipt"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm"
+              class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm font-medium"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
               Create New Receipt
@@ -327,7 +374,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { logActivity } from '../../api-service'
 
@@ -342,14 +389,41 @@ const currentPage = ref(1)
 const itemsPerPage = ref(12)
 const currentBranch = ref('')
 
+// Android back button handler
+let backButtonListener = null
+
 // Load current branch
-onMounted(() => {
+onMounted(async () => {
   const memberData = localStorage.getItem('authenticatedMember')
   if (memberData) {
     const member = JSON.parse(memberData)
     currentBranch.value = member.branch || 'Unknown'
   }
   loadReceipts()
+  
+  // Handle Android hardware back button
+  const handleAndroidBackButton = async () => {
+    console.log('🔙 Android back button pressed on Saved Receipts')
+    // Navigate back to dashboard
+    router.push({ path: '/ican/dashboard', query: { branch: currentBranch.value } })
+  }
+  
+  // Register Android back button listener
+  try {
+    const { App } = await import('@capacitor/app')
+    backButtonListener = App.addListener('backButton', handleAndroidBackButton)
+    console.log('✅ Android back button listener registered for Saved Receipts')
+  } catch (error) {
+    console.log('ℹ️ Not running on Android or Capacitor not available:', error)
+  }
+})
+
+// Cleanup
+onUnmounted(() => {
+  if (backButtonListener && typeof backButtonListener.remove === 'function') {
+    backButtonListener.remove()
+    console.log('✅ Android back button listener removed from Saved Receipts')
+  }
 })
 
 // Load ICAN receipts from Firebase/localStorage
@@ -373,7 +447,7 @@ const loadReceipts = async () => {
       const { getReceipts } = await import('@/firebase/database')
       const result = await getReceipts(member.branch)
       if (result.success) {
-        receipts.value = result.receipts || result.data || []
+        receipts.value = result.receipts || []
       } else {
         console.error('Firebase error:', result.error)
         // Fallback to localStorage
@@ -425,7 +499,7 @@ const filteredReceipts = computed(() => {
     
     filtered = filtered.filter(receipt => {
       const receiptDate = new Date(receipt.date || receipt.createdAt)
-      const diffMs = now - receiptDate
+      const diffMs = now.getTime() - receiptDate.getTime()
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
       
       switch (filterPeriod.value) {
@@ -449,9 +523,9 @@ const filteredReceipts = computed(() => {
   filtered.sort((a, b) => {
     switch (sortBy.value) {
       case 'dateDesc':
-        return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+        return new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime()
       case 'dateAsc':
-        return new Date(a.createdAt || a.date) - new Date(b.createdAt || b.date)
+        return new Date(a.createdAt || a.date).getTime() - new Date(b.createdAt || b.date).getTime()
       case 'customerName':
         return (a.receivedFrom || '').localeCompare(b.receivedFrom || '')
       case 'receiptNumber':
@@ -516,12 +590,12 @@ const storageUsed = computed(() => {
 
 // Actions
 const createNewReceipt = () => {
-  router.push({ name: 'ican-app-receipt', query: { branch: currentBranch.value } })
+  router.push({ path: '/ican-app/receipt', query: { branch: currentBranch.value } })
 }
 
 const viewReceipt = (receipt) => {
   router.push({ 
-    name: 'ican-app-receipt-preview', 
+    path: '/ican-app/receipt-preview', 
     query: { 
       branch: currentBranch.value,
       receiptId: receipt.id 
@@ -531,7 +605,7 @@ const viewReceipt = (receipt) => {
 
 const editReceipt = (receipt) => {
   router.push({ 
-    name: 'ican-app-receipt', 
+    path: '/ican-app/receipt', 
     query: { 
       branch: currentBranch.value,
       edit: receipt.id 
@@ -593,26 +667,10 @@ const deleteReceipt = async (receipt) => {
       
       // Try Firebase first
       try {
-        const { deleteReceipt: deleteFromFirebase } = await import('@/firebase/database')
-        const result = await deleteFromFirebase(member.branch, receipt.id)
-        if (result.success) {
-          await loadReceipts()
-          
-          // Log delete activity
-          await logActivity(member.branch, {
-            action: `Receipt Deleted`,
-            memberName: member.name || 'Unknown Member',
-            type: 'delete',
-            details: {
-              documentNumber: receipt.receiptNumber || receipt.id,
-              customerName: receipt.receivedFrom || receipt.customerName || 'Unknown Customer',
-              amount: receipt.naira || receipt.amount || '0'
-            }
-          });
-          
-          alert('Receipt deleted successfully!')
-          return
-        }
+        // TODO: Implement deleteReceipt in @/firebase/database
+        // const { deleteReceipt: deleteFromFirebase } = await import('@/firebase/database')
+        // const result = await deleteFromFirebase(member.branch, receipt.id)
+        console.log('Firebase delete not yet implemented for receipt:', receipt.id)
       } catch (error) {
         console.error('Firebase delete failed:', error)
       }
@@ -623,14 +681,13 @@ const deleteReceipt = async (receipt) => {
       localStorage.setItem(`ican_receipts_${member.branch}`, JSON.stringify(filteredReceipts))
       await loadReceipts()
       
-      // Log delete activity for localStorage fallback
+      // Log delete activity
       await logActivity(member.branch, {
         action: `Receipt Deleted`,
         memberName: member.name || 'Unknown Member',
-        type: 'delete',
+        type: 'other',
         details: {
           documentNumber: receipt.receiptNumber || receipt.id,
-          customerName: receipt.receivedFrom || receipt.customerName || 'Unknown Customer',
           amount: receipt.naira || receipt.amount || '0'
         }
       });
@@ -666,7 +723,7 @@ const getTimeAgo = (dateStr) => {
   if (!dateStr) return 'Unknown'
   const now = new Date()
   const date = new Date(dateStr)
-  const diffMs = now - date
+  const diffMs = now.getTime() - date.getTime()
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
   const diffMins = Math.floor(diffMs / (1000 * 60))

@@ -55,7 +55,7 @@
               </button>
               
               <!-- Dropdown Menu -->
-              <div v-if="showInvoiceMenu" class="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
+              <div v-if="showInvoiceMenu" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
                 <button
                   @click="handleSaveInvoice"
                   class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-t-lg flex items-center gap-2"
@@ -480,8 +480,8 @@ export default defineComponent({
     const logoDataUrl = ref('');
     const autoReceiptNumber = ref(true);
     const autoDate = ref(true);
-    const taxEnabled = ref(true); // Tax column enable/disable toggle
-    const showPageNumbers = ref(false); // Show page/copy numbers toggle
+    const taxEnabled = ref(false); // Tax column enable/disable toggle (OFF by default)
+    const showPageNumbers = ref(true); // Show page/copy numbers toggle (ON by default)
     
     // Dynamic Branches Management
     const additionalBranches = ref([]);
@@ -781,6 +781,8 @@ export default defineComponent({
       branchAddress2, 
       branch2Phone, 
       logoDataUrl, 
+      autoReceiptNumber, // Add this to watch for changes
+      autoDate, // Add this to watch for changes
       taxEnabled,
       smartTextInput,
       additionalBranches,
@@ -1079,6 +1081,8 @@ export default defineComponent({
         branchAddress2: branchAddress2.value,
         branch2Phone: branch2Phone.value,
         logoDataUrl: logoDataUrl.value,
+        autoReceiptNumber: autoReceiptNumber.value, // Save auto receipt number toggle state
+        autoDate: autoDate.value, // Save auto date toggle state
         taxEnabled: taxEnabled.value,
         showPageNumbers: showPageNumbers.value,
         totalCopies: totalCopies.value,
@@ -1092,7 +1096,6 @@ export default defineComponent({
         selectedSignature2: selectedSignature2.value,
         signatureImage1: signatureImage1.value,
         signatureImage2: signatureImage2.value,
-        autoDate: autoDate.value, // Save auto date toggle state
         additionalBranches: additionalBranches.value, // Save dynamic branches
         timestamp: Date.now() // Add timestamp for data validation
       };
@@ -1141,6 +1144,7 @@ export default defineComponent({
           selectedSignature2.value = formData.selectedSignature2 || '';
           signatureImage1.value = formData.signatureImage1 || '';
           signatureImage2.value = formData.signatureImage2 || '';
+          autoReceiptNumber.value = formData.autoReceiptNumber !== undefined ? formData.autoReceiptNumber : true;
           autoDate.value = formData.autoDate !== undefined ? formData.autoDate : true;
           
           // Restore dynamic branches if available

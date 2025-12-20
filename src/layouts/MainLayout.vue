@@ -35,22 +35,13 @@ export default {
   name: 'MainLayout',
   methods: {
     goBack() {
-      try {
-        // Check if we can go back in router history
-        if (this.$router.options.history.state && this.$router.options.history.state.back) {
-          this.$router.go(-1);
-        } else {
-          // Fallback to home page if no router history
-          this.$router.push({ name: 'Home' });
-        }
-      } catch (error) {
-        console.warn('Router navigation failed, using fallback:', error);
-        // Final fallback: try to go back, or go to root
-        if (window.history.length > 1) {
-          this.$router.go(-1);
-        } else {
-          this.$router.push('/');
-        }
+      // Simply go back in browser history
+      // This allows continuous backward navigation through all previous pages
+      if (window.history.length > 1) {
+        this.$router.go(-1);
+      } else {
+        // Only if there's no history (app just opened), go to home
+        this.$router.push('/');
       }
     }
   }

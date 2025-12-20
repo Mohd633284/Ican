@@ -55,7 +55,7 @@
                         </button>
                         
                         <!-- Dropdown Menu -->
-                        <div v-if="showInvoiceMenu" class="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
+                        <div v-if="showInvoiceMenu" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
                           <button
                             @click="handleSaveReceipt"
                             class="w-full text-left px-3 py-2 text-[10px] font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors rounded-t-lg flex items-center gap-2"
@@ -265,35 +265,6 @@
                   />
                 </div>
 
-                <!-- The Sum of (Line 1) -->
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                    The Sum of (Amount in Words - Line 1)
-                  </label>
-                  <input
-                    ref="sumOfInput1"
-                    v-model="sumOf"
-                    type="text"
-                    placeholder="e.g., Twenty thousand naira"
-                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-                    @input="handleSumOfOverflow"
-                  />
-                </div>
-
-                <!-- The Sum of (Line 2) -->
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                    Amount in Words - Line 2 (if needed)
-                  </label>
-                  <input
-                    ref="sumOfInput2"
-                    v-model="sumOf2"
-                    type="text"
-                    placeholder="Continuation of amount in words"
-                    class="w-full px-3 py-2 text-sm border border-emerald-300 dark:border-emerald-600 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-                    @input="handleSumOf2Input"
-                  />
-                </div>
               </div>
             </div>
 
@@ -457,8 +428,8 @@ export default defineComponent({
     const logoDataUrl = ref('');
     const autoReceiptNumber = ref(true);
     const autoDate = ref(true);
-    const taxEnabled = ref(true); // Tax column enable/disable toggle
-    const showPageNumbers = ref(false); // Show page/copy numbers toggle
+    const taxEnabled = ref(false); // Tax column enable/disable toggle (OFF by default)
+    const showPageNumbers = ref(true); // Show page/copy numbers toggle (ON by default)
     
     // Dynamic Branches Management
     const additionalBranches = ref([]);
@@ -907,6 +878,8 @@ export default defineComponent({
       branchAddress2, 
       branch2Phone, 
       logoDataUrl, 
+      autoReceiptNumber, // Add this to watch for changes
+      autoDate, // Add this to watch for changes
       taxEnabled,
       smartTextInput,
       additionalBranches,
@@ -1215,6 +1188,8 @@ export default defineComponent({
         branchAddress2: branchAddress2.value,
         branch2Phone: branch2Phone.value,
         logoDataUrl: logoDataUrl.value,
+        autoReceiptNumber: autoReceiptNumber.value, // Save auto receipt number toggle state
+        autoDate: autoDate.value, // Save auto date toggle state
         taxEnabled: taxEnabled.value,
         showPageNumbers: showPageNumbers.value,
         totalCopies: totalCopies.value,
@@ -1231,7 +1206,6 @@ export default defineComponent({
         additionalBranches: additionalBranches.value, // Save dynamic branches
         // Per-page data structure
         pageData: pageData.value,
-        autoDate: autoDate.value, // Save auto date toggle state
         timestamp: Date.now() // Add timestamp for data validation
       };
       
@@ -1279,6 +1253,8 @@ export default defineComponent({
           selectedSignature2.value = formData.selectedSignature2 || '';
           signatureImage1.value = formData.signatureImage1 || '';
           signatureImage2.value = formData.signatureImage2 || '';
+          autoReceiptNumber.value = formData.autoReceiptNumber !== undefined ? formData.autoReceiptNumber : true;
+          autoDate.value = formData.autoDate !== undefined ? formData.autoDate : true;
           // Restore dynamic branches if available
           if (formData.additionalBranches && Array.isArray(formData.additionalBranches)) {
             additionalBranches.value = formData.additionalBranches;

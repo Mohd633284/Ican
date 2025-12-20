@@ -390,10 +390,7 @@
                 📤 Export & Share
               </button>
             </div>
-            
-              </div>
-            </div>
-        </div>
+          </div>
         </div>
       </div>
         
@@ -884,7 +881,7 @@
                 data-text-id="org-name"
                 :style="{ 
                   color: colorStyles.accentColor,
-                  fontFamily: '\'Arial Narrow\', \'Roboto Condensed\', \'Oswald\', sans-serif',
+                  fontFamily: 'Impact, \'Arial Black\', \'Haettenschweiler\', \'Franklin Gothic Bold\', sans-serif',
                   fontWeight: '900',
                   fontSize: invoiceWidth <= 5 ? '21px' : '25px',
                   letterSpacing: '1px',
@@ -922,7 +919,7 @@
                 :style="{ 
                   fontSize: '13px',
                   lineHeight: '1.1',
-                  color: '#1f2937',
+                  color: 'red',
                   fontWeight: '900',
                   marginTop: '2px',
                   marginBottom: '1px',
@@ -1021,123 +1018,127 @@
             
           </div>
  <!-- Body -->
-        <div class="text-sm flex-grow p-2 border-[2px] border-black rounded-xl" :style="{ display: 'flex', flexDirection: 'column', gap: '6px', minHeight: `${(invoiceHeight - 2)}in`, height: 'auto' }">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-1">
-              <span class="font-medium" style="font-size: 14px;">Date:</span>
-              <div 
-                class="bg-transparent border-b border-dotted border-black focus:outline-none min-w-[80px] h-[20px] flex items-center"
-                style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
-              >
-                <span v-if="autoDate">{{ new Date().toLocaleDateString() }}</span>
+        <div class="text-sm flex-grow p-2 border-[2px] border-black rounded-xl" :style="{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '4px', height: `${Math.max(2.5, invoiceHeight - 2.5)}in`, overflow: 'hidden' }">
+          <!-- Form Fields Section -->
+          <div class="flex flex-col" :style="{ gap: invoiceHeight < 5 ? '0px' : '2px' }">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-1">
+                <span class="font-medium" style="font-size: 14px;">Date:</span>
+                <div 
+                  class="bg-transparent border-b border-dotted border-black focus:outline-none min-w-[80px] h-[20px] flex items-center"
+                  style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
+                >
+                  <span v-if="autoDate">{{ new Date().toLocaleDateString() }}</span>
+                </div>
+              </div>
+              <div  class="flex items-center gap-1 mr-10">
+                <span class="font-medium" style="font-size: 14px;">No.:</span>
+                <div v-if="showPageNumbers" class="text-center text-base">
+                    {{ currentInvoiceNumber }}
+                  </div>
               </div>
             </div>
-            <div class="flex items-center gap-1">
-              <span class="font-medium" style="font-size: 14px;">No.:</span>
-               <div class="text-center text-base">
-                  {{ currentInvoiceNumber }}
-                </div>
+
+            <div class="flex items-center gap-1" :style="{ marginTop: invoiceHeight < 5 ? '1px' : `${9 + ((invoiceHeight - 5) / 0.5) * 6.75}px` }">
+              <span class="font-medium" style="font-size: 16px;">Received From:</span>
+              <input
+                v-model="receivedFrom"
+                placeholder=" "
+                class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
+                style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
+              />
             </div>
-          </div>
 
-          <div class="flex items-center gap-1 mt-2">
-            <span class="font-medium" style="font-size: 16px;">Received From:</span>
-            <input
-              v-model="receivedFrom"
-              placeholder=" "
-              class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
-              style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
-            />
-          </div>
-
-          <div class="flex items-center gap-1 mt-2">
-            <span class="font-medium" style="font-size: 16px;">The Sum of:</span>
-            <input
-              ref="sumOfInput1"
-              v-model="sumOf"
-              @input="handleSumOfOverflow"
-              class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
-              style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
-            />
-          </div>
-
-          <div class="flex items-center gap-2 mt-2">
-            <input
-              ref="sumOfInput2"
-              v-model="sumOf2"
-              type="text"
-              @input="handleSumOf2Input"
-              class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
-              style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
-            />
-            <div class="flex items-center gap-1 pt-3">
-              <span class="font-medium" style="font-size: 14px;">Naira</span>
-            <div class="w-14 bg-transparent  border-b-2 border-solid border-black flex items-center justify-center text-center">
-              <span class="font-medium " style="font-size: 14px;"></span>
+            <div class="flex items-center gap-1" :style="{ marginTop: invoiceHeight < 5 ? '1px' : `${9 + ((invoiceHeight - 5) / 0.5) * 6.75}px` }">
+              <span class="font-medium" style="font-size: 16px;">The Sum of:</span>
+              <input
+                ref="sumOfInput1"
+                v-model="sumOf"
+                @input="handleSumOfOverflow"
+                class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
+                style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
+              />
             </div>
-            <span class="font-medium" style="font-size: 14px;">Kobo</span>
+
+            <div class="flex items-center gap-2" :style="{ marginTop: invoiceHeight < 5 ? '1px' : `${9 + ((invoiceHeight - 5) / 0.5) * 6.75}px` }">
+              <input
+                ref="sumOfInput2"
+                v-model="sumOf2"
+                type="text"
+                @input="handleSumOf2Input"
+                class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
+                style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
+              />
+              <div class="flex items-center gap-1 pt-1">
+                <span class="font-medium" style="font-size: 14px;">Naira</span>
+              <div class="w-14 bg-transparent  border-b-2 border-solid border-black flex items-center justify-center text-center">
+                <span class="font-medium " style="font-size: 14px;"></span>
+              </div>
+              <span class="font-medium" style="font-size: 14px;">Kobo</span>
+              </div>
             </div>
-          </div>
 
-          <div class="flex items-center gap-1 mt-2">
-            <span class="font-medium" style="font-size: 16px;">Being Payment for:</span>
-            <input
-              ref="paymentForInput1"
-              v-model="paymentFor"
-              @input="handlePaymentForOverflow"
-              class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
-              style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
-            />
-          </div>
+            <div class="flex items-center gap-1" :style="{ marginTop: invoiceHeight < 5 ? '1px' : `${9 + ((invoiceHeight - 5) / 0.5) * 6.75}px` }">
+              <span class="font-medium" style="font-size: 16px;">Being Payment for:</span>
+              <input
+                ref="paymentForInput1"
+                v-model="paymentFor"
+                @input="handlePaymentForOverflow"
+                class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
+                style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
+              />
+            </div>
 
-          <!-- Additional line for payment description -->
-          <div class="flex items-center gap-2 mt-2">
-            <input
-              ref="paymentForInput2"
-              v-model="paymentFor2"
-              @input="handlePaymentFor2Input"
-              class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
-              style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
-            />
+            <!-- Additional line for payment description -->
+            <div class="flex items-center gap-2" :style="{ marginTop: invoiceHeight < 5 ? '1px' : `${9 + ((invoiceHeight - 5) / 0.5) * 6.75}px` }">
+              <input
+                ref="paymentForInput2"
+                v-model="paymentFor2"
+                @input="handlePaymentFor2Input"
+                class="flex-1 bg-transparent border-b-2 border-solid border-black focus:outline-none"
+                style="font-family: 'Georgia, serif'; font-size: 16px; font-style: italic;"
+              />
+            </div>
           </div>
           
-          <div class="flex justify-between items-end" :style="{ marginTop: '4px', paddingTop: '0px' }">
+          <!-- Signature Section - Pushed to Bottom -->
+          <div class="flex justify-between items-end mt-auto mb-3" :style="{ paddingTop: '2px' }">
            
             <!-- Signature 1 -->
-            <div class="flex flex-col items-center" :style="{ gap: '1px', flex: '0 0 auto', minWidth: '80px' }">
+            <div class="flex flex-col items-center" :style="{ gap: '2px', flex: '0 0 auto', minWidth: '90px' }">
               <!-- Signature 1 Image -->
-              <div v-if="signatureImage1" class="flex items-end justify-center" :style="{ height: '0.35in', marginBottom: '-0.03in' }">
-                <img :src="signatureImage1" alt="Signature 1" class="w-auto object-contain object-bottom" :style="{ maxHeight: '0.45in', maxWidth: '1.3in' }" />
+              <div v-if="signatureImage1" class="flex items-end justify-center" :style="{ height: '0.5in', marginBottom: '0in' }">
+                <img :src="signatureImage1" alt="Signature 1" class="w-auto object-contain object-bottom" :style="{ maxHeight: '0.5in', maxWidth: '1.8in' }" />
               </div>
 
-              <div v-else class="flex items-center justify-center" :style="{ height: '0.35in', width: '1.1in' }">
+              <div v-else class="flex items-center justify-center" :style="{ height: '0.5in', width: '1.5in' }">
                 <!-- Empty space for signature -->
               </div>
 
-              <div class="w-full border-t border-black text-center" :style="{ paddingTop: '1px' }">
+              <div class="w-full border-t border-black text-center" :style="{ paddingTop: '2px' }">
                <p class="italic" :style="{ fontSize: '12px', lineHeight: '1.2' }">Signature</p>
              </div>  
             </div>
 
             <!-- Amount in figures - Show container always but amount only when entered -->
             <div class="flex flex-col items-center justify-end" :style="{ flex: '1 1 auto', maxWidth: '40%' }">
-              <div class="border-2 border-yellow-400 bg-yellow-50" :style="{ padding: '0.08in 0.15in', minWidth: '1.5in', minHeight: '0.4in', display: 'flex', justifyContent: 'center', alignItems: 'center' }">
+              <div class="border-2 border-yellow-400 bg-yellow-50" :style="{ padding: '0.08in 0.14in', minWidth: '1.5in', minHeight: '0.4in', display: 'flex', justifyContent: 'center', alignItems: 'center' }">
                 <span v-if="naira && naira > 0" class="font-bold" :style="{ fontSize: '18px' }">₦{{ naira }}</span>
               </div>
             </div>
 
          <!-- Signature 2 -->
-            <div class="flex flex-col items-center" :style="{ gap: '1px', flex: '0 0 auto', minWidth: '80px' }">
+            <div class="flex flex-col items-center" :style="{ gap: '2px', flex: '0 0 auto', minWidth: '90px' }">
               <!-- Signature 2 Image -->
-              <div v-if="signatureImage2" class="flex items-end justify-center" :style="{ height: '0.5in', marginBottom: '-0.05in' }">
-                <img :src="signatureImage2" alt="Signature 2" class="w-auto object-contain object-bottom" :style="{ maxHeight: '0.45in', maxWidth: '1.3in' }" />
+              <div v-if="signatureImage2" class="flex items-end justify-center" :style="{ height: '0.5in', marginBottom: '0in' }">
+                <img :src="signatureImage2" alt="Signature 2" class="w-auto object-contain object-bottom" :style="{ maxHeight: '0.5in', maxWidth: '1.8in' }" />
               </div>
 
-              <div v-else class="flex items-center justify-center" :style="{ height: '0.35in', width: '1.1in' }">
+              <div v-else class="flex items-center justify-center" :style="{ height: '0.5in', width: '1.5in' }">
                 <!-- Empty space for signature -->
               </div>
 
-             <div class="w-full border-t border-black text-center" :style="{ paddingTop: '1px' }">
+             <div class="w-full border-t border-black text-center" :style="{ paddingTop: '2px' }">
                <p class="italic" :style="{ fontSize: '12px', lineHeight: '1.2' }">Signature</p>
              </div> 
             </div>
@@ -1157,6 +1158,10 @@
 <!-- End of wrapper -->
 </section>
 <!-- End of Invoice Preview Section -->
+</div>
+<!-- End of Main Content v-else -->
+</div>
+<!-- End of root div -->
 </template>
 
 <script>
@@ -1169,6 +1174,10 @@ import * as htmlToImage from 'html-to-image';
 import { getAllSignatures, logActivity } from '../../api-service';
 import { safeLocalStorage } from '@/utils/storage.utils.js';
 import { withFirebaseErrorHandling } from '@/utils/firebase-error-handler.js';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 export default defineComponent({
   name: 'InvoicePreviewPage',
@@ -1282,12 +1291,42 @@ export default defineComponent({
       }
     };
     
+    // Android back button handler
+    let backButtonListener = null;
+    
     onMounted(() => {
       window.addEventListener('resize', updateWindowDimensions);
-      // Initial dimension update
+      // Initial dimension update - wait for DOM to fully paint
       nextTick(() => {
-        updateContainerDimensions();
+        // Add small delay to ensure browser has completed layout
+        setTimeout(() => {
+          updateContainerDimensions();
+          // Force a second update to ensure everything is properly positioned
+          setTimeout(() => {
+            updateContainerDimensions();
+          }, 100);
+        }, 50);
       });
+      
+      // Handle Android hardware back button
+      const handleAndroidBackButton = async () => {
+        console.log('🔙 Android back button pressed on PreviewIcanReceipt');
+        // Navigate back to receipt page or dashboard
+        const branch = route.query.branch || '';
+        if (route.query.from === 'receipt') {
+          router.push({ path: '/ican/receipt', query: { branch } });
+        } else {
+          router.push({ path: '/ican/dashboard', query: { branch } });
+        }
+      };
+      
+      // Register Android back button listener
+      try {
+        backButtonListener = App.addListener('backButton', handleAndroidBackButton);
+        console.log('✅ Android back button listener registered for PreviewIcanReceipt');
+      } catch (error) {
+        console.log('ℹ️ Not running on Android or Capacitor not available:', error);
+      }
     });
     
     // Debounced quick save function for settings changes - declare before onUnmounted
@@ -1301,6 +1340,12 @@ export default defineComponent({
       if (saveQuickSettingsTimeout) {
         clearTimeout(saveQuickSettingsTimeout);
         saveQuickSettingsTimeout = null;
+      }
+      
+      // Remove back button listener
+      if (backButtonListener && typeof backButtonListener.remove === 'function') {
+        backButtonListener.remove();
+        console.log('✅ Android back button listener removed from PreviewIcanReceipt');
       }
     });
     
@@ -1759,147 +1804,135 @@ export default defineComponent({
     const shareToSocialMedia = async (platform) => {
       try {
         const shareText = `Check out this receipt from ${organizationName.value || 'SmartDesignPro'}`;
-        const shareUrl = window.location.href;
         
-        // First try to capture and share the image using Web Share API
-        if (navigator.share && invoiceRef.value) {
+        if (!invoiceRef.value) {
+          alert('⚠️ Receipt not found');
+          return;
+        }
+        
+        // Generate receipt image
+        const canvas = await html2canvas(invoiceRef.value, {
+          scale: 2,
+          useCORS: false,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          ignoreElements: (element) => {
+            return element.tagName === 'SCRIPT' || 
+                   element.classList.contains('no-capture');
+          }
+        });
+        
+        // Convert canvas to base64
+        const base64Data = canvas.toDataURL('image/jpeg', 0.95);
+        
+        // Check if running in Capacitor (APK) or web
+        const isNative = Capacitor.isNativePlatform();
+        
+        if (isNative) {
+          // For APK: Use Capacitor Filesystem and Share
           try {
-            // Use html2canvas with CORS handling for better compatibility
-            const canvas = await html2canvas(invoiceRef.value, {
-              scale: 2, // Higher resolution for sharing
-              useCORS: false, // Disable CORS to avoid external CSS issues
-              allowTaint: true, // Allow cross-origin images
-              backgroundColor: '#ffffff',
-              logging: false, // Reduce console noise
-              ignoreElements: (element) => {
-                // Skip elements that might cause CORS issues
-                return element.tagName === 'SCRIPT' || 
-                       element.classList.contains('no-capture');
-              }
+            const fileName = `receipt-${Date.now()}.jpg`;
+            
+            // Save to public Documents directory
+            const savedFile = await Filesystem.writeFile({
+              path: fileName,
+              data: base64Data,
+              directory: Directory.Documents,
+              recursive: true
             });
             
-            // Convert canvas to blob
-            const blob = await new Promise((resolve) => {
-              canvas.toBlob(resolve, 'image/jpeg', 0.95);
-            });
+            console.log('File saved:', savedFile.uri);
             
-            // Create a file from the blob
-            const file = new File([blob], `receipt-${Date.now()}.jpg`, { 
-              type: 'image/jpeg' 
-            });
-            
-            // Try to share using Web Share API with image
-            const shareData = {
+            // Share the image using Capacitor Share API
+            await Share.share({
               title: shareText,
               text: shareText,
-              url: shareUrl,
-              files: [file]
-            };
+              url: savedFile.uri,
+              dialogTitle: 'Share Receipt'
+            });
             
-            // Check if sharing files is supported
-            if (navigator.canShare && navigator.canShare(shareData)) {
-              await navigator.share(shareData);
-              closeMobileShareOptions();
-              closeDesktopShareOptions();
-              return;
-            }
-          } catch (shareError) {
-            console.log('Web Share API with image failed, falling back to platform URLs:', shareError);
-            // Fall through to platform-specific sharing
+            alert('✅ Receipt image shared successfully!');
+            
+          } catch (error) {
+            console.error('Capacitor share error:', error);
+            alert('❌ Failed to share receipt. Please try again.');
           }
-        }
-        
-        // Fallback: Download image and open platform-specific sharing
-        const imageDownloaded = await downloadReceiptImage();
-        
-        let url = '';
-        let message = shareText;
-        
-        // If image was downloaded, update the message
-        if (imageDownloaded) {
-          message = `${shareText} (Receipt image has been downloaded to your device)`;
-        }
-        
-        switch (platform) {
-          case 'WhatsApp':
-            url = `https://wa.me/?text=${encodeURIComponent(message + ' ' + shareUrl)}`;
-            break;
-          case 'Twitter':
-            url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(shareUrl)}`;
-            break;
-          case 'Facebook':
-            url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-            break;
-          case 'LinkedIn':
-            url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
-            break;
-          case 'Telegram':
-            url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
-            break;
-          case 'Email':
-            url = `mailto:?subject=${encodeURIComponent('Receipt Share')}&body=${encodeURIComponent(message + ' ' + shareUrl)}`;
-            break;
-        }
-        
-        if (url) {
-          window.open(url, '_blank', 'noopener,noreferrer');
-        }
-        
-        // Show user feedback about image download
-        if (imageDownloaded) {
-          // Small delay to ensure the share window opens first
+        } else {
+          // For Web/Desktop: Try Web Share API first
+          if (navigator.share && navigator.canShare) {
+            try {
+              // Convert base64 to blob
+              const blob = await (await fetch(base64Data)).blob();
+              const file = new File([blob], `receipt-${Date.now()}.jpg`, { type: 'image/jpeg' });
+              
+              const shareData = {
+                title: shareText,
+                text: shareText,
+                files: [file]
+              };
+              
+              if (navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+                closeMobileShareOptions();
+                closeDesktopShareOptions();
+                return;
+              }
+            } catch (shareError) {
+              console.log('Web Share API failed, falling back:', shareError);
+            }
+          }
+          
+          // Fallback: Download image and open platform URL
+          const link = document.createElement('a');
+          link.download = `receipt-${Date.now()}.jpg`;
+          link.href = base64Data;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Platform-specific sharing URLs
+          let url = '';
+          const shareUrl = window.location.href;
+          const message = `${shareText} (Image downloaded)`;
+          
+          switch (platform) {
+            case 'WhatsApp':
+              url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+              break;
+            case 'Twitter':
+              url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
+              break;
+            case 'Facebook':
+              url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+              break;
+            case 'LinkedIn':
+              url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+              break;
+            case 'Telegram':
+              url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
+              break;
+            case 'Email':
+              url = `mailto:?subject=${encodeURIComponent('Receipt Share')}&body=${encodeURIComponent(message)}`;
+              break;
+          }
+          
+          if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          }
+          
           setTimeout(() => {
-            alert('📸 Receipt image has been downloaded to your device! You can now attach it to your social media post.');
-          }, 1000);
+            alert('📸 Receipt image downloaded! You can attach it to your message.');
+          }, 500);
         }
         
       } catch (error) {
         console.error('Error sharing:', error);
-        
-        // Provide user-friendly error message
-        let errorMessage = 'Sharing failed. ';
-        if (error.message && error.message.includes('CORS')) {
-          errorMessage += 'Please try downloading the receipt image manually and sharing it.';
-        } else {
-          errorMessage += 'Please try again or use a different sharing method.';
-        }
-        
-        alert(errorMessage);
-        
-        // Still try to open the platform URL as fallback
-        const fallbackUrl = shareUrl;
-        if (fallbackUrl && platform !== 'Email') {
-          setTimeout(() => {
-            if (confirm('Would you like to open the sharing platform anyway?')) {
-              let platformUrl = '';
-              switch (platform) {
-                case 'WhatsApp':
-                  platformUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-                  break;
-                case 'Twitter':
-                  platformUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-                  break;
-                case 'Facebook':
-                  platformUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-                  break;
-                case 'LinkedIn':
-                  platformUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
-                  break;
-                case 'Telegram':
-                  platformUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-                  break;
-              }
-              if (platformUrl) {
-                window.open(platformUrl, '_blank', 'noopener,noreferrer');
-              }
-            }
-          }, 500);
-        }
+        alert('❌ Sharing failed. Please try again.');
+      } finally {
+        closeMobileShareOptions();
+        closeDesktopShareOptions();
       }
-      
-      // Close all share dropdowns
-      closeMobileShareOptions();
-      closeDesktopShareOptions();
     };
 
     // Close mobile share options (alias for popup closing)
@@ -6679,11 +6712,13 @@ export default defineComponent({
 
     // Navigation functions
     const viewSavedInvoices = () => {
-      router.push({ name: 'ican-app-saved-invoices', query: router.currentRoute.value.query });
+      const branch = router.currentRoute.value.query.branch || '';
+      router.push({ path: '/ican-app/saved-invoices', query: { branch } });
     };
 
     const viewSavedReceipts = () => {
-      router.push({ name: 'ican-app-saved-receipts', query: router.currentRoute.value.query });
+      const branch = router.currentRoute.value.query.branch || '';
+      router.push({ path: '/ican-app/saved-receipts', query: { branch } });
     };
 
     const createNewInvoice = () => {
@@ -7560,14 +7595,12 @@ section::-webkit-scrollbar-thumb:hover {
 @media print {
   /* Force CMYK color space for print */
   .invoice-content-wrapper {
-    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
   
   /* Ensure backgrounds print */
   * {
-    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

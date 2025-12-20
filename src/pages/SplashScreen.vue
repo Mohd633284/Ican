@@ -50,17 +50,43 @@
 <script>
 import { defineComponent, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { SessionManager } from '../utils/secure-storage.js';
 
 export default defineComponent({
   name: 'SplashScreen',
   setup() {
     const router = useRouter();
 
-    onMounted(() => {
-      // Show splash for 2.5 seconds before redirecting
-      setTimeout(() => {
-        router.replace({ name: 'Home' });
-      }, 2500);
+    const navigateToHome = async () => {
+      try {
+        console.log('🚀 Splash screen navigating to home...');
+        
+        // Wait for router to be ready
+        await router.isReady();
+        console.log('✅ Router is ready');
+        
+        // Use path-based navigation (most reliable in micro-app context)
+        await router.replace('/home');
+        console.log('✅ Navigation successful');
+        
+      } catch (error) {
+        console.error('❌ Navigation failed:', error);
+        
+        // Try push as fallback
+        try {
+          await router.push('/home');
+          console.log('✅ Push navigation successful');
+        } catch (pushError) {
+          console.error('❌ Push failed, using window redirect');
+          window.location.href = '/home';
+        }
+      }
+    };
+
+    onMounted(async () => {
+      // Always show splash screen for 2.5 seconds
+      console.log('🎬 Showing splash screen for 2.5 seconds...');
+      setTimeout(navigateToHome, 2500);
     });
 
     return {};

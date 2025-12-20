@@ -1,31 +1,27 @@
 /**
- * Firebase Configuration for ICAN Micro-App
- * Separate Firebase instance from main SmartDesignPro project
+ * DEPRECATED: This file is no longer used
+ * ICAN now uses the main SmartDesignPro Firebase configuration
+ * 
+ * All ICAN Firebase operations are handled through:
+ * @/config/firebase (main SmartDesignPro Firebase)
+ * 
+ * This file is kept for reference only and should NOT be imported.
+ * If you see imports from this file, replace them with:
+ * import { db, auth } from '@/config/firebase'
  */
 
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+// THIS FILE IS DEPRECATED - DO NOT USE
+const DEPRECATED_NOTICE = `
+⚠️ DEPRECATED: This ICAN Firebase config is no longer used.
+✅ ICAN now uses the main SmartDesignPro Firebase: @/config/firebase
+📦 All ICAN data is stored in the main Firebase with 'ican_' prefix.
+`;
 
-// ICAN Firebase Configuration
-// TODO: Replace with your ICAN Firebase project credentials
-const firebaseConfig = {
-  apiKey: "YOUR_ICAN_API_KEY",
-  authDomain: "YOUR_ICAN_PROJECT.firebaseapp.com",
-  projectId: "YOUR_ICAN_PROJECT_ID",
-  storageBucket: "YOUR_ICAN_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+console.error('❌ DEPRECATED: Do not import from src/views/micro-apps/Ican/src/config/firebase.js');
+console.error(DEPRECATED_NOTICE);
+console.log('✅ Use: import { db, auth } from "@/config/firebase" instead');
 
-// Initialize ICAN Firebase App (separate from SmartDesignPro)
-const icanApp = initializeApp(firebaseConfig, 'ican-app');
-
-// Initialize ICAN Firestore
-export const db = getFirestore(icanApp);
-
-// Initialize ICAN Auth
-export const auth = getAuth(icanApp);
-
-console.log('✅ ICAN Firebase initialized separately from SmartDesignPro');
-console.log('📊 ICAN Project ID:', firebaseConfig.projectId);
+// DO NOT IMPORT FROM THIS FILE
+// Use: import { db, auth } from '@/config/firebase'
+export const db = null;
+export const auth = null;
